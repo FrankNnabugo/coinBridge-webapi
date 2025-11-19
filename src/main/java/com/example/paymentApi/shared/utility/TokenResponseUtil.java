@@ -19,9 +19,7 @@ public class TokenResponseUtil {
         response.setHeader(ACCESS_TOKEN_HEADER, "Bearer " + accessToken);
     }
 
-    /**
-     * Places the refresh token into an HttpOnly, Secure cookie.
-     */
+
     public static void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
         Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE, refreshToken);
         cookie.setHttpOnly(true);
