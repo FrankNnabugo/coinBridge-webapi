@@ -1,0 +1,17 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+CREATE TABLE IF NOT EXISTS users(
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+email_address VARCHAR(50) NOT NULL,
+first_name VARCHAR(36) NOT NULL,
+last_name VARCHAR(36) NOT NULL,
+phone_number VARCHAR(36) NULL,
+profile_photo_url VARCHAR(100) NULL,
+Otp VARCHAR(10) NULL,
+password VARCHAR(36) NOT NULL,
+is_verified BOOLEAN NOT NULL DEFAULT FALSE,
+accepted_terms BOOLEAN NOT NULL,
+otp_expiry_time TIMESTAMP NULL,
+registered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+account_deleted_at TIMESTAMP NULL
+);
