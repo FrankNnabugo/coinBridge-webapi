@@ -1,4 +1,4 @@
-package com.example.paymentApi.config;
+package com.example.paymentApi.shared.config;
 
 import com.example.paymentApi.users.AuthInterceptor;
 import org.modelmapper.ModelMapper;
@@ -25,7 +25,9 @@ public class AppConfig implements WebMvcConfigurer{
                         "/api/*/users/authenticate",
                         "/api/*/users/otp/mail",
                         "/api/*/users/otp/verify",
-                        "/actuator/**"
+                        "/actuator/**",
+                        "/api",
+                        "/api-docs"
                 );
     }
         @Bean
