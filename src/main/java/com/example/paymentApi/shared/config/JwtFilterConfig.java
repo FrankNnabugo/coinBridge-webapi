@@ -1,0 +1,25 @@
+package com.example.paymentApi.shared.config;
+
+import com.example.paymentApi.filter.JwtFilter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class JwtFilterConfig {
+
+    @Bean
+    public FilterRegistrationBean<JwtFilter> jwtFilterRegistration(JwtFilter jwtFilter) {
+        FilterRegistrationBean<JwtFilter> registration = new FilterRegistrationBean<>();
+
+        registration.setFilter(jwtFilter);
+
+        // Apply this filter to all routes
+        registration.addUrlPatterns("/api/*");
+
+        // Ensure it runs before others (except CORS)
+        registration.setOrder(2);
+
+        return registration;
+    }
+}

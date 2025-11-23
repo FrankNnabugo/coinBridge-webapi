@@ -51,120 +51,123 @@ public class ExceptionThrower {
 
 
 
-    public void throwInvalidTokenException(String link) throws GeneralAppException{
+    public void throwInvalidTokenException(String path){
         throw new GeneralAppException(HttpStatus.UNAUTHORIZED,
                 INVALID_TOKEN_ERROR_CODE,
-                INVALID_TOKEN_ERROR, link);
+                INVALID_TOKEN_ERROR,
+                path);
     }
 
-    public void throwNullParameterException(String resourceUrl) throws GeneralAppException{
+    public void throwNullParameterException(String path){
         throw new GeneralAppException(HttpStatus.UNAUTHORIZED,
                 NULL_PARAMETER_ERROR_CODE,
-                NULL_PARAMETER_ERROR, resourceUrl);
+                NULL_PARAMETER_ERROR,
+                path);
     }
 
-    public void throwInvalidEmailAttributeException(String link) throws GeneralAppException {
+    public void throwInvalidEmailAttributeException(String path){
         throw new GeneralAppException(HttpStatus.BAD_REQUEST,
                 INVALID_EMAIL_PARAMETER_ERROR_CODE,
                 INVALID_EMAIL_PARAMETER_ERROR,
-                link);
+                path);
     }
 
-    public void throwInvalidIntegerAttributeException(String link) throws GeneralAppException {
+
+    public void throwInvalidIntegerAttributeException(String path){
         throw new GeneralAppException(HttpStatus.BAD_REQUEST,
                 INVALID_INTEGER_PARAMETER_ERROR_CODE,
                 INVALID_INTEGER_PARAMETER_ERROR,
-                link);
+                path);
     }
 
-    public void throwUserAlreadyExistException(String link) throws GeneralAppException {
+    public void throwUserAlreadyExistException(String path){
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 USER_ALREADY_EXIST_ERROR_CODE,
                 USER_ALREADY_EXIST_ERROR,
-                link
+                path
         );
     }
-    public GeneralAppException throwUserNotFoundExistException(String link) throws GeneralAppException {
+    public GeneralAppException throwUserNotFoundExistException(String path){
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 USER_DOES_NOT_EXIST_ERROR_CODE,
                 USER_DOES_NOT_EXIST_ERROR,
-                link
+                path
         );
     }
 
-    public void throwInvalidLoginException(String link) throws GeneralAppException {
+    public void throwInvalidLoginException(String path){
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 INVALID_LOGIN_CREDENTIALS_ERROR_CODE,
                 INVALID_LOGIN_CREDENTIALS_ERROR,
-                link
+                path
         );
     }
 
-    public void throwUserNotVerifiedException(String link) throws GeneralAppException{
+    public void throwUserNotVerifiedException(String path){
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 USER_NOT_VERIFIED_ERROR_CODE,
                 USER_NOT_VERIFIED_ERROR,
-                link
+                path
         );
     }
 
-    public void throwOtpNotFoundException(String link) throws GeneralAppException{
+    public void throwOtpNotFoundException(String path){
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 OTP_NOT_FOUND_ERROR_CODE,
                 OTP_NOT_FOUND_ERROR,
-                link
+                path
         );
     }
 
-    public void throwOtpExpiredException(String link) throws GeneralAppException {
+    public void throwOtpExpiredException(String path){
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 OTP_EXPIRED_ERROR_CODE,
                 OTP_EXPIRED_ERROR,
-                link
+                path
         );
 
     }
 
-    public void throwInvalidOtpException(String link) throws GeneralAppException {
+    public void throwInvalidOtpException(String path){
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 INVALID_OTP_ERROR_CODE,
                 INVALID_OTP_ERROR,
-                link
+                path
         );
 
     }
 
-    public void throwInvalidRefreshTokenException(String link) throws GeneralAppException {
+    public void throwInvalidRefreshTokenException(String path){
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 INVALID_REFRESH_TOKEN_ERROR_CODE,
                 INVALID_REFRESH_TOKEN_ERROR,
-                link
+                path
         );
     }
 
-    public void throwInvalidPasswordAttributeException(String link) throws GeneralAppException {
+    public void throwInvalidPasswordAttributeException(String path){
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 INVALID_PASSWORD_ERROR_CODE,
                 INVALID_PASSWORD_ERROR,
-                link
+                path
         );
     }
 
-    public void throwTermsNotAcceptedException(String link) throws GeneralAppException{
+    public void throwTermsNotAcceptedException(String path){
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 TERMS_NOT_ACCEPTED_ERROR_CODE,
                 TERMS_NOT_ACCEPTED_ERROR,
-                link
+                path
         );
     }
 }

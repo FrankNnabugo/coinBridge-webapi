@@ -5,9 +5,9 @@ import com.example.paymentApi.shared.HttpRequestUtil;
 import com.example.paymentApi.shared.utility.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -82,8 +82,8 @@ public class UserService {
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        TokenResponseUtil.setAccessTokenHeader(httpServletResponse, accessToken);
-        TokenResponseUtil.setRefreshTokenCookie(httpServletResponse, refreshToken);
+        TokenUtil.setAccessTokenHeader(httpServletResponse, accessToken);
+        TokenUtil.setRefreshTokenCookie(httpServletResponse, refreshToken);
 
         UserResponse userResponse = modelMapper.map(user, UserResponse.class);
         userResponse.setToken(accessToken);
@@ -153,7 +153,7 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(() ->
                 exceptionThrower.throwUserNotFoundExistException(path));
 
-        String refreshToken = TokenResponseUtil.extractRefreshTokenFromRequest(httpServletRequest);
+        String refreshToken = TokenUtil.extractRefreshTokenFromRequest(httpServletRequest);
 
         if (!jwtService.validateRefreshToken(refreshToken)) {
             exceptionThrower.throwInvalidRefreshTokenException(path);
@@ -161,8 +161,8 @@ public class UserService {
         String newAccessToken = jwtService.generateAccessToken(user);
         String newRefreshToken = jwtService.generateRefreshToken(user);
 
-        TokenResponseUtil.setAccessTokenHeader(httpServletResponse, newAccessToken);
-        TokenResponseUtil.setRefreshTokenCookie(httpServletResponse, newRefreshToken);
+        TokenUtil.setAccessTokenHeader(httpServletResponse, newAccessToken);
+        TokenUtil.setRefreshTokenCookie(httpServletResponse, newRefreshToken);
 
         UserResponse response = modelMapper.map(user, UserResponse.class);
         response.setToken(newAccessToken);

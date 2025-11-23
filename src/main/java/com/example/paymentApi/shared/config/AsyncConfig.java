@@ -1,4 +1,4 @@
-package com.example.paymentApi.config;
+package com.example.paymentApi.shared.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
