@@ -1,16 +1,13 @@
 package com.example.paymentApi.shared.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
 import java.time.LocalDateTime;
 
-@JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = JsonTypeInfo.Id.CUSTOM, property = "error", visible = true)
 public class ApiError {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
-    private final LocalDateTime timestamp;
+    private LocalDateTime timestamp = LocalDateTime.now();
     private int status;
     private String error;
     private String message;

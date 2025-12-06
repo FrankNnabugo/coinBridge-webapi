@@ -1,4 +1,4 @@
-package com.example.paymentApi.shared.config;
+package com.example.paymentApi.config;
 
 import com.example.paymentApi.filter.JwtFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

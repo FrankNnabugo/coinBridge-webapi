@@ -2,17 +2,21 @@ package com.example.paymentApi.shared.utility;
 
 import com.example.paymentApi.shared.ExceptionThrower;
 import com.example.paymentApi.shared.HttpRequestUtil;
-import com.example.paymentApi.shared.exception.GeneralAppException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TokenUtil {
 
     private static final String ACCESS_TOKEN_HEADER = "Authorization";
     private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
 
-    private TokenUtil() {
+    private final ExceptionThrower exceptionThrower;
+
+    private TokenUtil(ExceptionThrower exceptionThrower) {
+        this.exceptionThrower = exceptionThrower;
 
     }
 
@@ -50,13 +54,13 @@ public class TokenUtil {
         return null;
     }
 
-    public static String extractTokenFromHeader(HttpServletRequest request) {
+    public String extractTokenFromHeader(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")){
-            throw new RuntimeException("Missing or invalid Authorization header");
-        }
+            exceptionThrower.throwMissingTokenException(HttpRequestUtil.getServletPath());
 
+        }
         return authHeader.substring(7);
     }
 

@@ -1,6 +1,6 @@
-package com.example.paymentApi.shared.config;
+package com.example.paymentApi.config;
 
-import com.example.paymentApi.users.AuthInterceptor;
+import com.example.paymentApi.interceptor.AuthInterceptor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +27,10 @@ public class AppConfig implements WebMvcConfigurer{
                         "/api/*/users/otp/verify",
                         "/actuator/**",
                         "/api",
-                        "/api-docs"
+                        "/api-docs",
+                        "/swagger",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**"
                 );
     }
         @Bean

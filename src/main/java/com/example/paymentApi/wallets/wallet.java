@@ -1,19 +1,18 @@
 package com.example.paymentApi.wallets;
 
 import com.example.paymentApi.shared.enums.Chain;
-import com.example.paymentApi.shared.enums.Token;
 import com.example.paymentApi.users.User;
 import jakarta.persistence.*;
-import org.hibernate.annotations.ColumnTransformers;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "wallets")
-public class wallet{
+public class Wallet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -24,9 +23,8 @@ public class wallet{
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Token token;
+    private String token = "USDC";
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -36,13 +34,32 @@ public class wallet{
     private String walletAddress;
 
     @Column(nullable = false)
-    private String walletProvider="circle";
+    private String walletName;
 
     @Column(nullable = false)
-    private String providerWalletId;
+    private String provider="circle";
 
-    @Column(nullable = false, length = 36)
+    @Column(nullable = false)
+    private String walletId;
+
+    @Column(nullable = false)
+    private String walletSetId;
+
+    private String accountType;
+
+    private String referenceId;
+
+    @Column(nullable = false, precision = 38, scale = 8)
     private BigDecimal totalBalance = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 38, scale = 8 )
+    private BigDecimal reservedBalance = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 38, scale = 8 )
+    private BigDecimal availableBalance = BigDecimal.ZERO;
+
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<WalletReservation> reservations;
 
     @Column(nullable = false)
     private String status = "active";
@@ -56,14 +73,5 @@ public class wallet{
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-
-
-
-
-
-
-
-
 
 }

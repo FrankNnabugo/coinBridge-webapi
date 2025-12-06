@@ -1,9 +1,12 @@
 package com.example.paymentApi.shared.utility;
 
+import org.springframework.stereotype.Component;
+
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+@Component
 public class OtpGenerator{
 
     private static final SecureRandom secureRandom = new SecureRandom();

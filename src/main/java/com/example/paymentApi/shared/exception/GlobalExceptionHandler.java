@@ -1,8 +1,6 @@
 package com.example.paymentApi.shared.exception;
 
-import com.example.paymentApi.shared.exception.authException.ExpiredTokenException;
-import com.example.paymentApi.shared.exception.authException.InvalidTokenException;
-import com.example.paymentApi.shared.exception.authException.MissingTokenException;
+import com.example.paymentApi.shared.HttpRequestUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -16,37 +14,63 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(InvalidTokenException.class)
-    public ResponseEntity<ApiError> handleInvalidToken(InvalidTokenException ex, HttpServletRequest request) {
+    @ExceptionHandler(DuplicateRecordException.class)
+    public ResponseEntity<ApiError> handleDuplicateRecordException(DuplicateRecordException e, HttpServletRequest request) {
         ApiError error = new ApiError(
-                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.BAD_REQUEST.value(),
                 "INVALID_TOKEN",
-                ex.getMessage(),
-                request.getRequestURI()
+                e.getMessage(),
+               //request.getRequestURI()
+                HttpRequestUtil.getServletPath()
         );
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(ExpiredTokenException.class)
-    public ResponseEntity<ApiError> handleExpiredToken(ExpiredTokenException ex, HttpServletRequest request) {
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiError> handleValidationException(ValidationException e, HttpServletRequest request) {
         ApiError error = new ApiError(
                 HttpStatus.UNAUTHORIZED.value(),
                 "TOKEN_EXPIRED",
-                ex.getMessage(),
-                request.getRequestURI()
+                e.getMessage(),
+                //request.getRequestURI()
+                HttpRequestUtil.getServletPath()
         );
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(MissingTokenException.class)
-    public ResponseEntity<ApiError> handleMissingToken(MissingTokenException ex, HttpServletRequest request) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException e, HttpServletRequest request) {
         ApiError error = new ApiError(
-                HttpStatus.UNAUTHORIZED.value(),
-                "MISSING_TOKEN",
-                ex.getMessage(),
-                request.getRequestURI()
+               HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+               "INVALID_TOKEN",
+               //request.getRequestURI()
+                HttpRequestUtil.getServletPath()
         );
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+       return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request){
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                "ILLEGAL_ARGUMENT_EXCEPTION",
+                HttpRequestUtil.getServletPath()
+                );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiError> handleIllegalStateException(IllegalStateException e, HttpServletRequest request){
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                "ILLEGAL_STATE_EXCEPTION",
+                HttpRequestUtil.getServletPath()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
 
@@ -56,19 +80,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 e.getStatus().value(),
                 e.getErrorCode(),
                 e.getMessage(),
-                request.getRequestURI()
+                //request.getRequestURI()
+                HttpRequestUtil.getServletPath()
         );
         return new ResponseEntity<>(error, e.getStatus());
     }
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleOtherExceptions(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleGenericExceptions(Exception e, HttpServletRequest request) {
         ApiError error = new ApiError(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "INTERNAL_SERVER_ERROR",
-                ex.getMessage(),
-                request.getRequestURI()
+                e.getMessage(),
+               //request.getRequestURI()
+                HttpRequestUtil.getServletPath()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }

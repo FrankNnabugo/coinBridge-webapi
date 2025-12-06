@@ -16,6 +16,9 @@ public class ExceptionThrower {
     private static final String INVALID_TOKEN_ERROR_CODE = "1000";
     private static final String INVALID_TOKEN_ERROR = "Invalid or expired token supplied";
 
+    private final String MISSING_TOKEN_ERROR_CODE = "1001";
+    private final String MISSING_TOKEN_ERROR = "Missing or invalid Authorization header";
+
     private static final String TERMS_NOT_ACCEPTED_ERROR_CODE = "1001";
     private static final String TERMS_NOT_ACCEPTED_ERROR = "You must accept the terms and conditions to create an account.";
 
@@ -51,21 +54,21 @@ public class ExceptionThrower {
 
 
 
-    public void throwInvalidTokenException(String path){
+    public void throwInvalidTokenException(String path) throws GeneralAppException {
         throw new GeneralAppException(HttpStatus.UNAUTHORIZED,
                 INVALID_TOKEN_ERROR_CODE,
                 INVALID_TOKEN_ERROR,
                 path);
     }
 
-    public void throwNullParameterException(String path){
+    public void throwNullParameterException(String path) throws GeneralAppException {
         throw new GeneralAppException(HttpStatus.UNAUTHORIZED,
                 NULL_PARAMETER_ERROR_CODE,
                 NULL_PARAMETER_ERROR,
                 path);
     }
 
-    public void throwInvalidEmailAttributeException(String path){
+    public void throwInvalidEmailAttributeException(String path) throws GeneralAppException {
         throw new GeneralAppException(HttpStatus.BAD_REQUEST,
                 INVALID_EMAIL_PARAMETER_ERROR_CODE,
                 INVALID_EMAIL_PARAMETER_ERROR,
@@ -73,14 +76,14 @@ public class ExceptionThrower {
     }
 
 
-    public void throwInvalidIntegerAttributeException(String path){
+    public void throwInvalidIntegerAttributeException(String path) throws GeneralAppException {
         throw new GeneralAppException(HttpStatus.BAD_REQUEST,
                 INVALID_INTEGER_PARAMETER_ERROR_CODE,
                 INVALID_INTEGER_PARAMETER_ERROR,
                 path);
     }
 
-    public void throwUserAlreadyExistException(String path){
+    public void throwUserAlreadyExistException(String path) throws GeneralAppException {
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 USER_ALREADY_EXIST_ERROR_CODE,
@@ -88,7 +91,7 @@ public class ExceptionThrower {
                 path
         );
     }
-    public GeneralAppException throwUserNotFoundExistException(String path){
+    public GeneralAppException throwUserNotFoundExistException(String path) throws GeneralAppException {
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 USER_DOES_NOT_EXIST_ERROR_CODE,
@@ -97,7 +100,7 @@ public class ExceptionThrower {
         );
     }
 
-    public void throwInvalidLoginException(String path){
+    public void throwInvalidLoginException(String path) throws GeneralAppException {
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 INVALID_LOGIN_CREDENTIALS_ERROR_CODE,
@@ -106,7 +109,7 @@ public class ExceptionThrower {
         );
     }
 
-    public void throwUserNotVerifiedException(String path){
+    public void throwUserNotVerifiedException(String path) throws GeneralAppException {
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 USER_NOT_VERIFIED_ERROR_CODE,
@@ -115,7 +118,7 @@ public class ExceptionThrower {
         );
     }
 
-    public void throwOtpNotFoundException(String path){
+    public void throwOtpNotFoundException(String path) throws GeneralAppException {
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 OTP_NOT_FOUND_ERROR_CODE,
@@ -124,7 +127,7 @@ public class ExceptionThrower {
         );
     }
 
-    public void throwOtpExpiredException(String path){
+    public void throwOtpExpiredException(String path) throws GeneralAppException {
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 OTP_EXPIRED_ERROR_CODE,
@@ -134,7 +137,7 @@ public class ExceptionThrower {
 
     }
 
-    public void throwInvalidOtpException(String path){
+    public void throwInvalidOtpException(String path) throws GeneralAppException {
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 INVALID_OTP_ERROR_CODE,
@@ -144,7 +147,7 @@ public class ExceptionThrower {
 
     }
 
-    public void throwInvalidRefreshTokenException(String path){
+    public void throwInvalidRefreshTokenException(String path) throws GeneralAppException {
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 INVALID_REFRESH_TOKEN_ERROR_CODE,
@@ -153,7 +156,7 @@ public class ExceptionThrower {
         );
     }
 
-    public void throwInvalidPasswordAttributeException(String path){
+    public void throwInvalidPasswordAttributeException(String path) throws GeneralAppException {
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 INVALID_PASSWORD_ERROR_CODE,
@@ -162,11 +165,20 @@ public class ExceptionThrower {
         );
     }
 
-    public void throwTermsNotAcceptedException(String path){
+    public void throwTermsNotAcceptedException(String path) throws GeneralAppException {
         throw new GeneralAppException(
                 HttpStatus.BAD_REQUEST,
                 TERMS_NOT_ACCEPTED_ERROR_CODE,
                 TERMS_NOT_ACCEPTED_ERROR,
+                path
+        );
+    }
+
+    public void throwMissingTokenException(String path) {
+        throw new GeneralAppException(
+                HttpStatus.UNAUTHORIZED,
+                MISSING_TOKEN_ERROR_CODE,
+                MISSING_TOKEN_ERROR,
                 path
         );
     }

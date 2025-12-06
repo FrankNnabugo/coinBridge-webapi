@@ -1,7 +1,8 @@
-package com.example.paymentApi.users;
+package com.example.paymentApi.interceptor;
 
 import com.example.paymentApi.shared.ExceptionThrower;
 import com.example.paymentApi.shared.HttpRequestUtil;
+import com.example.paymentApi.users.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;

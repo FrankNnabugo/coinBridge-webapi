@@ -1,4 +1,4 @@
-package com.example.paymentApi.shared.config;
+package com.example.paymentApi.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
