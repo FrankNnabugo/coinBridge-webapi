@@ -16,13 +16,11 @@ public class UserResponse{
 
     private String Otp;
 
-    private String Password;
-
     private boolean isVerified;
 
     private boolean acceptedTerms;
 
-    private String token;
+    private String accessToken;
 
     private String refreshToken;
 
@@ -82,14 +80,6 @@ public class UserResponse{
         Otp = otp;
     }
 
-    public String getPassword() {
-        return Password;
-    }
-
-    public void setPassword(String password) {
-        Password = password;
-    }
-
     public boolean isVerified() {
         return isVerified;
     }
@@ -106,12 +96,12 @@ public class UserResponse{
         this.acceptedTerms = acceptedTerms;
     }
 
-    public String getToken() {
-        return token;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public String getRefreshToken() {

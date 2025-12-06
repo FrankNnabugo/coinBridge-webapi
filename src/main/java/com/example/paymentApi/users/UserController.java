@@ -1,6 +1,8 @@
 package com.example.paymentApi.users;
 
 import com.example.paymentApi.shared.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users/")
+@Tag(name = "user authentication", description = "user authentication controller endpoint")
 public class UserController {
     private final UserService userService;
 
@@ -15,6 +18,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Operation(summary = "user signup")
     @PostMapping
     public ApiResponse<UserResponse> signUp(@RequestBody UserRequest userRequest){
         UserResponse response = userService.signUp(userRequest);

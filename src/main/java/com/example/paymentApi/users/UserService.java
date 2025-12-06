@@ -1,5 +1,6 @@
 package com.example.paymentApi.users;
 
+import com.example.paymentApi.messaging.EmailService;
 import com.example.paymentApi.shared.ExceptionThrower;
 import com.example.paymentApi.shared.HttpRequestUtil;
 import com.example.paymentApi.shared.utility.*;
@@ -86,7 +87,7 @@ public class UserService {
         TokenUtil.setRefreshTokenCookie(httpServletResponse, refreshToken);
 
         UserResponse userResponse = modelMapper.map(user, UserResponse.class);
-        userResponse.setToken(accessToken);
+        userResponse.setAccessToken(accessToken);
         userResponse.setRefreshToken(refreshToken);
         return userResponse;
 
@@ -165,7 +166,7 @@ public class UserService {
         TokenUtil.setRefreshTokenCookie(httpServletResponse, newRefreshToken);
 
         UserResponse response = modelMapper.map(user, UserResponse.class);
-        response.setToken(newAccessToken);
+        response.setAccessToken(newAccessToken);
         response.setRefreshToken(newRefreshToken);
         return response;
 

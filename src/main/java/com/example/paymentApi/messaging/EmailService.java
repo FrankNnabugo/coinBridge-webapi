@@ -1,4 +1,5 @@
-package com.example.paymentApi.shared.utility;
+package com.example.paymentApi.messaging;
+import com.example.paymentApi.shared.utility.GeneralLogger;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,7 +24,7 @@ public class EmailService{
     }
 
     @Async
-    @Transactional(propagation = Propagation.SUPPORTS)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void sendOtpEmail(String toEmail, String otpCode, String expiryTime) {
         try {
 
