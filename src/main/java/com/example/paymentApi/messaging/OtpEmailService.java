@@ -12,12 +12,12 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 @Service
-public class EmailService{
+public class OtpEmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
     private final GeneralLogger logger;
 
-    public EmailService(JavaMailSender mailSender, TemplateEngine templateEngine, GeneralLogger logger) {
+    public OtpEmailService(JavaMailSender mailSender, TemplateEngine templateEngine, GeneralLogger logger) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
         this.logger = logger;

@@ -1,6 +1,7 @@
 package com.example.paymentApi.users;
 
-import com.example.paymentApi.messaging.EmailService;
+import com.example.paymentApi.event.user.UserCreatedEventPublisher;
+import com.example.paymentApi.messaging.OtpEmailService;
 import com.example.paymentApi.shared.ExceptionThrower;
 import com.example.paymentApi.shared.HttpRequestUtil;
 import com.example.paymentApi.shared.utility.*;
@@ -20,11 +21,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final Verifier verifier;
     private final PasswordHashUtil passwordHashUtil;
-    private final EmailService emailService;
+    private final OtpEmailService emailService;
+    private final UserCreatedEventPublisher userCreatedEventPublisher;
 
     public UserService(ModelMapper modelMapper, JwtService jwtService,
                        ExceptionThrower exceptionThrower, UserRepository userRepository,
-                       Verifier verifier, PasswordHashUtil passwordHashUtil, EmailService emailService) {
+                       Verifier verifier, PasswordHashUtil passwordHashUtil, OtpEmailService emailService,
+                       UserCreatedEventPublisher userCreatedEventPublisher) {
         this.modelMapper = modelMapper;
         this.jwtService = jwtService;
         this.exceptionThrower = exceptionThrower;
@@ -32,6 +35,7 @@ public class UserService {
         this.verifier = verifier;
         this.passwordHashUtil = passwordHashUtil;
         this.emailService = emailService;
+        this.userCreatedEventPublisher = userCreatedEventPublisher;
     }
 
 
@@ -63,7 +67,11 @@ public class UserService {
         user.setAcceptedTerms(userRequest.getAcceptedTerms());
 
         User savedUser = userRepository.save(user);
+
+        //userCreatedEventPublisher.publishUserCreatedEvent(user.getId());
+
         return modelMapper.map(savedUser, UserResponse.class);
+
     }
 
     public UserResponse login(LoginRequest loginRequest, HttpServletResponse httpServletResponse) {

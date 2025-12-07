@@ -1,80 +1,52 @@
 package com.example.paymentApi.wallets;
 
 import com.example.paymentApi.users.User;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity
-@Table(name = "wallets")
-public class Wallet {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name = "id", nullable = false, length = 36)
+public class WalletResponse {
     private String id;
 
-    @OneToOne()
-    @JoinColumn(nullable = false, name = "user_id")
+    private String userId;
+
     private User user;
 
-    @Column(nullable = false, length = 36)
-    private String token = "USDC";
+    private String token;
 
-    @Column(nullable = false, length = 36)
     private String blockchain;
 
-    @Column(length = 36)
     private String state;
 
-    @Column(nullable = false)
     private String custodyType;
 
-    @Column(nullable = false)
     private String accountType;
 
-    @Column(nullable = false, length = 255)
     private String address;
 
-    @Column(nullable = false, length = 36)
     private String walletName;
 
-    @Column(nullable = false)
-    private String provider="circle";
+    private String provider;
 
-    @Column(nullable = false, length = 45)
     private String walletSetId;
 
-    @Column(nullable = false, length = 100)
     private String circleWalletId;
 
-    @Column(length = 100)
     private String referenceId;
 
-    @Column(nullable = false, precision = 38, scale = 8)
-    private BigDecimal totalBalance = BigDecimal.ZERO;
+    private BigDecimal totalBalance;
 
-    @Column(nullable = false, precision = 38, scale = 8 )
-    private BigDecimal reservedBalance = BigDecimal.ZERO;
+    private BigDecimal reservedBalance;
 
-    @Column(nullable = false, precision = 38, scale = 8 )
-    private BigDecimal availableBalance = BigDecimal.ZERO;
+    private BigDecimal availableBalance;
 
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WalletReservation> reservations;
 
-    @Column(nullable = false)
-    private String status = "active";
+    private String status;
 
-    @CreationTimestamp
-    @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
     private LocalDateTime updatedAt;
 
     public String getId() {
@@ -85,13 +57,6 @@ public class Wallet {
         this.id = id;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     public String getToken() {
         return token;
@@ -227,6 +192,22 @@ public class Wallet {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getCircleWalletId() {

@@ -41,8 +41,7 @@ public class CircleWalletService {
 
     }
 
-
-    public Mono<CircleWalletSetResponse> createWalletSet(String userId) {
+    public Mono<CircleWalletResponse> createCircleWallet(String userId) {
         try {
             String idempotencyKey = idempotencyUtil.getOrCreateKey(userId);
             String cleanedKey = PublicKeyFormatter.formatPublicKey(circlePublicKey);
@@ -68,56 +67,41 @@ public class CircleWalletService {
 
                             ))
                     .retrieve()
-                    .bodyToMono(CircleWalletSetResponse.class);
+                    .bodyToMono(CircleWalletSetResponse.class)
+                    .flatMap(data -> {
+                        String walletSetId = data.getId();
+
+                        CircleWalletRequest walletData = new CircleWalletRequest(
+                                idempotencyKey,
+                                "SCA",
+                                new String[]{"MATIC-MUMBAI"},
+                                2,
+                                entitySecretCipherText,
+                                walletSetId
+                        );
+
+                        return webClient.post()
+                                .uri(circleWalletUrl)
+                                .header("accept: application/json")
+                                .header("content-type: application/json")
+                                .header("Authorization", "Bearer " + apiKey)
+                                .bodyValue(Map.of(
+                                        "idempotency", walletData.idempotencyKey(),
+                                        "accountType", walletData.accountType(),
+                                        "blockchains", walletData.blockchains(),
+                                        "count", walletData.count(),
+                                        "entitySecretCipherText", walletData.entitySecretCiphertext(),
+                                        "walletSetId", walletData.walletSetId()
+
+                                ))
+                                .retrieve()
+                                .bodyToMono(CircleWalletResponse.class);
+                    });
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
-
-   public Mono<CircleWalletResponse> createWallet(String userId) {
-       try {
-
-           String idempotencyKey = idempotencyUtil.getOrCreateKey(userId);
-           String cleanedKey = PublicKeyFormatter.formatPublicKey(circlePublicKey);
-           PublicKey publicKey = entitySecretCipherTextUtil.loadCirclePublicKey(cleanedKey);
-           byte[] entitySecretBytes = entitySecretCipherTextUtil.decodeEntitySecret(entitySecret);
-           String entitySecretCipherText = entitySecretCipherTextUtil.encryptEntitySecret(publicKey, entitySecretBytes);
-
-           CircleWalletRequest body = new CircleWalletRequest(
-                   idempotencyKey,
-                   "SCA",
-                  new String[] {"MATIC-MUMBAI"},
-                   2,
-                   entitySecretCipherText,
-                   "id"
-           );
-
-
-           return webClient.post()
-                   .uri(circleWalletUrl)
-                   .header("accept: application/json")
-                   .header("content-type: application/json")
-                   .header("Authorization", "Bearer " + apiKey)
-                   .bodyValue(Map.of(
-                           "idempotency", body.idempotencyKey(),
-                           "accountType", body.accountType(),
-                           "blockchains", body.blockchains(),
-                           "count", body.count(),
-                           "entitySecretCipherText", body.entitySecretCiphertext(),
-                           "walletSetId", body.walletSetId()
-
-                   ))
-                   .retrieve()
-                   .bodyToMono(CircleWalletResponse.class);
-
-       }
-       catch (Exception e) {
-           throw new RuntimeException(e);
-       }
-   }
-
 
 }
 
