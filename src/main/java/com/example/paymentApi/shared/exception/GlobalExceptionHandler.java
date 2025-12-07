@@ -18,7 +18,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiError> handleDuplicateRecordException(DuplicateRecordException e, HttpServletRequest request) {
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
-                "INVALID_TOKEN",
+                "DUPLICATE_RECORD_ERROR",
                 e.getMessage(),
                //request.getRequestURI()
                 HttpRequestUtil.getServletPath()
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ApiError> handleValidationException(ValidationException e, HttpServletRequest request) {
         ApiError error = new ApiError(
                 HttpStatus.UNAUTHORIZED.value(),
-                "TOKEN_EXPIRED",
+                "VALIDATION_ERROR",
                 e.getMessage(),
                 //request.getRequestURI()
                 HttpRequestUtil.getServletPath()
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ApiError error = new ApiError(
                HttpStatus.BAD_REQUEST.value(),
                 e.getMessage(),
-               "INVALID_TOKEN",
+               "RESOURCE_NOT_FOUND_ERROR",
                //request.getRequestURI()
                 HttpRequestUtil.getServletPath()
         );
@@ -55,7 +55,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 e.getMessage(),
-                "ILLEGAL_ARGUMENT_EXCEPTION",
+                "ILLEGAL_ARGUMENT_ERROR",
                 HttpRequestUtil.getServletPath()
                 );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 e.getMessage(),
-                "ILLEGAL_STATE_EXCEPTION",
+                "ILLEGAL_STATE_ERROR",
                 HttpRequestUtil.getServletPath()
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);

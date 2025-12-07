@@ -5,8 +5,6 @@ import java.time.LocalDateTime;
 public class CircleWalletResponse {
     private String id;
 
-    private String walletId;
-
     private String address;
 
     private String blockchain;
@@ -36,28 +34,12 @@ public class CircleWalletResponse {
         this.id = id;
     }
 
-    public String getWalletId() {
-        return walletId;
-    }
-
-    public void setWalletId(String walletId) {
-        this.walletId = walletId;
-    }
-
     public String getAddress() {
         return address;
     }
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getBlockchain() {
-        return blockchain;
-    }
-
-    public void setBlockChain(String blockchain) {
-        this.blockchain = blockchain;
     }
 
     public String getWalletName() {
@@ -122,5 +104,13 @@ public class CircleWalletResponse {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getBlockchain() {
+        return blockchain;
+    }
+
+    public void setBlockchain(String blockchain) {
+        this.blockchain = blockchain;
     }
 }
