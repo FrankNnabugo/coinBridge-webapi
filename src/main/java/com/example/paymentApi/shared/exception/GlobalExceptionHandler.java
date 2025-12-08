@@ -39,7 +39,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException e) {
         ApiError error = new ApiError(
                HttpStatus.BAD_REQUEST.value(),
                 e.getMessage(),
@@ -63,7 +63,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ApiError> handleIllegalStateException(IllegalStateException e, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleIllegalStateException(IllegalStateException e){
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 e.getMessage(),

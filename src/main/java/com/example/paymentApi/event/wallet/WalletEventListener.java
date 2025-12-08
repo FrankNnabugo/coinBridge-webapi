@@ -15,8 +15,9 @@ public class WalletEventListener {
 
     @Async
     @EventListener
-    public void handleWalletCreatedEvent(WalletCreatedEvent event, String userId){
-        walletService.createWallet(event.getCircleWalletResponse(), userId);
+    public void handleWalletCreatedEvent(WalletCreatedEvent event){
+        walletService.createWallet(event.getCircleWalletResponse(),
+                event.getUserId());
 
     }
 }

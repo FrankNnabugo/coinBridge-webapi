@@ -68,7 +68,7 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
-        //userCreatedEventPublisher.publishUserCreatedEvent(user.getId());
+        userCreatedEventPublisher.publishUserCreatedEvent(user.getId());
 
         return modelMapper.map(savedUser, UserResponse.class);
 

@@ -1,6 +1,6 @@
 package com.example.paymentApi.event.user;
 
-public class UserCreatedEvent {
+public class UserCreatedEvent<T> {
 
     private final String userId;
 

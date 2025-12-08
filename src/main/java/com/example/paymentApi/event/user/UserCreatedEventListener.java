@@ -24,10 +24,14 @@ public class UserCreatedEventListener {
     }
     @Async
     @EventListener
-    public void handleUserCreatedEvent(UserCreatedEvent event, CircleWalletResponse circleWalletResponse){
+    public void handleUserCreatedEvent(UserCreatedEvent event){
         circleWalletService.createCircleWallet(event.getUserId())
-                .doOnSuccess(response-> walletEventPublisher.publishWalletCreatedEvent(circleWalletResponse, event.getUserId()))
-                .doOnError(error-> log.error("failed", error))
+                .doOnSuccess(CircleResponse->{
+                    WalletCreatedEvent walletEvent = new WalletCreatedEvent(
+                            CircleResponse, event.getUserId());
+                    walletEventPublisher.publishWalletCreatedEvent(walletEvent);
+                })
+                .doOnError(error-> log.error("failed to create Circle wallet", error))
                 .subscribe();
                 };
 

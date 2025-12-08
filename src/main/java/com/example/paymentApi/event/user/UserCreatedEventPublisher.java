@@ -13,6 +13,6 @@ public class UserCreatedEventPublisher {
     }
 
     public void publishUserCreatedEvent(String userId){
-        publisher.publishEvent(new UserCreatedEvent(userId));
+        publisher.publishEvent(new UserCreatedEvent<>(userId));
     }
 }
