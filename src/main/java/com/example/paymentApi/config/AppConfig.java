@@ -22,7 +22,7 @@ public class AppConfig implements WebMvcConfigurer{
         registry.addInterceptor(authInterceptor)
                 .excludePathPatterns(
                         "/api/*/users",
-                        "/api/*/users/authenticate",
+                        "/api/*/users/login",
                         "/api/*/users/otp/mail",
                         "/api/*/users/otp/verify",
                         "/actuator/**",

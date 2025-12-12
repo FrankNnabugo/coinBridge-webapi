@@ -1,4 +1,4 @@
-package com.example.paymentApi.integration;
+package com.example.paymentApi.circle;
 
 import com.example.paymentApi.shared.utility.EntitySecretCipherTextUtil;
 import com.example.paymentApi.shared.utility.IdempotencyUtil;
@@ -31,13 +31,10 @@ public class CircleWalletService {
 
     private final WebClient webClient;
     private final IdempotencyUtil idempotencyUtil;
-    private final EntitySecretCipherTextUtil entitySecretCipherTextUtil;
 
-    public CircleWalletService(WebClient webClient, IdempotencyUtil idempotencyUtil,
-                               EntitySecretCipherTextUtil entitySecretCipherTextUtil) {
+    public CircleWalletService(WebClient webClient, IdempotencyUtil idempotencyUtil) {
         this.webClient = webClient;
         this.idempotencyUtil = idempotencyUtil;
-        this.entitySecretCipherTextUtil = entitySecretCipherTextUtil;
 
     }
 
@@ -45,9 +42,9 @@ public class CircleWalletService {
         try {
             String idempotencyKey = idempotencyUtil.getOrCreateKey(userId);
             String cleanedKey = PublicKeyFormatter.formatPublicKey(circlePublicKey);
-            PublicKey publicKey = entitySecretCipherTextUtil.loadCirclePublicKey(cleanedKey);
-            byte[] entitySecretBytes = entitySecretCipherTextUtil.decodeEntitySecret(entitySecret);
-            String entitySecretCipherText = entitySecretCipherTextUtil.encryptEntitySecret(publicKey, entitySecretBytes);
+            PublicKey publicKey = EntitySecretCipherTextUtil.loadCirclePublicKey(cleanedKey);
+            byte[] entitySecretBytes = EntitySecretCipherTextUtil.decodeEntitySecret(entitySecret);
+            String entitySecretCipherText = EntitySecretCipherTextUtil.encryptEntitySecret(publicKey, entitySecretBytes);
 
             CircleWalletSetRequest body = new CircleWalletSetRequest(
                     idempotencyKey,

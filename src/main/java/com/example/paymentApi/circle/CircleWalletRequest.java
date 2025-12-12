@@ -1,4 +1,4 @@
-package com.example.paymentApi.integration;
+package com.example.paymentApi.circle;
 
 public record CircleWalletRequest(
         String idempotencyKey,

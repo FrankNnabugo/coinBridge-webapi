@@ -1,6 +1,6 @@
 package com.example.paymentApi.wallets;
 
-import com.example.paymentApi.integration.CircleWalletResponse;
+import com.example.paymentApi.circle.CircleWalletResponse;
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.users.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -8,7 +8,6 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -37,7 +36,7 @@ public class WalletService {
         wallet.setWalletSetId(circleWalletResponse.getWalletSetId());
         wallet.setReferenceId(circleWalletResponse.getReferenceId());
 
-        Wallet savedWallet = walletRepository.save(wallet);
+        walletRepository.save(wallet);
     }
 
     public WalletResponse getWallet(String id) {

@@ -1,21 +1,23 @@
-package com.example.paymentApi.event.wallet;
+package com.example.paymentApi.event.listeners;
 
+import com.example.paymentApi.event.wallet.WalletCreationEvent;
 import com.example.paymentApi.wallets.WalletService;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WalletEventListener {
+public class WalletCreationEventListener {
     private final WalletService walletService;
 
-    public WalletEventListener(WalletService walletService){
+    public WalletCreationEventListener(WalletService walletService){
         this.walletService = walletService;
     }
 
+
     @Async
     @EventListener
-    public void handleWalletCreatedEvent(WalletCreatedEvent event){
+    public void handleWalletCreatedEvent(WalletCreationEvent event){
         walletService.createWallet(event.getCircleWalletResponse(),
                 event.getUserId());
 

@@ -2,6 +2,8 @@ package com.example.paymentApi.shared.utility;
 
 import com.example.paymentApi.shared.ExceptionThrower;
 import com.example.paymentApi.shared.exception.GeneralAppException;
+import com.example.paymentApi.shared.exception.IllegalArgumentException;
+import com.example.paymentApi.shared.exception.NullParameterException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,8 +12,8 @@ import java.util.regex.Pattern;
 
 @Component
 public class Verifier {
-    private final ExceptionThrower exceptionThrower;
-    private String resourceUrl;
+
+    private String url;
 
     public static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
@@ -22,86 +24,84 @@ public class Verifier {
             Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,}$");
 
 
-    @Autowired
-    public Verifier(ExceptionThrower exceptionThrower) {
-        this.exceptionThrower = exceptionThrower;
-    }
-
-    public Verifier setResourceUrl(String resourceUrl) {
-        this.resourceUrl = resourceUrl;
+    public Verifier setResourceUrl(String url) {
+        this.url = url;
         return this;
     }
 
-    public void verifyParams(String... params) throws GeneralAppException {
+    public void verifyParams(String... params){
         for (String param : params) {
             if (param == null || param.isEmpty()) {
-                exceptionThrower.throwNullParameterException(resourceUrl);
+                throw new NullParameterException("Please provide all the required information");
             }
         }
     }
 
-    public void isValidString(String param){
+    public static void isValidString(String param){
         if(param != null && !param.isEmpty()){
-            exceptionThrower.throwNullParameterException(resourceUrl);
+            throw new NullParameterException("Please provide all the required information");
         };
     }
 
-    public void verifyObject(Object... objects) throws GeneralAppException {
+    public static void verifyObject(Object... objects){
         for (Object object : objects) {
             if (object == null) {
-                exceptionThrower.throwNullParameterException(resourceUrl);
+               throw new NullParameterException("Please provide all the required information");
             }
         }
     }
 
-    public void verifyInteger(String... params) throws GeneralAppException {
+    public static void verifyInteger(String... params){
         for (String param : params) {
             try {
                 Integer.parseInt(param);
             } catch (Exception e) {
-                exceptionThrower.throwInvalidIntegerAttributeException(resourceUrl);
+               throw new IllegalArgumentException("A number is expected, please provided a valid number");
             }
         }
     }
 
-    public void verifyIntGreaterThanZero(int param) throws GeneralAppException {
-        if (param < 1) exceptionThrower.throwInvalidIntegerAttributeException(resourceUrl);
+    public void verifyIntGreaterThanZero(int param){
+        if (param < 1){
+            throw new IllegalArgumentException("A number is expected, please provided a valid number");
+        }
     }
 
-    public void verifyEmail(String param) throws GeneralAppException {
+    public static void verifyEmail(String param){
         if (param == null || param.isEmpty()) {
-            exceptionThrower.throwNullParameterException(resourceUrl);
+           throw new NullParameterException("email cannot be empty");
         }
 
         if (!patternMatches(param)) {
-            exceptionThrower.throwInvalidEmailAttributeException(resourceUrl);
+            throw new IllegalArgumentException("Invalid email format provided");
         }
 
     }
 
-    private static boolean patternMatches(String emailAddress) {
+    private static boolean patternMatches(String emailAddress){
         Matcher matcher = VALID_EMAIL_ADDRESS_REGEX.matcher(emailAddress);
         return matcher.matches();
     }
 
 
-    public void verifyOtpFormat(String resourceUrl, String otp) throws GeneralAppException {
+    public static void verifyOtpFormat(String otp){
         if (otp == null || otp.isEmpty()) {
-            exceptionThrower.throwNullParameterException(resourceUrl);
+            throw new NullParameterException("Otp cannot be empty");
         }
-        if (otp != null && !OTP_PATTERN.matcher(otp).matches()) {
-            exceptionThrower.throwInvalidIntegerAttributeException(resourceUrl);
+        if (!OTP_PATTERN.matcher(otp).matches()) {
+            throw new IllegalArgumentException("Invalid Otp format, please provide a valid Otp");
         }
     }
 
 
-    public void verifyPasswordFormat(String resourceUrl, String password) throws GeneralAppException {
+    public static void verifyPasswordFormat(String password){
         if (password == null || password.isEmpty()) {
-            exceptionThrower.throwNullParameterException(resourceUrl);
+            throw new NullParameterException("Password cannot be empty");
         }
 
-        if (password != null && !PASSWORD_PATTERN.matcher(password).matches()) {
-            exceptionThrower.throwInvalidPasswordAttributeException(resourceUrl);
+        if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            throw new IllegalArgumentException("Password must contain at least 1 uppercase letter, " +
+                    "lowercase letter, number, and special character, and must be at least 6 characters long");
         }
     }
 

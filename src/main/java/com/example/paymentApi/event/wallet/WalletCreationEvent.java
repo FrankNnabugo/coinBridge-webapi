@@ -1,14 +1,14 @@
 package com.example.paymentApi.event.wallet;
 
-import com.example.paymentApi.integration.CircleWalletResponse;
+import com.example.paymentApi.circle.CircleWalletResponse;
 
-public class WalletCreatedEvent {
+public class WalletCreationEvent {
 
     private final String userId;
 
     private final CircleWalletResponse circleWalletResponse;
 
-    public WalletCreatedEvent(CircleWalletResponse circleWalletResponse, String userId){
+    public WalletCreationEvent(CircleWalletResponse circleWalletResponse, String userId){
         this.circleWalletResponse = circleWalletResponse;
         this.userId = userId;
     }
