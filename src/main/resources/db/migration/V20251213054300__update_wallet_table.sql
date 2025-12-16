@@ -1,0 +1,6 @@
+BEGIN;
+
+ALTER TABLE wallets
+ALTER COLUMN wallet_name DROP NOT NULL;
+
+COMMIT;

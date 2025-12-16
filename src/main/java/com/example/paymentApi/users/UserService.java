@@ -1,9 +1,12 @@
 package com.example.paymentApi.users;
 
-import com.example.paymentApi.event.user.UserCreatedEventPublisher;
+import com.example.paymentApi.event.user.UserEventPublisher;
 import com.example.paymentApi.messaging.OtpEmailService;
 import com.example.paymentApi.shared.ExceptionThrower;
 import com.example.paymentApi.shared.HttpRequestUtil;
+import com.example.paymentApi.shared.exception.DuplicateRecordException;
+import com.example.paymentApi.shared.exception.ResourceNotFoundException;
+import com.example.paymentApi.shared.exception.ValidationException;
 import com.example.paymentApi.shared.utility.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.stream.Stream;
 
 @Service
 public class UserService {
@@ -22,12 +26,12 @@ public class UserService {
     private final Verifier verifier;
     private final PasswordHashUtil passwordHashUtil;
     private final OtpEmailService emailService;
-    private final UserCreatedEventPublisher userCreatedEventPublisher;
+    private final UserEventPublisher userCreatedEventPublisher;
 
     public UserService(ModelMapper modelMapper, JwtService jwtService,
                        ExceptionThrower exceptionThrower, UserRepository userRepository,
                        Verifier verifier, PasswordHashUtil passwordHashUtil, OtpEmailService emailService,
-                       UserCreatedEventPublisher userCreatedEventPublisher) {
+                       UserEventPublisher userCreatedEventPublisher) {
         this.modelMapper = modelMapper;
         this.jwtService = jwtService;
         this.exceptionThrower = exceptionThrower;
@@ -39,23 +43,24 @@ public class UserService {
     }
 
 
-    public UserResponse signUp(UserRequest userRequest) {
+    public SignUpResponse signUp(UserRequest userRequest) {
         String path = HttpRequestUtil.getServletPath();
 
         userRepository.findByEmailAddress(userRequest.getEmailAddress())
-                .ifPresent(user ->
-                        exceptionThrower.throwUserAlreadyExistException(path));
-        verifier.setResourceUrl(HttpRequestUtil.getServletPath()).verifyParams(
+                .ifPresent(user-> {
+                    throw new DuplicateRecordException("user already exist");
+                });
+        verifier.verifyParams(
                 userRequest.getFirstName(),
                 userRequest.getLastName(),
                 userRequest.getPassword(),
                 userRequest.getPhoneNumber()
         );
-        verifier.verifyEmail(userRequest.getEmailAddress());
-        verifier.verifyPasswordFormat(userRequest.getPassword(), path);
+        Verifier.verifyEmail(userRequest.getEmailAddress());
+        Verifier.verifyPasswordFormat(userRequest.getPassword());
 
         if (!userRequest.getAcceptedTerms()) {
-            exceptionThrower.throwTermsNotAcceptedException(path);
+            throw new ValidationException("You must accept terms and conditions to create an account.");
         }
 
         User user = new User();
@@ -68,9 +73,9 @@ public class UserService {
 
         User savedUser = userRepository.save(user);
 
-        //userCreatedEventPublisher.publishUserCreatedEvent(user.getId());
+        userCreatedEventPublisher.publishUserCreatedEvent(user.getId());
 
-        return modelMapper.map(savedUser, UserResponse.class);
+        return modelMapper.map(savedUser, SignUpResponse.class);
 
     }
 
@@ -108,7 +113,7 @@ public class UserService {
         User user = userRepository.findByEmailAddress(emailAddress).orElseThrow(() ->
                 exceptionThrower.throwUserNotFoundExistException(path));
 
-                verifier.verifyEmail(emailAddress);
+                Verifier.verifyEmail(emailAddress);
 
         OtpGenerator.OtpData otp = OtpGenerator.generateOtp();
 
@@ -142,8 +147,8 @@ public class UserService {
             exceptionThrower.throwInvalidOtpException(path);
         }
 
-        verifier.verifyOtpFormat(otp, path);
-        verifier.verifyEmail(emailAddress);
+        Verifier.verifyOtpFormat(otp);
+        Verifier.verifyEmail(emailAddress);
 
 
         user.setVerified(true);
@@ -156,7 +161,8 @@ public class UserService {
 
     }
 
-    public UserResponse refreshToken(String id, HttpServletResponse httpServletResponse, HttpServletRequest httpServletRequest) {
+    public UserResponse refreshToken(String id, HttpServletResponse httpServletResponse,
+                                     HttpServletRequest httpServletRequest) {
         String path = HttpRequestUtil.getServletPath();
 
         User user = userRepository.findById(id).orElseThrow(() ->
@@ -205,7 +211,7 @@ public class UserService {
         User user = userRepository.findById(id).orElseThrow(() ->
                 exceptionThrower.throwUserNotFoundExistException(path));
 
-        verifier.verifyOtpFormat(newOtp, path);
+        Verifier.verifyOtpFormat(newOtp);
 
         if (user.getOtp() == null) {
             exceptionThrower.throwOtpNotFoundException(path);
@@ -219,7 +225,7 @@ public class UserService {
             exceptionThrower.throwOtpExpiredException(path);
 
         }
-        verifier.verifyPasswordFormat(newPassword, path);
+        Verifier.verifyPasswordFormat(newPassword);
 
         user.setPassword(passwordHashUtil.hashPassword(newPassword));
         user.setOtp(null);
@@ -227,6 +233,14 @@ public class UserService {
         userRepository.save(user);
 
         return "Password Reset successfully";
+    }
+
+    public String deleteUser(String id){
+        User user = userRepository.findById(id).orElseThrow(()->
+                new ResourceNotFoundException("User not found"));
+        userRepository.delete(user);
+
+        return "Wallet creation failed, user deleted & process rolled back";
     }
 
 }

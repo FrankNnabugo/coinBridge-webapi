@@ -18,7 +18,7 @@ public class EntitySecretCipherTextUtil{
     /**
      * Convert Circle's public key string (Base64) into a PublicKey object
      */
-    public PublicKey loadCirclePublicKey(String base64PublicKey) throws Exception {
+    public static PublicKey loadCirclePublicKey(String base64PublicKey) throws Exception {
 
         byte[] keyBytes = Base64.getDecoder().decode(base64PublicKey);
         X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
@@ -28,7 +28,7 @@ public class EntitySecretCipherTextUtil{
     /**
      * Encrypt the 32-byte entity secret using RSA-OAEP-SHA256
      */
-    public String encryptEntitySecret(PublicKey publicKey, byte[] entitySecret) throws Exception {
+    public static String encryptEntitySecret(PublicKey publicKey, byte[] entitySecret) throws Exception {
         if (entitySecret.length != 32) {
             throw new IllegalArgumentException("Entity secret must be exactly 32 bytes");
         }
@@ -51,7 +51,7 @@ public class EntitySecretCipherTextUtil{
     /**
      * Helper to convert Base64 32-byte secret string to raw bytes
      */
-    public byte[] decodeEntitySecret(String base64Secret) {
+    public static byte[] decodeEntitySecret(String base64Secret) {
         return Base64.getDecoder().decode(base64Secret);
     }
 

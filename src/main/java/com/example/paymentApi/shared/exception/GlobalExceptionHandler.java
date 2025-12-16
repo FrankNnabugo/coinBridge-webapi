@@ -20,7 +20,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.BAD_REQUEST.value(),
                 "DUPLICATE_RECORD_ERROR",
                 e.getMessage(),
-               //request.getRequestURI()
                 HttpRequestUtil.getServletPath()
         );
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
@@ -32,19 +31,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.UNAUTHORIZED.value(),
                 "VALIDATION_ERROR",
                 e.getMessage(),
-                //request.getRequestURI()
                 HttpRequestUtil.getServletPath()
         );
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleResourceNotFoundException(ResourceNotFoundException e) {
         ApiError error = new ApiError(
                HttpStatus.BAD_REQUEST.value(),
                 e.getMessage(),
                "RESOURCE_NOT_FOUND_ERROR",
-               //request.getRequestURI()
                 HttpRequestUtil.getServletPath()
         );
        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
@@ -63,7 +60,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ApiError> handleIllegalStateException(IllegalStateException e, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleIllegalStateException(IllegalStateException e){
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 e.getMessage(),
@@ -74,13 +71,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
+    @ExceptionHandler(NullParameterException.class)
+    public ResponseEntity<ApiError> handleNullParameterException(NullParameterException e){
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                "NULL_PARAMETER_EXCEPTION",
+                HttpRequestUtil.getServletPath()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(GeneralAppException.class)
     public ResponseEntity<ApiError> handleGeneralAppException(GeneralAppException e, HttpServletRequest request){
         ApiError error = new ApiError(
                 e.getStatus().value(),
                 e.getErrorCode(),
                 e.getMessage(),
-                //request.getRequestURI()
                 HttpRequestUtil.getServletPath()
         );
         return new ResponseEntity<>(error, e.getStatus());
@@ -93,7 +100,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "INTERNAL_SERVER_ERROR",
                 e.getMessage(),
-               //request.getRequestURI()
                 HttpRequestUtil.getServletPath()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);

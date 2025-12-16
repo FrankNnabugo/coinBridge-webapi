@@ -4,15 +4,15 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserCreatedEventPublisher {
+public class UserEventPublisher {
 
     private final ApplicationEventPublisher publisher;
 
-    public UserCreatedEventPublisher(ApplicationEventPublisher publisher){
+    public UserEventPublisher(ApplicationEventPublisher publisher){
         this.publisher = publisher;
     }
 
     public void publishUserCreatedEvent(String userId){
-        publisher.publishEvent(new UserCreatedEvent(userId));
+        publisher.publishEvent(new UserCreationEvent<>(userId));
     }
 }

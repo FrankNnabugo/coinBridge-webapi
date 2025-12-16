@@ -33,7 +33,7 @@ public class User {
 
     private LocalDateTime otpExpiryTime;
 
-    @Column(nullable = false, length = 36)
+    @Column(nullable = false, length = 200)
     private String Password;
 
     @Column(nullable = false)

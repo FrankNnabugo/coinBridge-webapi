@@ -14,6 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.net.http.HttpRequest;
+import java.util.Set;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
@@ -28,12 +30,24 @@ public class JwtFilter extends OncePerRequestFilter {
 
     }
 
+    private static final Set<String> EXCLUDED_PATHS = Set.of(
+            "/api/v1/users",
+            "/api/v1/users/otp/mail",
+            "/api/v1/users/otp/verify",
+            "/api/v1/users/login"
+    );
+
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain)
+                                    FilterChain filterchain)
             throws ServletException, IOException {
 
+        if (EXCLUDED_PATHS.contains(HttpRequestUtil.getServletPath())) {
+            filterchain.doFilter(request, response);
+            return;
+        }
 
             String token = tokenUtil.extractTokenFromHeader(request);
             if(!jwtService.isTokenValid(token)) {
@@ -43,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 String userId = jwtService.extractSubject(token);
                 request.setAttribute("userId", userId);
 
-                filterChain.doFilter(request, response);
+                filterchain.doFilter(request, response);
 
             }
     }

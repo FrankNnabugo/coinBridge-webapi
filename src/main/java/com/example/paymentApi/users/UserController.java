@@ -9,8 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/users/")
-@Tag(name = "user authentication", description = "user onboarding & authentication controller endpoint")
+@RequestMapping("/api/v1/users")
+@Tag(name = "user authentication", description = "user onboarding & authentication controller")
 public class UserController {
 
     private final UserService userService;
@@ -19,15 +19,15 @@ public class UserController {
         this.userService = userService;
     }
 
-//    @Operation(summary = "user signup")
-//    @PostMapping
-//    public ApiResponse<UserResponse> signUp(@RequestBody UserRequest userRequest){
-//        UserResponse response = userService.signUp(userRequest);
-//        return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
-//    }
+    @Operation(summary = "user signup")
+    @PostMapping
+    public ApiResponse<SignUpResponse> signUp(@RequestBody UserRequest userRequest){
+        SignUpResponse response = userService.signUp(userRequest);
+        return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
+    }
 
     @Operation(summary = "user login")
-    @PostMapping("/authenticate")
+    @PostMapping("/login")
     public ApiResponse<UserResponse> login(@RequestBody LoginRequest loginRequest,
                                            HttpServletResponse httpServletResponse){
         UserResponse response = userService.login(loginRequest, httpServletResponse);

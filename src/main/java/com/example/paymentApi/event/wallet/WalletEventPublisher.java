@@ -1,8 +1,9 @@
 package com.example.paymentApi.event.wallet;
 
-import com.example.paymentApi.integration.CircleWalletResponse;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
+@Component
 public class WalletEventPublisher {
     private final ApplicationEventPublisher publisher;
 
@@ -10,8 +11,15 @@ public class WalletEventPublisher {
         this.publisher = publisher;
     }
 
-    public void publishWalletCreatedEvent(CircleWalletResponse circleWalletResponse, String userId){
-        publisher.publishEvent(new WalletCreatedEvent(circleWalletResponse, userId));
+    public void publishWalletCreatedEvent(WalletCreationEvent event){
+        publisher.publishEvent(event);
     }
 
+    public void publishWalletCreationFailed(WalletCreationFailedEvent event){
+        publisher.publishEvent(event);
+    }
+
+    public void publishWalletCreationPermanentlyFailed(WalletCreationPermanentlyFailedEvent event){
+        publisher.publishEvent(event);
+    }
 }

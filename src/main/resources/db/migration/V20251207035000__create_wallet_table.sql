@@ -1,12 +1,5 @@
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
-CREATE TYPE chain_enum AS ENUM (
-    'ETHEREUM',
-    'POLYGON',
-    'MATIC_MUMBAI',
-);
-
-CREATE TABLE IF NOT EXISTS wallets(
+CREATE TABLE wallets (
  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     token VARCHAR(36) NOT NULL DEFAULT 'USDC',

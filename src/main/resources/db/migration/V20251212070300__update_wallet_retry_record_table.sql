@@ -1,0 +1,8 @@
+BEGIN;
+
+ALTER TABLE wallet_retry
+ALTER COLUMN status TYPE VARCHAR;
+
+DROP TYPE IF EXISTS retry_status;
+
+COMMIT;

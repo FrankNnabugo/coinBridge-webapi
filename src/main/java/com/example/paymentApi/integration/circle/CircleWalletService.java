@@ -1,8 +1,9 @@
-package com.example.paymentApi.integration;
+package com.example.paymentApi.integration.circle;
 
 import com.example.paymentApi.shared.utility.EntitySecretCipherTextUtil;
 import com.example.paymentApi.shared.utility.IdempotencyUtil;
 import com.example.paymentApi.shared.utility.PublicKeyFormatter;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,7 +15,7 @@ import java.util.Map;
 @Service
 public class CircleWalletService {
 
-    @Value("${TEST_API_KEY}")
+    @Value("${circle-api-key}")
     private String apiKey;
 
     @Value("${wallet-set-url}")
@@ -26,28 +27,25 @@ public class CircleWalletService {
     @Value("${32-byte-secret-key}")
     private String entitySecret;
 
-    @Value("${public-key}")
+    @Value("${circle-public-key}")
     private String circlePublicKey;
 
     private final WebClient webClient;
     private final IdempotencyUtil idempotencyUtil;
-    private final EntitySecretCipherTextUtil entitySecretCipherTextUtil;
 
-    public CircleWalletService(WebClient webClient, IdempotencyUtil idempotencyUtil,
-                               EntitySecretCipherTextUtil entitySecretCipherTextUtil) {
+    public CircleWalletService(WebClient webClient, IdempotencyUtil idempotencyUtil) {
         this.webClient = webClient;
         this.idempotencyUtil = idempotencyUtil;
-        this.entitySecretCipherTextUtil = entitySecretCipherTextUtil;
 
     }
 
-    public Mono<CircleWalletResponse> createCircleWallet(String userId) {
+    public Mono<CircleWalletResponse> createCircleWallet(String userId) throws Exception {
         try {
             String idempotencyKey = idempotencyUtil.getOrCreateKey(userId);
             String cleanedKey = PublicKeyFormatter.formatPublicKey(circlePublicKey);
-            PublicKey publicKey = entitySecretCipherTextUtil.loadCirclePublicKey(cleanedKey);
-            byte[] entitySecretBytes = entitySecretCipherTextUtil.decodeEntitySecret(entitySecret);
-            String entitySecretCipherText = entitySecretCipherTextUtil.encryptEntitySecret(publicKey, entitySecretBytes);
+            PublicKey publicKey = EntitySecretCipherTextUtil.loadCirclePublicKey(cleanedKey);
+            byte[] entitySecretBytes = EntitySecretCipherTextUtil.decodeEntitySecret(entitySecret);
+            String entitySecretCipherText = EntitySecretCipherTextUtil.encryptEntitySecret(publicKey, entitySecretBytes);
 
             CircleWalletSetRequest body = new CircleWalletSetRequest(
                     idempotencyKey,
@@ -57,8 +55,8 @@ public class CircleWalletService {
 
             return webClient.post()
                     .uri(circleWalletSetUrl)
-                    .header("accept: application/json")
-                    .header("content-type: application/json")
+                    .header("Accept", "application/json")
+                    .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + apiKey)
                     .bodyValue(Map.of(
                             "idempotencyKey", body.idempotencyKey(),
@@ -67,26 +65,29 @@ public class CircleWalletService {
 
                             ))
                     .retrieve()
-                    .bodyToMono(CircleWalletSetResponse.class)
-                    .flatMap(data -> {
-                        String walletSetId = data.getId();
+                    .bodyToMono(JsonNode.class)
+                    .flatMap(CircleWalletSetResponse -> {
+                        String walletSetId = CircleWalletSetResponse.path("data")
+                                .path("walletSet")
+                                .path("id")
+                                .asText();
 
                         CircleWalletRequest walletData = new CircleWalletRequest(
                                 idempotencyKey,
                                 "SCA",
-                                new String[]{"MATIC-MUMBAI"},
-                                2,
+                               new String[]{"MATIC-AMOY"},
+                                1,
                                 entitySecretCipherText,
                                 walletSetId
                         );
 
                         return webClient.post()
                                 .uri(circleWalletUrl)
-                                .header("accept: application/json")
-                                .header("content-type: application/json")
+                                .header("Accept", "application/json")
+                                .header("Content-Type", "application/json")
                                 .header("Authorization", "Bearer " + apiKey)
                                 .bodyValue(Map.of(
-                                        "idempotency", walletData.idempotencyKey(),
+                                        "idempotencyKey", walletData.idempotencyKey(),
                                         "accountType", walletData.accountType(),
                                         "blockchains", walletData.blockchains(),
                                         "count", walletData.count(),
@@ -95,11 +96,26 @@ public class CircleWalletService {
 
                                 ))
                                 .retrieve()
-                                .bodyToMono(CircleWalletResponse.class);
+                                .bodyToMono(JsonNode.class)
+                                .map(json->{
+                                    JsonNode walletNode = json.path("data")
+                                                    .path("wallets")
+                                                            .get(0);
+
+                                    CircleWalletResponse w = new CircleWalletResponse();
+                                    w.setId(walletNode.path("id").asText());
+                                    w.setBlockchain(walletNode.path("blockchain").asText());
+                                    w.setAddress(walletNode.path("address").asText());
+                                    w.setWalletSetId(walletNode.path("walletSetId").asText());
+                                    w.setAccountType(walletNode.path("accountType").asText());
+                                    w.setCustodyType(walletNode.path("custodyType").asText());
+                                    w.setState(walletNode.path("state").asText());
+                                    return w;
+                                });
                     });
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new Exception(e.getMessage());
         }
     }
 
