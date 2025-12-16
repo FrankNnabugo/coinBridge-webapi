@@ -1,6 +1,6 @@
 package com.example.paymentApi.wallets;
 
-import com.example.paymentApi.circle.CircleWalletResponse;
+import com.example.paymentApi.integration.circle.CircleWalletResponse;
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.users.UserRepository;
 import org.modelmapper.ModelMapper;
@@ -32,7 +32,6 @@ public class WalletService {
         wallet.setCustodyType(circleWalletResponse.getCustodyType());
         wallet.setAccountType(circleWalletResponse.getAccountType());
         wallet.setAddress(circleWalletResponse.getAddress());
-        wallet.setWalletName(circleWalletResponse.getWalletName());
         wallet.setWalletSetId(circleWalletResponse.getWalletSetId());
         wallet.setReferenceId(circleWalletResponse.getReferenceId());
 

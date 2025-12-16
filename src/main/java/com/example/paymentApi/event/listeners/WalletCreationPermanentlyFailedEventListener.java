@@ -19,6 +19,7 @@ public class WalletCreationPermanentlyFailedEventListener {
                 "Circle wallet creation permanently failed for user {}",
                 event.getUserId()
         );
-        //call recovery method or notify user via email notification
+        //TODO:
+        //Call recovery method or notify user via email notification
     }
 }

@@ -40,7 +40,7 @@ public class Wallet {
     @Column(nullable = false, length = 255)
     private String address;
 
-    @Column(nullable = false, length = 36)
+    @Column(length = 36)
     private String walletName;
 
     @Column(nullable = false)

@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class IdempotencyUtil {
 
     private final StringRedisTemplate redisTemplate;
-    private static final long TTL_HOURS = 2;
+    private static final long TTL = 2;
 
     public IdempotencyUtil(StringRedisTemplate redisTemplate){
         this.redisTemplate = redisTemplate;
@@ -22,14 +22,13 @@ public class IdempotencyUtil {
         String redisKey = "idempotency:wallet:" + userId;
 
         String existingKey = redisTemplate.opsForValue().get(redisKey);
-        if (existingKey != null) {
+        if (existingKey != null && TTL != 0 && TTL > 0) {
             return existingKey;
         }
 
-        String newKey = UUID.randomUUID().toString();
-        redisTemplate.opsForValue().set(redisKey, newKey, TTL_HOURS, TimeUnit.HOURS);
+            String newKey = UUID.randomUUID().toString();
+            redisTemplate.opsForValue().set(redisKey, newKey, TTL, TimeUnit.SECONDS);
+            return newKey;
 
-        return newKey;
     }
-
 }

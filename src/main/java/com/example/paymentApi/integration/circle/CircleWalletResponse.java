@@ -1,4 +1,4 @@
-package com.example.paymentApi.circle;
+package com.example.paymentApi.integration.circle;
 
 import java.time.LocalDateTime;
 
@@ -8,8 +8,6 @@ public class CircleWalletResponse {
     private String address;
 
     private String blockchain;
-
-    private String walletName;
 
     private String walletSetId;
 
@@ -21,9 +19,10 @@ public class CircleWalletResponse {
 
     private String custodyType;
 
-    private LocalDateTime createdAt;
 
-    private LocalDateTime updatedAt;
+    private LocalDateTime createDate;
+
+    private LocalDateTime updateDate;
 
 
     public String getId() {
@@ -42,14 +41,6 @@ public class CircleWalletResponse {
         this.address = address;
     }
 
-    public String getWalletName() {
-        return walletName;
-    }
-
-    public void setWalletName(String walletName) {
-        this.walletName = walletName;
-    }
-
     public String getWalletSetId() {
         return walletSetId;
     }
@@ -64,6 +55,22 @@ public class CircleWalletResponse {
 
     public void setAccountType(String accountType) {
         this.accountType = accountType;
+    }
+
+    public LocalDateTime getCreateDate() {
+        return createDate;
+    }
+
+    public void setCreateDate(LocalDateTime createDate) {
+        this.createDate = createDate;
+    }
+
+    public LocalDateTime getUpdateDate() {
+        return updateDate;
+    }
+
+    public void setUpdateDate(LocalDateTime updateDate) {
+        this.updateDate = updateDate;
     }
 
     public String getReferenceId() {
@@ -90,21 +97,6 @@ public class CircleWalletResponse {
         this.custodyType = custodyType;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 
     public String getBlockchain() {
         return blockchain;

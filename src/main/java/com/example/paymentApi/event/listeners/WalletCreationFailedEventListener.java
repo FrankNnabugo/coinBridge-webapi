@@ -1,8 +1,6 @@
 package com.example.paymentApi.event.listeners;
 
 import com.example.paymentApi.event.wallet.WalletCreationFailedEvent;
-import com.example.paymentApi.event.wallet.WalletCreationPermanentlyFailedEvent;
-import com.example.paymentApi.event.wallet.WalletEventPublisher;
 import com.example.paymentApi.worker.WalletRetryService;
 import com.example.paymentApi.worker.WalletRetryWorker;
 import org.springframework.context.event.EventListener;
@@ -12,13 +10,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class WalletCreationFailedEventListener {
 
-    private final WalletEventPublisher walletEventPublisher;
     private final WalletRetryService walletRetryService;
     private final WalletRetryWorker walletRetryWorker;
 
-     public WalletCreationFailedEventListener(WalletEventPublisher walletEventPublisher,
-                                              WalletRetryService walletRetryService, WalletRetryWorker walletRetryWorker){
-         this.walletEventPublisher = walletEventPublisher;
+     public WalletCreationFailedEventListener(WalletRetryService walletRetryService, WalletRetryWorker walletRetryWorker){
          this.walletRetryService = walletRetryService;
          this.walletRetryWorker = walletRetryWorker;
      }
