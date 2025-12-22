@@ -82,6 +82,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<ApiError> handleInsufficientBalanceException(InsufficientBalanceException e){
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                "INSUFFICIENT_BALANCE_EXCEPTION",
+                HttpRequestUtil.getServletPath()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+    }
     @ExceptionHandler(GeneralAppException.class)
     public ResponseEntity<ApiError> handleGeneralAppException(GeneralAppException e, HttpServletRequest request){
         ApiError error = new ApiError(

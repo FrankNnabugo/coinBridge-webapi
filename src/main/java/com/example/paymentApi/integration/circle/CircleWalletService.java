@@ -1,7 +1,7 @@
 package com.example.paymentApi.integration.circle;
 
 import com.example.paymentApi.shared.utility.EntitySecretCipherTextUtil;
-import com.example.paymentApi.shared.utility.IdempotencyUtil;
+import com.example.paymentApi.shared.utility.RedisUtil;
 import com.example.paymentApi.shared.utility.PublicKeyFormatter;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,17 +31,18 @@ public class CircleWalletService {
     private String circlePublicKey;
 
     private final WebClient webClient;
-    private final IdempotencyUtil idempotencyUtil;
+    private final RedisUtil redisUtil;
 
-    public CircleWalletService(WebClient webClient, IdempotencyUtil idempotencyUtil) {
+
+    public CircleWalletService(WebClient webClient, RedisUtil redisUtil) {
         this.webClient = webClient;
-        this.idempotencyUtil = idempotencyUtil;
+        this.redisUtil = redisUtil;
 
     }
 
     public Mono<CircleWalletResponse> createCircleWallet(String userId) throws Exception {
         try {
-            String idempotencyKey = idempotencyUtil.getOrCreateKey(userId);
+            String idempotencyKey = redisUtil.getOrCreateKey(userId);
             String cleanedKey = PublicKeyFormatter.formatPublicKey(circlePublicKey);
             PublicKey publicKey = EntitySecretCipherTextUtil.loadCirclePublicKey(cleanedKey);
             byte[] entitySecretBytes = EntitySecretCipherTextUtil.decodeEntitySecret(entitySecret);
@@ -119,5 +120,8 @@ public class CircleWalletService {
         }
     }
 
+    public void createOnChainTransfer(String address, Map<String, String> blockchain, String amount){
+
+    }
 }
 

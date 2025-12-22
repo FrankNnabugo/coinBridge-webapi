@@ -3,12 +3,13 @@ package com.example.paymentApi.ledgers;
 import com.example.paymentApi.wallets.Wallet;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name =  "wallet_ledger")
+@Table(name =  "ledger_entry")
 public class Ledger{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -25,6 +26,14 @@ public class Ledger{
     @Column(nullable = false, precision = 38, scale = 8)
     private BigDecimal amount;
 
+    private String sourceAddress;
+
+    private String destinationAddress;
+
+    private String sourceCurrency;
+
+    private String destinationCurrency;
+
     @Column(nullable = false)
     private String direction; // credit or debit
 
@@ -32,12 +41,12 @@ public class Ledger{
 
     private String referenceId;
 
-    @Column(columnDefinition = "jsonb")
-    private String metadata;
+    private String status;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
 
@@ -97,13 +106,6 @@ public class Ledger{
         this.referenceId = referenceId;
     }
 
-    public String getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
-    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

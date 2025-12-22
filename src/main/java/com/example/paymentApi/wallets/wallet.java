@@ -41,7 +41,7 @@ public class Wallet {
     private String address;
 
     @Column(length = 36)
-    private String walletName;
+    private String walletName; //"Polygon-Amoy"; //update migration
 
     @Column(nullable = false)
     private String provider="circle";
@@ -69,6 +69,9 @@ public class Wallet {
 
     @Column(nullable = false)
     private String status = "active";
+
+    @Column(nullable = false, length = 100)
+    private String metadata;
 
     @CreationTimestamp
     @Column(nullable = false)

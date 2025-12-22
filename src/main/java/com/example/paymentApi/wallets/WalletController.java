@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/v1/wallets")
+@RequestMapping("/api/v1/wallets")
 @Tag(name = "wallet", description = "Read Wallet")
 public class WalletController {
     private final WalletService walletService;

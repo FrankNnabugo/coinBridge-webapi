@@ -30,7 +30,9 @@ public class AppConfig implements WebMvcConfigurer{
                         "/api-docs",
                         "/swagger",
                         "/swagger-ui/**",
-                        "/v3/api-docs/**"
+                        "/v3/api-docs/**",
+                        "/api/v1/circle/pay-in"
+
                 );
     }
         @Bean

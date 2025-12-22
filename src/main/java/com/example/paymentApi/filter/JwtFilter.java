@@ -34,7 +34,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/v1/users",
             "/api/v1/users/otp/mail",
             "/api/v1/users/otp/verify",
-            "/api/v1/users/login"
+            "/api/v1/users/login",
+            "/api/v1/circle/pay-in"
     );
 
 

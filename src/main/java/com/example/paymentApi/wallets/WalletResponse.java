@@ -11,8 +11,6 @@ public class WalletResponse {
 
     private String userId;
 
-    private User user;
-
     private String token;
 
     private String blockchain;
@@ -200,14 +198,6 @@ public class WalletResponse {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getCircleWalletId() {

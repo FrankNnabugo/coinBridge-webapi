@@ -19,7 +19,6 @@ public class CircleWalletResponse {
 
     private String custodyType;
 
-
     private LocalDateTime createDate;
 
     private LocalDateTime updateDate;
