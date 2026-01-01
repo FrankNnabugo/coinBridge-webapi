@@ -6,18 +6,17 @@ import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.web.reactive.function.client.*;
 import reactor.netty.http.client.HttpClient;
 
 import java.time.Duration;
 
 
 @Configuration
-public class WebClientConfig {
+public class WebClient {
 
 
     @Bean
-    public WebClient webClient() {
+    public org.springframework.web.reactive.function.client.WebClient webClient() {
 
         HttpClient httpClient = HttpClient.create()
 
@@ -30,7 +29,7 @@ public class WebClientConfig {
                                 .addHandlerLast(new WriteTimeoutHandler(60))
                 );
 
-        return WebClient.builder()
+        return org.springframework.web.reactive.function.client.WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .build();
     }

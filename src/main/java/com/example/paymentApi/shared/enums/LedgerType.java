@@ -1,10 +1,11 @@
 package com.example.paymentApi.shared.enums;
 
-public enum ReservationType {
+public enum LedgerType {
     OUTBOUND_TRANSFER,
     INBOUND_TRANSFER,
+    INTERNAL_TRANSFER,
     OFF_RAMP,
-    FEE,
-    REVERSAL
-
+    REVERSAL,
+    REFUND,
+    FEE
 }

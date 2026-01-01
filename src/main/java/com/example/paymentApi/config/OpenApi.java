@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 
 @Configuration
-public class OpenApiConfig {
+public class OpenApi {
 
     @Bean
     public OpenAPI openAPI() {

@@ -20,8 +20,9 @@ public class Transactions {
     @Column(name = "id", nullable = false, length = 36)
     private String id;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String type;
+    private TransactionType type; //update migration
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -34,14 +35,15 @@ public class Transactions {
     @Column(nullable = false)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private TransactionStatus status; //update migration
 
     @Column(nullable = false, length = 50)
     private String transferId;
 
     @Column(length = 50)
-    private String referenceId;
+    private String referenceId; //tx_hash, payment_intent_id, reference
 
     private String sourceCurrency;
 
@@ -118,22 +120,6 @@ public class Transactions {
         return sourceAddress;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public void setSourceAddress(String sourceAddress) {
         this.sourceAddress = sourceAddress;
     }
@@ -170,4 +156,19 @@ public class Transactions {
         this.destinationCurrency = destinationCurrency;
     }
 
+    public TransactionType getType() {
+        return type;
+    }
+
+    public void setType(TransactionType type) {
+        this.type = type;
+    }
+
+    public TransactionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TransactionStatus status) {
+        this.status = status;
+    }
 }

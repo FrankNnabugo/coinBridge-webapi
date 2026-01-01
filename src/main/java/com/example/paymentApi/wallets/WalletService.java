@@ -37,6 +37,7 @@ public class WalletService {
         wallet.setAddress(circleWalletResponse.getAddress());
         wallet.setWalletSetId(circleWalletResponse.getWalletSetId());
         wallet.setReferenceId(circleWalletResponse.getReferenceId());
+        wallet.setWalletName("POLYGON-AMOY");
 
         walletRepository.save(wallet);
     }
@@ -88,14 +89,38 @@ public class WalletService {
     }
 
     public void debitWallet(String id, BigDecimal amount ){
+
+        if(amount == null){
+            throw new ValidationException("Amount cannot be null or empty");
+        }
+
+        if(amount.compareTo(BigDecimal.ZERO)<= 0){
+            throw new ValidationException("Amount must be greater than zero");
+        }
         Wallet wallet = walletRepository.findById(id).orElseThrow(()->
                 new ResourceNotFoundException("Wallet does not exist"));
 
         if (wallet.getAvailableBalance().compareTo(amount) < 0) {
-            throw new InsufficientBalanceException("Insufficient available balance");
+            throw new InsufficientBalanceException("Insufficient fund");
         }
-        wallet.setTotalBalance(wallet.getTotalBalance().subtract(amount));
-        wallet.setAvailableBalance(wallet.getTotalBalance().subtract(wallet.getReservedBalance()));
+
+        BigDecimal totalBalance = wallet.getTotalBalance();
+        BigDecimal reservedBalance = wallet.getReservedBalance();
+        BigDecimal availableBalance = wallet.getAvailableBalance();
+
+        if (totalBalance.compareTo(BigDecimal.ZERO) < 0 ||
+                availableBalance.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalStateException("Wallet balances are corrupted");
+        }
+
+        if (reservedBalance.compareTo(totalBalance) > 0) {
+            throw new IllegalStateException("Reserved balance exceeds total balance");
+        }
+        BigDecimal newTotalBalance = totalBalance.subtract(amount);
+        BigDecimal newAvailableBalance = newTotalBalance.subtract(reservedBalance);
+        
+        wallet.setTotalBalance(newTotalBalance);
+        wallet.setAvailableBalance(newAvailableBalance);
         walletRepository.save(wallet);
     }
 

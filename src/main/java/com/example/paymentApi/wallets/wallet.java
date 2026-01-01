@@ -1,5 +1,6 @@
 package com.example.paymentApi.wallets;
 
+import com.example.paymentApi.reservations.Reservation;
 import com.example.paymentApi.users.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -41,7 +42,7 @@ public class Wallet {
     private String address;
 
     @Column(length = 36)
-    private String walletName; //"Polygon-Amoy"; //update migration
+    private String walletName;
 
     @Column(nullable = false)
     private String provider="circle";
@@ -65,7 +66,7 @@ public class Wallet {
     private BigDecimal availableBalance = BigDecimal.ZERO;
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<WalletReservation> reservations;
+    private List<Reservation> reservations;
 
     @Column(nullable = false)
     private String status = "active";
@@ -200,11 +201,11 @@ public class Wallet {
         this.availableBalance = availableBalance;
     }
 
-    public List<WalletReservation> getReservations() {
+    public List<Reservation> getReservations() {
         return reservations;
     }
 
-    public void setReservations(List<WalletReservation> reservations) {
+    public void setReservations(List<Reservation> reservations) {
         this.reservations = reservations;
     }
 

@@ -1,8 +1,8 @@
 package com.example.paymentApi.shared.enums;
 
-public enum TransactionStatus {
+public enum LedgerStatus {
+    POSTED,
     PENDING,
-    SUCCESS,
-    FAILED,
     REVERSED,
+    CANCELED
 }

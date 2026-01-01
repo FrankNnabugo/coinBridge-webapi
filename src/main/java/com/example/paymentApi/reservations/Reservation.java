@@ -1,16 +1,18 @@
-package com.example.paymentApi.wallets;
+package com.example.paymentApi.reservations;
 
 import com.example.paymentApi.shared.enums.ReservationStatus;
 import com.example.paymentApi.shared.enums.ReservationType;
+import com.example.paymentApi.wallets.Wallet;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "wallet_reservations")
-public class WalletReservation{
+public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -28,21 +30,18 @@ public class WalletReservation{
     @Column(nullable = false)
     private ReservationType reservationType;
 
-    private String referenceId;
-
-    private String createdBy;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ReservationStatus status = ReservationStatus.ACTIVE;
 
-    private String externalReference; //Paystack ref, Circle ref
+    private String transactionId;
 
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    private LocalDateTime expiresAt;
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
 
     public String getId() {
@@ -77,36 +76,12 @@ public class WalletReservation{
         this.reservationType = reservationType;
     }
 
-    public String getReferenceId() {
-        return referenceId;
-    }
-
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
-    }
-
-    public String getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(String createdBy) {
-        this.createdBy = createdBy;
-    }
-
     public ReservationStatus getStatus() {
         return status;
     }
 
     public void setStatus(ReservationStatus status) {
         this.status = status;
-    }
-
-    public String getExternalReference() {
-        return externalReference;
-    }
-
-    public void setExternalReference(String externalReference) {
-        this.externalReference = externalReference;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -117,11 +92,19 @@ public class WalletReservation{
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getExpiresAt() {
-        return expiresAt;
+    public String getTransactionId() {
+        return transactionId;
     }
 
-    public void setExpiresAt(LocalDateTime expiresAt) {
-        this.expiresAt = expiresAt;
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

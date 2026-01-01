@@ -1,5 +1,7 @@
 package com.example.paymentApi.webhook.circle;
 
+import com.example.paymentApi.shared.enums.TransactionType;
+
 import java.math.BigDecimal;
 
 public class WebhookInboundNotification {
@@ -7,9 +9,11 @@ public class WebhookInboundNotification {
 
     private String blockchain;
 
-    private String circleWalletId;
+    private String walletId;
 
     private String tokenId;
+
+    private String sourceAddress; // doesn't have
 
     private String destinationAddress;
 
@@ -17,31 +21,9 @@ public class WebhookInboundNotification {
 
     private String state;
 
-    private String transactionType;
+    private TransactionType transactionType;
 
-    public String getCircleWalletId() {
-        return circleWalletId;
-    }
-
-    public void setCircleWalletId(String circleWalletId) {
-        this.circleWalletId = circleWalletId;
-    }
-
-    public String getBlockchain() {
-        return blockchain;
-    }
-
-    public void setBlockchain(String blockchain) {
-        this.blockchain = blockchain;
-    }
-
-    public String getTokenId() {
-        return tokenId;
-    }
-
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
-    }
+    private String txHash;
 
     public String getDestinationAddress() {
         return destinationAddress;
@@ -71,15 +53,55 @@ public class WebhookInboundNotification {
         return id;
     }
 
-    public String getTransactionType() {
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTxHash() {
+        return txHash;
+    }
+
+    public void setTxHash(String txHash) {
+        this.txHash = txHash;
+    }
+
+    public String getWalletId() {
+        return walletId;
+    }
+
+    public void setWalletId(String walletId) {
+        this.walletId = walletId;
+    }
+
+    public String getSourceAddress() {
+        return sourceAddress;
+    }
+
+    public void setSourceAddress(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
+    }
+
+    public String getTokenId() {
+        return tokenId;
+    }
+
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
+    }
+
+    public String getBlockchain() {
+        return blockchain;
+    }
+
+    public void setBlockchain(String blockchain) {
+        this.blockchain = blockchain;
+    }
+
+    public TransactionType getTransactionType() {
         return transactionType;
     }
 
-    public void setTransactionType(String transactionType) {
+    public void setTransactionType(TransactionType transactionType) {
         this.transactionType = transactionType;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 }

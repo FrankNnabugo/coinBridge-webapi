@@ -1,6 +1,7 @@
 package com.example.paymentApi.webhook.circle;
 
 import com.example.paymentApi.walletToWallet.inbound.InboundTransferService;
+import com.example.paymentApi.walletToWallet.outbound.OutBoundTransferService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +15,13 @@ public class CircleWebhookController {
 
     private final CircleWebhookService circleWebhookService;
     private final InboundTransferService inboundTransferService;
+    private final OutBoundTransferService outBoundTransferService;
 
-    public CircleWebhookController(CircleWebhookService circleWebhookService, InboundTransferService inboundTransferService) {
+    public CircleWebhookController(CircleWebhookService circleWebhookService, InboundTransferService inboundTransferService,
+                                   OutBoundTransferService outBoundTransferService) {
         this.circleWebhookService = circleWebhookService;
         this.inboundTransferService = inboundTransferService;
+        this.outBoundTransferService = outBoundTransferService;
     }
 
 
@@ -28,9 +32,18 @@ public class CircleWebhookController {
         inboundTransferService.processInboundTransfer(rawPayload);
 
         log.info("Received webhook response from circle for USDC wallet deposit {}", rawPayload);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @PostMapping("/finalize/transfer")
+    public ResponseEntity<CircleOutBoundWebhookResponse> handleOutboundTransfer(@RequestBody String rawPayload,
+                                                                                @RequestHeader("X-Circle-Signature") String signatureBase64
+                                                                                ){
+        circleWebhookService.verifySignature(rawPayload, signatureBase64);
+        outBoundTransferService.finalizeTransfer(rawPayload);
+        log.info("Received webhook response from circle for USDC wallet to wallet transfer {}", rawPayload);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 
     //TODO: define other circle webHooks
 }

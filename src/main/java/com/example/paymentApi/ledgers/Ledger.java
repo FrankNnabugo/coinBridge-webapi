@@ -1,5 +1,6 @@
 package com.example.paymentApi.ledgers;
 
+import com.example.paymentApi.shared.enums.*;
 import com.example.paymentApi.wallets.Wallet;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,35 +21,56 @@ public class Ledger{
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String entryType; // deposit, withdrawal, reserve, release, settlement
+    private LedgerType entryType;
 
     @Column(nullable = false, precision = 38, scale = 8)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LedgerDirection direction;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProviderType provider;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AssetType asset;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LedgerStatus status;
+
+    @Column(nullable = false)
+    private String referenceId; //tx_hash, payment_intent_id, reference
+
+    @Column(length = 200)
     private String sourceAddress;
 
+    @Column(length = 200)
     private String destinationAddress;
 
     private String sourceCurrency;
 
     private String destinationCurrency;
 
-    @Column(nullable = false)
-    private String direction; // credit or debit
-
-    private String relatedReservationId;
-
-    private String referenceId;
-
-    private String status;
-
     @CreationTimestamp
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    public String getReferenceId() {
+        return referenceId;
+    }
+
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
+    }
 
     public String getId() {
         return id;
@@ -66,46 +88,6 @@ public class Ledger{
         this.wallet = wallet;
     }
 
-    public String getEntryType() {
-        return entryType;
-    }
-
-    public void setEntryType(String entryType) {
-        this.entryType = entryType;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public String getDirection() {
-        return direction;
-    }
-
-    public void setDirection(String direction) {
-        this.direction = direction;
-    }
-
-    public String getRelatedReservationId() {
-        return relatedReservationId;
-    }
-
-    public void setRelatedReservationId(String relatedReservationId) {
-        this.relatedReservationId = relatedReservationId;
-    }
-
-    public String getReferenceId() {
-        return referenceId;
-    }
-
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
-    }
-
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -121,5 +103,86 @@ public class Ledger{
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+
+    public String getSourceCurrency() {
+        return sourceCurrency;
+    }
+
+    public void setSourceCurrency(String sourceCurrency) {
+        this.sourceCurrency = sourceCurrency;
+    }
+
+    public String getDestinationCurrency() {
+        return destinationCurrency;
+    }
+
+    public void setDestinationCurrency(String destinationCurrency) {
+        this.destinationCurrency = destinationCurrency;
+    }
+
+    public LedgerType getEntryType() {
+        return entryType;
+    }
+
+    public void setEntryType(LedgerType entryType) {
+        this.entryType = entryType;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public LedgerDirection getDirection() {
+        return direction;
+    }
+
+    public void setDirection(LedgerDirection direction) {
+        this.direction = direction;
+    }
+
+    public AssetType getAsset() {
+        return asset;
+    }
+
+    public void setAsset(AssetType asset) {
+        this.asset = asset;
+    }
+
+    public LedgerStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(LedgerStatus status) {
+        this.status = status;
+    }
+
+    public String getSourceAddress() {
+        return sourceAddress;
+    }
+
+    public void setSourceAddress(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
+    }
+
+    public String getDestinationAddress() {
+        return destinationAddress;
+    }
+
+    public void setDestinationAddress(String destinationAddress) {
+        this.destinationAddress = destinationAddress;
+    }
+
+    public ProviderType getProvider() {
+        return provider;
+    }
+
+    public void setProvider(ProviderType provider) {
+        this.provider = provider;
     }
 }

@@ -5,8 +5,6 @@ import java.math.BigDecimal;
 public class OutBoundPayload {
     private String id;
 
-    private String blockchain;
-
     private String walletId;
 
     private String sourceAddress;
@@ -19,6 +17,8 @@ public class OutBoundPayload {
 
     private BigDecimal amount;
 
+    private String txHash;
+
     private String networkFee;
 
     public String getId() {
@@ -27,14 +27,6 @@ public class OutBoundPayload {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getBlockchain() {
-        return blockchain;
-    }
-
-    public void setBlockchain(String blockchain) {
-        this.blockchain = blockchain;
     }
 
     public String getWalletId() {
@@ -91,5 +83,13 @@ public class OutBoundPayload {
 
     public void setNetworkFee(String networkFee) {
         this.networkFee = networkFee;
+    }
+
+    public String getTxHash() {
+        return txHash;
+    }
+
+    public void setTxHash(String txHash) {
+        this.txHash = txHash;
     }
 }
