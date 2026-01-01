@@ -6,6 +6,7 @@ import java.security.PublicKey;
 
 @Component
 public class PublicKeyFormatter {
+
     public static String formatPublicKey(String key){
         return key.replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")

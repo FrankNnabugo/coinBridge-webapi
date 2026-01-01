@@ -1,9 +1,11 @@
 package com.example.paymentApi.shared.utility;
 
 import com.example.paymentApi.shared.ExceptionThrower;
+import com.example.paymentApi.shared.enums.BlockchainType;
 import com.example.paymentApi.shared.exception.GeneralAppException;
 import com.example.paymentApi.shared.exception.IllegalArgumentException;
 import com.example.paymentApi.shared.exception.NullParameterException;
+import com.example.paymentApi.shared.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,10 @@ public class Verifier {
 
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,}$");
+
+
+    private static final Pattern EVM_ADDRESS_PATTERN =
+            Pattern.compile("^0x[a-fA-F0-9]{40}$");
 
 
     public Verifier setResourceUrl(String url) {
@@ -105,4 +111,18 @@ public class Verifier {
         }
     }
 
+    public static void validatePaymentInput(
+            String address,
+            BlockchainType blockchain) {
+
+        if (!EVM_ADDRESS_PATTERN.matcher(address).matches()) {
+            throw new ValidationException("Invalid EVM wallet address");
+        }
+
+        if (blockchain != BlockchainType.POLYGON) {
+            throw new ValidationException(
+                    "Unsupported blockchain. Only POLYGON is allowed"
+            );
+        }
+    }
 }

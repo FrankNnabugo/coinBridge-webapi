@@ -1,6 +1,6 @@
 package com.example.paymentApi.wallets;
 
-import com.example.paymentApi.users.User;
+import com.example.paymentApi.reservations.Reservation;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,8 +10,6 @@ public class WalletResponse {
     private String id;
 
     private String userId;
-
-    private User user;
 
     private String token;
 
@@ -41,7 +39,7 @@ public class WalletResponse {
 
     private BigDecimal availableBalance;
 
-    private List<WalletReservation> reservations;
+    private List<Reservation> reservations;
 
     private String status;
 
@@ -162,11 +160,11 @@ public class WalletResponse {
         this.availableBalance = availableBalance;
     }
 
-    public List<WalletReservation> getReservations() {
+    public List<Reservation> getReservations() {
         return reservations;
     }
 
-    public void setReservations(List<WalletReservation> reservations) {
+    public void setReservations(List<Reservation> reservations) {
         this.reservations = reservations;
     }
 
@@ -200,14 +198,6 @@ public class WalletResponse {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public String getCircleWalletId() {

@@ -7,12 +7,12 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class IdempotencyUtil {
+public class RedisUtil {
 
     private final StringRedisTemplate redisTemplate;
     private static final long TTL = 2;
 
-    public IdempotencyUtil(StringRedisTemplate redisTemplate){
+    public RedisUtil(StringRedisTemplate redisTemplate){
         this.redisTemplate = redisTemplate;
 
     }
@@ -31,4 +31,5 @@ public class IdempotencyUtil {
             return newKey;
 
     }
+
 }
