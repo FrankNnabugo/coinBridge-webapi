@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.net.http.HttpRequest;
 import java.util.Set;
 
 @Component
@@ -35,7 +34,8 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/v1/users/otp/mail",
             "/api/v1/users/otp/verify",
             "/api/v1/users/login",
-            "/api/v1/circle/pay-in"
+            "/api/v1/circle/pay-in",
+            "/api/v1/circle/finalize/transfer"
     );
 
 
@@ -59,30 +59,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 request.setAttribute("userId", userId);
 
                 filterchain.doFilter(request, response);
-
             }
     }
 
-    private void sendErrorResponse(HttpServletResponse response, GeneralAppException ex)
-            throws IOException {
-        ApiError apiError = new ApiError(
-                ex.getStatus().value(),
-                ex.getErrorCode(),
-                ex.getMessage(),
-                ex.getPath()
-        );
-
-        response.setStatus(ex.getStatus().value());
-        response.setContentType("application/json");
-        response.getWriter().write(
-                String.format(
-                        "{\"timestamp\":\"%s\",\"status\":%d,\"error\":\"%s\",\"message\":\"%s\",\"path\":\"%s\"}",
-                        apiError.getTimestamp(), apiError.getStatus(), apiError.getError(),
-                        apiError.getMessage(), apiError.getPath()
-                )
-        );
-        response.getWriter().flush();
-    }
     }
 
 

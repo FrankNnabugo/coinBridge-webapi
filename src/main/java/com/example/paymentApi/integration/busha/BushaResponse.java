@@ -3,8 +3,6 @@ package com.example.paymentApi.integration.busha;
 public class BushaResponse {
     private String id;
 
-    private String profileId;
-
     private String qouteId;
 
     private String description;
@@ -36,15 +34,7 @@ public class BushaResponse {
     public void setId(String id) {
         this.id = id;
     }
-
-    public String getProfileId() {
-        return profileId;
-    }
-
-    public void setProfileId(String profileId) {
-        this.profileId = profileId;
-    }
-
+    
     public String getSource_currency() {
         return source_currency;
     }

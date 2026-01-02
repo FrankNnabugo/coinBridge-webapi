@@ -7,11 +7,7 @@ import com.example.paymentApi.wallets.Wallet;
 public class TransactionResponse{
     private String id;
 
-    private String blockchain;
-
-    private Wallet circleWalletId;
-
-    private String tokenId;
+    private String sourceAddress;
 
     private String destinationAddress;
 
@@ -21,36 +17,14 @@ public class TransactionResponse{
 
     private String transactionType;
 
+    private String referenceId;
+
     public String getId() {
         return id;
     }
 
-    public Wallet getCircleWalletId() {
-        return circleWalletId;
-    }
-
-    public void setCircleWalletId(Wallet circleWalletId) {
-        this.circleWalletId = circleWalletId;
-    }
-
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getBlockchain() {
-        return blockchain;
-    }
-
-    public void setBlockchain(String blockchain) {
-        this.blockchain = blockchain;
-    }
-
-    public String getTokenId() {
-        return tokenId;
-    }
-
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
     }
 
     public String getDestinationAddress() {
@@ -86,4 +60,19 @@ public class TransactionResponse{
     }
 
 
+    public String getSourceAddress() {
+        return sourceAddress;
+    }
+
+    public void setSourceAddress(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
+    }
+
+    public String getReferenceId() {
+        return referenceId;
+    }
+
+    public void setReferenceId(String referenceId) {
+        this.referenceId = referenceId;
+    }
 }
