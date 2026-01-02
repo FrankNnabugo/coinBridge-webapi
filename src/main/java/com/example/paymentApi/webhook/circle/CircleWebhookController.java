@@ -28,10 +28,13 @@ public class CircleWebhookController {
     @PostMapping("/pay-in")
     public ResponseEntity<CircleInboundWebhookResponse> handleInboundTransfer(@RequestBody String rawPayload,
                                                                               @RequestHeader("X-Circle-Signature") String signatureBase64) {
-        circleWebhookService.verifySignature(rawPayload, signatureBase64);
+       if(!circleWebhookService.verifySignature(rawPayload, signatureBase64)){
+           return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+       };
+        log.info("Received webhook response from circle for USDC wallet deposit {}", rawPayload);
         inboundTransferService.processInboundTransfer(rawPayload);
 
-        log.info("Received webhook response from circle for USDC wallet deposit {}", rawPayload);
+        //log.info("Received webhook response from circle for USDC wallet deposit {}", rawPayload);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -39,7 +42,9 @@ public class CircleWebhookController {
     public ResponseEntity<CircleOutBoundWebhookResponse> handleOutboundTransfer(@RequestBody String rawPayload,
                                                                                 @RequestHeader("X-Circle-Signature") String signatureBase64
                                                                                 ){
-        circleWebhookService.verifySignature(rawPayload, signatureBase64);
+        if(!circleWebhookService.verifySignature(rawPayload, signatureBase64)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        };
         outBoundTransferService.finalizeTransfer(rawPayload);
         log.info("Received webhook response from circle for USDC wallet to wallet transfer {}", rawPayload);
         return ResponseEntity.status(HttpStatus.OK).build();

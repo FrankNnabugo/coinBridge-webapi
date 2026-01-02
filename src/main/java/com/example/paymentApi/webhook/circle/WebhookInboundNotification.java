@@ -1,6 +1,7 @@
 package com.example.paymentApi.webhook.circle;
 
 import com.example.paymentApi.shared.enums.TransactionType;
+import com.example.paymentApi.wallets.Wallet;
 
 import java.math.BigDecimal;
 
@@ -65,14 +66,6 @@ public class WebhookInboundNotification {
         this.txHash = txHash;
     }
 
-    public String getWalletId() {
-        return walletId;
-    }
-
-    public void setWalletId(String walletId) {
-        this.walletId = walletId;
-    }
-
     public String getSourceAddress() {
         return sourceAddress;
     }
@@ -103,5 +96,13 @@ public class WebhookInboundNotification {
 
     public void setTransactionType(TransactionType transactionType) {
         this.transactionType = transactionType;
+    }
+
+    public String getWalletId() {
+        return walletId;
+    }
+
+    public void setWalletId(String walletId) {
+        this.walletId = walletId;
     }
 }

@@ -1,8 +1,10 @@
 package com.example.paymentApi.ledgers;
 
 import com.example.paymentApi.shared.enums.LedgerDirection;
+import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.wallets.Wallet;
 import jakarta.transaction.Transactional;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,9 +13,11 @@ import java.util.List;
 public class LedgerService {
 
     private final LedgerRepository ledgerRepository;
+    private final ModelMapper modelMapper;
 
-    public LedgerService(LedgerRepository ledgerRepository){
+    public LedgerService(LedgerRepository ledgerRepository, ModelMapper modelMapper){
         this.ledgerRepository = ledgerRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Transactional
@@ -49,4 +53,9 @@ public class LedgerService {
         ledgerRepository.saveAll(List.of(credit, debit));
     }
 
+    public LedgerResponse getLedger(String id){
+        Ledger ledger = ledgerRepository.findById(id).orElseThrow(()->
+                new ResourceNotFoundException("Ledger with id " + id + "does not exist"));
+        return modelMapper.map(ledger, LedgerResponse.class);
+    }
 }

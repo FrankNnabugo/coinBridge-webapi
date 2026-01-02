@@ -1,14 +1,15 @@
 package com.example.paymentApi.config;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 
 @Configuration
-public class CommandLineRunner {
+public class CommandLineRunnerConfig {
 
     @Bean
-    org.springframework.boot.CommandLineRunner testRedis(RedisTemplate<String, String> redisTemplate) {
+    public CommandLineRunner testRedis(RedisTemplate<String, String> redisTemplate) {
         return args -> {
 
             try {

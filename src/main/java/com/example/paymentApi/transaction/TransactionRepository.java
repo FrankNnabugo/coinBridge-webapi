@@ -17,6 +17,6 @@ public interface TransactionRepository extends JpaRepository<Transactions, Strin
 
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT t FROM transactions w WHERE t.id = :id")
-    Optional<Transactions> findByIdForUpdate(@Param("id") String id);
+    @Query("SELECT t FROM Transactions t WHERE t.referenceId = :transferId")
+    Optional<Transactions> findByReferenceIdForLock(@Param("transferId") String transferId);
 }

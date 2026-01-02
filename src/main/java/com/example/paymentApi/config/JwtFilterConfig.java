@@ -1,15 +1,16 @@
 package com.example.paymentApi.config;
 
+import com.example.paymentApi.filter.JwtFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class JwtFilter {
+public class JwtFilterConfig {
 
     @Bean
-    public FilterRegistrationBean<com.example.paymentApi.filter.JwtFilter> jwtFilterRegistration(com.example.paymentApi.filter.JwtFilter jwtFilter) {
-        FilterRegistrationBean<com.example.paymentApi.filter.JwtFilter> registration = new FilterRegistrationBean<>();
+    public FilterRegistrationBean<JwtFilter> jwtFilterRegistration(JwtFilter jwtFilter) {
+        FilterRegistrationBean<JwtFilter> registration = new FilterRegistrationBean<>();
 
         registration.setFilter(jwtFilter);
 

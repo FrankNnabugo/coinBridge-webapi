@@ -22,7 +22,7 @@ public class Transactions {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TransactionType type; //update migration
+    private TransactionType type;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -37,7 +37,7 @@ public class Transactions {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TransactionStatus status; //update migration
+    private TransactionStatus status;
 
     @Column(nullable = false, length = 50)
     private String transferId;

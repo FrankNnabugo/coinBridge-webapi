@@ -1,8 +1,6 @@
 package com.example.paymentApi.walletToWallet.outbound;
 
 import com.example.paymentApi.integration.circle.CircleWalletService;
-import com.example.paymentApi.ledgers.Ledger;
-import com.example.paymentApi.ledgers.LedgerRepository;
 import com.example.paymentApi.ledgers.LedgerRequest;
 import com.example.paymentApi.ledgers.LedgerService;
 import com.example.paymentApi.reservations.Reservation;
@@ -109,7 +107,7 @@ public class OutBoundTransferService {
 
 
     @Transactional
-    public void finalizeTransfer(String rawPayload, String id) {
+    public void finalizeTransfer(String rawPayload) {
         CircleOutBoundWebhookResponse payload;
 
         try {
@@ -120,7 +118,7 @@ public class OutBoundTransferService {
         }
 
         String transferId = payload.getData().getNotification().getId();
-        String walletId = payload.getData().getNotification().getWalletId();
+        String circleWalletId = payload.getData().getNotification().getWalletId();
         String sourceAddress = payload.getData().getNotification().getSourceAddress();
         String destinationAddress = payload.getData().getNotification().getDestinationAddress();
         String transactionType = payload.getData().getNotification().getTransactionType();
@@ -134,20 +132,20 @@ public class OutBoundTransferService {
         }
 
         try {
-            Wallet wallet = walletRepository.findByIdForUpdate(id).orElseThrow(() ->
+            Wallet wallet = walletRepository.findByCircleWalletIdForLock(circleWalletId).orElseThrow(() ->
                     new ResourceNotFoundException("Wallet does not exist"));
 
-            Transactions transactions = transactionRepository.findByIdForUpdate(id).orElseThrow(() ->
+            Transactions transactions = transactionRepository.findByReferenceIdForLock(transferId).orElseThrow(() ->
                     new ResourceNotFoundException("Transaction record does not exist"));
 
-            Reservation reservation = reservationRepository.findById(id).orElseThrow();
+            Reservation reservation = reservationRepository.findByTransactionId(transferId).orElseThrow();
 
             if(reservation.getStatus() != ReservationStatus.ACTIVE) return;
 
 
 
             if ("COMPLETE".equalsIgnoreCase(state)) {
-                walletService.debitWallet(id, amount);
+                walletService.debitWallet(circleWalletId, amount);
 
                 LedgerRequest request = new LedgerRequest();
                 request.setEntryType(LedgerType.OUTBOUND_TRANSFER);
@@ -170,15 +168,15 @@ public class OutBoundTransferService {
 
             }
 
-                else {
-                    walletService.creditWallet(id, amount);
-                    reservation.setStatus(ReservationStatus.RELEASED);
-                    reservationRepository.save(reservation);
-                    transactions.setStatus(TransactionStatus.FAILED);
-                    transactionRepository.save(transactions);
-                }
+            if("FAILED".equalsIgnoreCase(state)){
 
+                walletService.creditWallet(circleWalletId, amount);
+                reservation.setStatus(ReservationStatus.RELEASED);
+                reservationRepository.save(reservation);
+                transactions.setStatus(TransactionStatus.FAILED);
+                transactionRepository.save(transactions);
 
+            }
 
             //TODO:
             //parse webhook event

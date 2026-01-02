@@ -70,7 +70,7 @@ public class WalletService {
             throw new ValidationException("Credit amount must be greater than zero");
         }
 
-        Wallet wallet = walletRepository.findById(id).orElseThrow(()->
+        Wallet wallet = walletRepository.findByCircleWalletId(id).orElseThrow(()->
                 new ResourceNotFoundException("Wallet does not exist"));
 
 
@@ -97,7 +97,7 @@ public class WalletService {
         if(amount.compareTo(BigDecimal.ZERO)<= 0){
             throw new ValidationException("Amount must be greater than zero");
         }
-        Wallet wallet = walletRepository.findById(id).orElseThrow(()->
+        Wallet wallet = walletRepository.findByCircleWalletId(id).orElseThrow(()->
                 new ResourceNotFoundException("Wallet does not exist"));
 
         if (wallet.getAvailableBalance().compareTo(amount) < 0) {
