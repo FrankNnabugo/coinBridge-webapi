@@ -9,6 +9,7 @@ import com.example.paymentApi.shared.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -123,6 +124,14 @@ public class Verifier {
             throw new ValidationException(
                     "Unsupported blockchain. Only POLYGON is allowed"
             );
+        }
+    }
+
+    public static void validateAllInput(String address, BlockchainType blockchain, BigDecimal amount){
+        if (amount == null
+                && address == null
+                && blockchain == null) {
+            throw new ValidationException("Amount, address, blockchain must be provided");
         }
     }
 }

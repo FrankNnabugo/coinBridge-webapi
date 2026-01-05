@@ -1,8 +1,6 @@
 package com.example.paymentApi.ledgers;
 
 import com.example.paymentApi.shared.enums.*;
-import com.example.paymentApi.wallets.Wallet;
-
 import java.math.BigDecimal;
 
 public class LedgerRequest {

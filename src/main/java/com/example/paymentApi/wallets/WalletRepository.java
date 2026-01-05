@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface WalletRepository extends JpaRepository<Wallet, String> {
-    Optional<Wallet> findByCircleWalletId(String circleWalletId);
+    Wallet findByCircleWalletId(String circleWalletId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT w FROM Wallet w WHERE w.circleWalletId = :circleWalletId")

@@ -36,8 +36,6 @@ public class WalletService {
         wallet.setAccountType(circleWalletResponse.getAccountType());
         wallet.setAddress(circleWalletResponse.getAddress());
         wallet.setWalletSetId(circleWalletResponse.getWalletSetId());
-        wallet.setReferenceId(circleWalletResponse.getReferenceId());
-        wallet.setWalletName("POLYGON-AMOY");
 
         walletRepository.save(wallet);
     }
@@ -70,7 +68,7 @@ public class WalletService {
             throw new ValidationException("Credit amount must be greater than zero");
         }
 
-        Wallet wallet = walletRepository.findByCircleWalletId(id).orElseThrow(()->
+        Wallet wallet = walletRepository.findById(id).orElseThrow(()->
                 new ResourceNotFoundException("Wallet does not exist"));
 
 
@@ -97,7 +95,7 @@ public class WalletService {
         if(amount.compareTo(BigDecimal.ZERO)<= 0){
             throw new ValidationException("Amount must be greater than zero");
         }
-        Wallet wallet = walletRepository.findByCircleWalletId(id).orElseThrow(()->
+        Wallet wallet = walletRepository.findById(id).orElseThrow(()->
                 new ResourceNotFoundException("Wallet does not exist"));
 
         if (wallet.getAvailableBalance().compareTo(amount) < 0) {
@@ -124,13 +122,4 @@ public class WalletService {
         walletRepository.save(wallet);
     }
 
-    public Wallet findByCircleWalletId(String circleWalletId) {
-        return walletRepository
-                .findByCircleWalletId(circleWalletId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(
-                                "Wallet not found for Circle wallet ID: " + circleWalletId
-                        )
-                );
-    }
 }

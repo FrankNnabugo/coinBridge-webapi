@@ -32,7 +32,7 @@ public class Transactions {
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 38, scale = 8)
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
@@ -42,7 +42,7 @@ public class Transactions {
     @Column(nullable = false, length = 50)
     private String transferId;
 
-    @Column(length = 50)
+    @Column(length = 50, unique = true)
     private String referenceId; //tx_hash, payment_intent_id, reference
 
     private String sourceCurrency;

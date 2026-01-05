@@ -40,11 +40,6 @@ public class TransactionService{
 
     }
 
-    public boolean findTransactionByTransferId(String transferId) {
-        return transactionRepository.findTransactionByTransferId(transferId);
-
-    }
-
     @Cacheable(value = "transaction", key = "#id")
     public TransactionResponse getTransaction(String id){
         Transactions transactions = transactionRepository.findById(id).orElseThrow(()->
@@ -72,7 +67,4 @@ public class TransactionService{
 
     }
 
-    public boolean findTransactionByReferenceId(String referenceId){
-        return transactionRepository.findTransactionByReferenceId(referenceId);
-    }
 }
