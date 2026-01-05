@@ -10,6 +10,7 @@ import com.example.paymentApi.reservations.ReservationService;
 import com.example.paymentApi.shared.enums.*;
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.shared.exception.ValidationException;
+import com.example.paymentApi.shared.mapper.WebhookMapper;
 import com.example.paymentApi.shared.utility.Verifier;
 import com.example.paymentApi.transaction.TransactionRepository;
 import com.example.paymentApi.transaction.TransactionRequest;
@@ -19,17 +20,20 @@ import com.example.paymentApi.wallets.Wallet;
 import com.example.paymentApi.wallets.WalletRepository;
 import com.example.paymentApi.wallets.WalletService;
 import com.example.paymentApi.webhook.circle.CircleOutBoundWebhookResponse;
+import com.example.paymentApi.webhook.circle.OutBoundPayload;
 import com.example.paymentApi.webhook.circle.OutboundTransferInitiationResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OutBoundTransferService {
 
     private final ObjectMapper objectMapper;
@@ -41,16 +45,19 @@ public class OutBoundTransferService {
     private final ReservationRepository reservationRepository;
     private final WalletService walletService;
     private final LedgerService ledgerService;
+    private final WebhookMapper webhookMapper;
+
+    private static final String COMPLETE_STATE = "COMPLETE";
+    private static final String FAILURE_STATE = "FAILED";
+
 
 
     @Transactional
-    public String initiateTransfer(OutBoundRequest outBoundRequest, String id,
-                                   OutboundTransferInitiationResponse response) {
-        if (outBoundRequest.getAmounts() == null
-                || outBoundRequest.getDestinationAddress() == null
-                || outBoundRequest.getBlockchain() == null) {
-            throw new ValidationException("Amount, address, blockchain must be provided");
-        }
+    @Async
+    public String initiateTransfer(OutBoundRequest outBoundRequest, String id) {
+
+       Verifier.validateAllInput(outBoundRequest.getDestinationAddress(),
+               outBoundRequest.getBlockchain(), outBoundRequest.getAmounts());
 
         if (outBoundRequest.getAmounts().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("Amount must be greater than zero");
@@ -65,16 +72,18 @@ public class OutBoundTransferService {
         Wallet wallet = walletRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Wallet does not exist"));
 
+        OutboundTransferInitiationResponse response = new OutboundTransferInitiationResponse();
 
-        TransactionRequest request = new TransactionRequest();
-        request.setTransferId(response.getId());
-        request.setType(TransactionType.OUTBOUND_TRANSFER);
-        request.setAmounts(outBoundRequest.getAmounts());
-        request.setStatus(TransactionStatus.PENDING);
-        request.setSourceAddress(wallet.getAddress());
-        request.setDestinationAddress(outBoundRequest.getDestinationAddress());
+        TransactionRequest transactionRequest = new TransactionRequest();
+        transactionRequest.setTransferId(response.getId());
+        transactionRequest.setType(TransactionType.OUTBOUND_TRANSFER);
+        transactionRequest.setAmounts(outBoundRequest.getAmounts());
+        transactionRequest.setStatus(TransactionStatus.PENDING);
+        transactionRequest.setSourceAddress(wallet.getAddress());
+        transactionRequest.setDestinationAddress(outBoundRequest.getDestinationAddress());
 
-        transactionService.createTransactionRecord(request, wallet);
+        transactionService.createTransactionRecord(transactionRequest, wallet);
+
 
         ReservationRequest reservationRequest = new ReservationRequest();
         reservationRequest.setAmount(outBoundRequest.getAmounts());
@@ -107,36 +116,46 @@ public class OutBoundTransferService {
 
 
     @Transactional
+    @Async
     public void finalizeTransfer(String rawPayload) {
         CircleOutBoundWebhookResponse payload;
 
         try {
+
             payload = objectMapper.readValue(rawPayload, CircleOutBoundWebhookResponse.class);
-        } catch (JsonProcessingException e) {
-            e.getMessage();
-            throw new ValidationException("Invalid webhook payload structure");
         }
-
-        String transferId = payload.getData().getNotification().getId();
-        String circleWalletId = payload.getData().getNotification().getWalletId();
-        String sourceAddress = payload.getData().getNotification().getSourceAddress();
-        String destinationAddress = payload.getData().getNotification().getDestinationAddress();
-        String transactionType = payload.getData().getNotification().getTransactionType();
-        String state = payload.getData().getNotification().getState();
-        BigDecimal amount = payload.getData().getNotification().getAmount();
-        String referenceId = payload.getData().getNotification().getTxHash();
-        String fee = payload.getData().getNotification().getNetworkFee();
-
-        if (transactionService.findTransactionByReferenceId(referenceId)) {
+        catch (Exception e){
+            log.error("Invalid webhook payload structure", e);
             return;
         }
 
+        if (payload.getData().getNotification() == null) {
+        log.error("Webhook notification is null");
+        return;
+    }
+        OutBoundPayload notification = payload.getData().getNotification();
+        String transferId = notification.getId();
+        String circleWalletId = notification.getWalletId();
+        String sourceAddress = notification.getSourceAddress();
+        String destinationAddress = notification.getDestinationAddress();
+        TransactionType transactionType = webhookMapper.mapCircleTransactionType(notification.getTransactionType());
+        String state = notification.getState();
+        BigDecimal amounts = webhookMapper.mapCircleAmountType(notification.getAmount());
+        String referenceId = notification.getTxHash();
+        String fee = notification.getNetworkFee();
+
+
         try {
+
+        boolean transaction = transactionRepository.existsByReferenceId(referenceId);
+                if(transaction){
+            return;
+        }
+
             Wallet wallet = walletRepository.findByCircleWalletIdForLock(circleWalletId).orElseThrow(() ->
                     new ResourceNotFoundException("Wallet does not exist"));
 
-            Transactions transactions = transactionRepository.findByReferenceIdForLock(transferId).orElseThrow(() ->
-                    new ResourceNotFoundException("Transaction record does not exist"));
+            Transactions transactions = transactionRepository.findByReferenceId(transferId);
 
             Reservation reservation = reservationRepository.findByTransactionId(transferId).orElseThrow();
 
@@ -144,12 +163,12 @@ public class OutBoundTransferService {
 
 
 
-            if ("COMPLETE".equalsIgnoreCase(state)) {
-                walletService.debitWallet(circleWalletId, amount);
+            if (COMPLETE_STATE.equalsIgnoreCase(state)) {
+                walletService.debitWallet(circleWalletId, amounts);
 
                 LedgerRequest request = new LedgerRequest();
                 request.setEntryType(LedgerType.OUTBOUND_TRANSFER);
-                request.setAmount(amount);
+                request.setAmount(amounts);
                 request.setProvider(ProviderType.CIRCLE);
                 request.setAsset(AssetType.USDC);
                 request.setStatus(LedgerStatus.POSTED);
@@ -168,9 +187,9 @@ public class OutBoundTransferService {
 
             }
 
-            if("FAILED".equalsIgnoreCase(state)){
+            if(FAILURE_STATE.equalsIgnoreCase(state)){
 
-                walletService.creditWallet(circleWalletId, amount);
+                walletService.creditWallet(circleWalletId, amounts);
                 reservation.setStatus(ReservationStatus.RELEASED);
                 reservationRepository.save(reservation);
                 transactions.setStatus(TransactionStatus.FAILED);

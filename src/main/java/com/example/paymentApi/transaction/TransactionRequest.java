@@ -5,6 +5,7 @@ import com.example.paymentApi.shared.enums.TransactionType;
 
 import java.math.BigDecimal;
 
+
 public class TransactionRequest {
     private String transferId;
 

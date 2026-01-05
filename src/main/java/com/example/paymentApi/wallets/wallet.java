@@ -42,7 +42,7 @@ public class Wallet {
     private String address;
 
     @Column(length = 36)
-    private String walletName;
+    private String walletName = "POLYGON-AMOY";
 
     @Column(nullable = false)
     private String provider="circle";
@@ -52,9 +52,6 @@ public class Wallet {
 
     @Column(nullable = false, length = 100)
     private String circleWalletId;
-
-    @Column(length = 100)
-    private String referenceId;
 
     @Column(nullable = false, precision = 38, scale = 8)
     private BigDecimal totalBalance = BigDecimal.ZERO;
@@ -70,9 +67,6 @@ public class Wallet {
 
     @Column(nullable = false)
     private String status = "active";
-
-    @Column(nullable = false, length = 100)
-    private String metadata;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -167,14 +161,6 @@ public class Wallet {
 
     public void setWalletSetId(String walletSetId) {
         this.walletSetId = walletSetId;
-    }
-
-    public String getReferenceId() {
-        return referenceId;
-    }
-
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
     }
 
     public BigDecimal getTotalBalance() {

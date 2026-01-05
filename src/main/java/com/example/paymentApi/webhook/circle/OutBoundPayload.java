@@ -1,7 +1,12 @@
 package com.example.paymentApi.webhook.circle;
 
-import java.math.BigDecimal;
+import com.example.paymentApi.shared.enums.CircleTransactionType;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class OutBoundPayload {
     private String id;
 
@@ -11,11 +16,11 @@ public class OutBoundPayload {
 
     private String destinationAddress;
 
-    private String transactionType;
+    private CircleTransactionType transactionType;
 
     private String state;
 
-    private BigDecimal amount;
+    private List<BigDecimal> amount;
 
     private String txHash;
 
@@ -53,28 +58,12 @@ public class OutBoundPayload {
         this.destinationAddress = destinationAddress;
     }
 
-    public String getTransactionType() {
-        return transactionType;
-    }
-
-    public void setTransactionType(String transactionType) {
-        this.transactionType = transactionType;
-    }
-
     public String getState() {
         return state;
     }
 
     public void setState(String state) {
         this.state = state;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
     }
 
     public String getNetworkFee() {
@@ -91,5 +80,21 @@ public class OutBoundPayload {
 
     public void setTxHash(String txHash) {
         this.txHash = txHash;
+    }
+
+    public CircleTransactionType getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(CircleTransactionType transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public List<BigDecimal> getAmount() {
+        return amount;
+    }
+
+    public void setAmount(List<BigDecimal> amount) {
+        this.amount = amount;
     }
 }

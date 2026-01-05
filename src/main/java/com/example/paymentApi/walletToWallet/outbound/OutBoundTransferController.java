@@ -16,9 +16,9 @@ public class OutBoundTransferController{
 
     @PostMapping
     public ResponseEntity<String> initiateTransfer(@Valid @RequestBody OutBoundRequest outBoundRequest,
-                                                   @PathVariable("id") String id,
-                                                    OutboundTransferInitiationResponse response
+                                                   @PathVariable("id") String id
+
                                                   ){
-        return ResponseEntity.ok(outBoundTransferService.initiateTransfer(outBoundRequest, id, response));
+        return ResponseEntity.ok(outBoundTransferService.initiateTransfer(outBoundRequest, id));
     }
 }

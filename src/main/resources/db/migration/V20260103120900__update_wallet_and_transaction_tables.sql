@@ -1,0 +1,8 @@
+BEGIN;
+ALTER TABLE transactions
+ALTER COLUMN amount TYPE NUMERIC(38, 8);
+
+ALTER TABLE wallets
+DROP COLUMN reference_id;
+
+COMMIT;

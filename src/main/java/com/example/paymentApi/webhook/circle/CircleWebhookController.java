@@ -27,14 +27,23 @@ public class CircleWebhookController {
 
     @PostMapping("/pay-in")
     public ResponseEntity<CircleInboundWebhookResponse> handleInboundTransfer(@RequestBody String rawPayload,
-                                                                              @RequestHeader("X-Circle-Signature") String signatureBase64) {
+
+                                                                              @RequestHeader("X-Circle-Signature") String signatureBase64)
+    {
+        log.info("Received webhook response from circle and verifying signature");
+
        if(!circleWebhookService.verifySignature(rawPayload, signatureBase64)){
            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
        };
-        log.info("Received webhook response from circle for USDC wallet deposit {}", rawPayload);
-        inboundTransferService.processInboundTransfer(rawPayload);
+        log.info("Signature successfully verified, processing webhook response for USDC wallet deposit {}", rawPayload);
+        try {
+           inboundTransferService.processInboundTransfer(rawPayload);
+        }
+        catch (Exception e) {
+           log.error("Inbound transfer processing failed", e);
+        }
 
-        //log.info("Received webhook response from circle for USDC wallet deposit {}", rawPayload);
+        //log.info("Processed webhook response and returning 200 to provider");
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

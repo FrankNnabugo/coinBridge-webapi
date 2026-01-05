@@ -44,7 +44,7 @@ public class Ledger{
     @Column(nullable = false)
     private LedgerStatus status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String referenceId; //tx_hash, payment_intent_id, reference
 
     @Column(length = 200)

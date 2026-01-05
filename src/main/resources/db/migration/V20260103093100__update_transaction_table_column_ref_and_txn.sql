@@ -1,0 +1,6 @@
+BEGIN;
+ALTER TABLE transactions
+ALTER COLUMN transfer_id TYPE VARCHAR(200),
+ALTER COLUMN reference_id TYPE VARCHAR(200);
+
+COMMIT;
