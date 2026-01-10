@@ -1,0 +1,5 @@
+BEGIN;
+ALTER TABLE users
+DROP COLUMN otp,
+DROP COLUMN otp_expiry_time;
+COMMIT;

@@ -1,4 +1,4 @@
-package com.example.paymentApi.worker;
+package com.example.paymentApi.worker.walletCreation;
 
 import com.example.paymentApi.integration.circle.CircleWalletService;
 import com.example.paymentApi.event.wallet.WalletCreationEvent;
@@ -52,6 +52,7 @@ public class WalletRetryWorker {
 
                         .doOnSuccess(response -> {
                             record.setStatus(RetryStatus.SUCCESS);
+                            record.setReason("Success");
                             walletRetryRepository.save(record);
                             WalletCreationEvent event = new WalletCreationEvent(response, userId);
                             walletEventPublisher.publishWalletCreatedEvent((event));
@@ -61,12 +62,13 @@ public class WalletRetryWorker {
 
                         .onErrorResume(error -> {
                             record.setStatus(RetryStatus.FAILED);
+                            record.setReason(error.getMessage());
                             walletRetryRepository.save(record);
                             walletEventPublisher.publishWalletCreationPermanentlyFailed(new WalletCreationPermanentlyFailedEvent
                                     (userId));
 
                             log.error(
-                                    "Circle wallet creation permanently failed for user {}",
+                                    "Circle wallet creation failed for user {}",
                                     record.getUserId(),
                                     error
                             );

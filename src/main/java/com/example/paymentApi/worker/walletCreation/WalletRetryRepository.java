@@ -1,4 +1,4 @@
-package com.example.paymentApi.worker;
+package com.example.paymentApi.worker.walletCreation;
 
 import com.example.paymentApi.shared.enums.RetryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;

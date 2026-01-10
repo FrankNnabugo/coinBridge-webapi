@@ -1,4 +1,4 @@
-package com.example.paymentApi.worker;
+package com.example.paymentApi.worker.walletCreation;
 
 import com.example.paymentApi.shared.enums.RetryStatus;
 import jakarta.persistence.*;
@@ -24,6 +24,8 @@ public class WalletRetryRecord {
 
     @Column(nullable = false)
     private long retryCount;
+
+    private String reason;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -78,5 +80,13 @@ public class WalletRetryRecord {
 
     public void setStatus(RetryStatus status) {
         this.status = status;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }

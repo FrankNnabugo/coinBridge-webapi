@@ -1,0 +1,7 @@
+BEGIN;
+ALTER TABLE wallet_reservations
+ADD COLUMN reason VARCHAR NOT NULL;
+
+ALTER TABLE wallet_retry
+ADD COLUMN reason VARCHAR;
+COMMIT;

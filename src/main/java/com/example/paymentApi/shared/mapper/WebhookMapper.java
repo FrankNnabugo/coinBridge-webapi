@@ -10,14 +10,14 @@ import java.util.List;
 @Component
 public class WebhookMapper {
 
-    public TransactionType mapCircleTransactionType(CircleTransactionType type) {
+    public static TransactionType mapCircleTransactionType(CircleTransactionType type) {
         return switch (type) {
             case INBOUND -> TransactionType.INBOUND_TRANSFER;
             case OUTBOUND -> TransactionType.OUTBOUND_TRANSFER;
         };
     }
 
-    public BigDecimal mapCircleAmountType(List<BigDecimal> amounts) {
+    public static BigDecimal mapCircleAmountType(List<BigDecimal> amounts) {
         return amounts.get(0);
     }
 }

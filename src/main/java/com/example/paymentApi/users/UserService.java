@@ -10,14 +10,16 @@ import com.example.paymentApi.shared.exception.ValidationException;
 import com.example.paymentApi.shared.utility.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.stream.Stream;
 
 @Service
+@Slf4j
 public class UserService {
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
@@ -27,11 +29,14 @@ public class UserService {
     private final PasswordHashUtil passwordHashUtil;
     private final OtpEmailService emailService;
     private final UserEventPublisher userCreatedEventPublisher;
+    private final RedisOtpService redisOtpService;
+    private static final Duration TTL = Duration.ofMinutes(5);
+
 
     public UserService(ModelMapper modelMapper, JwtService jwtService,
                        ExceptionThrower exceptionThrower, UserRepository userRepository,
                        Verifier verifier, PasswordHashUtil passwordHashUtil, OtpEmailService emailService,
-                       UserEventPublisher userCreatedEventPublisher) {
+                       UserEventPublisher userCreatedEventPublisher, RedisOtpService userOtpService) {
         this.modelMapper = modelMapper;
         this.jwtService = jwtService;
         this.exceptionThrower = exceptionThrower;
@@ -40,6 +45,7 @@ public class UserService {
         this.passwordHashUtil = passwordHashUtil;
         this.emailService = emailService;
         this.userCreatedEventPublisher = userCreatedEventPublisher;
+        this.redisOtpService = userOtpService;
     }
 
 
@@ -108,6 +114,9 @@ public class UserService {
 
     @Transactional
     public String sendOtp(String emailAddress) {
+
+        long time = TTL.toMinutes();
+
         String path = HttpRequestUtil.getServletPath();
 
         User user = userRepository.findByEmailAddress(emailAddress).orElseThrow(() ->
@@ -117,46 +126,37 @@ public class UserService {
 
         OtpGenerator.OtpData otp = OtpGenerator.generateOtp();
 
-        user.setOtp(otp.getOtp());
+        log.info("Generated otp {}", otp);
 
-        user.setOtpExpiryTime(otp.getExpiryTime());
+        redisOtpService.saveOtp(user.getId(), "EMAIL_VERIFY", otp.getOtp(), time);
 
-        userRepository.save(user);
+        log.info("saved otp on redis server");
 
-        emailService.sendOtpEmail(emailAddress, otp.getOtp(),
-                OtpGenerator.getExpiryDurationString(otp.getExpiryTime()));
+        emailService.sendOtpEmail(emailAddress, otp.getOtp(), time);
 
         return "Otp successfully sent";
     }
 
     public String verifyOtp(String otp, String emailAddress) {
-        String path = HttpRequestUtil.getServletPath();
+
+        long time = TTL.toMinutes();
 
         User user = userRepository.findByEmailAddress(emailAddress).orElseThrow(() ->
-                exceptionThrower.throwUserNotFoundExistException(path));
+                new ResourceNotFoundException("User does not exist"));
 
-        if (user.getOtp() == null || user.getOtpExpiryTime() == null) {
-            exceptionThrower.throwOtpNotFoundException(path);
-        }
+        boolean valid = redisOtpService.verifyOtp(user.getId(), "EMAIL_VERIFY", otp, time);
 
-        if (LocalDateTime.now().isAfter(user.getOtpExpiryTime())) {
-            exceptionThrower.throwOtpExpiredException(path);
-        }
-
-        if (!otp.equals(user.getOtp())) {
-            exceptionThrower.throwInvalidOtpException(path);
+        if(!valid){
+            throw new ValidationException("Invalid or expired otp, request a new otp");
         }
 
         Verifier.verifyOtpFormat(otp);
         Verifier.verifyEmail(emailAddress);
 
-
         user.setVerified(true);
-        user.setOtp(null);
-        user.setOtpExpiryTime(null);
 
         userRepository.save(user);
-
+//ToDo: publish a mail to user letting them know their email has been verified.
         return "Email successfully verified.";
 
     }
@@ -166,7 +166,7 @@ public class UserService {
         String path = HttpRequestUtil.getServletPath();
 
         User user = userRepository.findById(id).orElseThrow(() ->
-                exceptionThrower.throwUserNotFoundExistException(path));
+                new ResourceNotFoundException("User does not exist"));
 
         String refreshToken = TokenUtil.extractRefreshTokenFromRequest(httpServletRequest);
 
@@ -188,48 +188,40 @@ public class UserService {
 
     @Transactional
     public String requestPasswordReset(String emailAddress){
-        String path = HttpRequestUtil.getServletPath();
+
+        long time = TTL.toMinutes();
 
         User user = userRepository.findByEmailAddress(emailAddress).orElseThrow(()->
-                exceptionThrower.throwUserNotFoundExistException(path));
+                new ResourceNotFoundException("User does not exist"));
 
         OtpGenerator.OtpData otp = OtpGenerator.generateOtp();
-        user.setOtp(otp.getOtp());
-        user.setOtpExpiryTime(otp.getExpiryTime());
+        redisOtpService.saveOtp(user.getId(), "PASSWORD_RESET", otp.getOtp(), time);
 
-        userRepository.save(user);
-
-        emailService.sendOtpEmail(user.getEmailAddress(), otp.getOtp(),
-                OtpGenerator.getExpiryDurationString(otp.getExpiryTime()));
+        emailService.sendOtpEmail(user.getEmailAddress(), otp.getOtp(), time);
 
         return "OTP sent successfully";
     }
 
     public String resetPassword(String id, String newPassword, String newOtp) {
-        String path = HttpRequestUtil.getServletPath();
+
+        long time = TTL.toMinutes();
 
         User user = userRepository.findById(id).orElseThrow(() ->
-                exceptionThrower.throwUserNotFoundExistException(path));
+               new ResourceNotFoundException("User does not exist"));
+
+
+       boolean valid = redisOtpService.verifyOtp(user.getId(),"PASSWORD_RESET", newOtp, time );
+
+        if(!valid){
+            throw new ValidationException("Invalid or expired otp, request a new otp");
+        }
 
         Verifier.verifyOtpFormat(newOtp);
 
-        if (user.getOtp() == null) {
-            exceptionThrower.throwOtpNotFoundException(path);
-        }
-
-        if(!user.getOtp().equals(newOtp)){
-            exceptionThrower.throwInvalidOtpException(path);
-        }
-
-        if(LocalDateTime.now().isAfter(user.getOtpExpiryTime())){
-            exceptionThrower.throwOtpExpiredException(path);
-
-        }
         Verifier.verifyPasswordFormat(newPassword);
 
         user.setPassword(passwordHashUtil.hashPassword(newPassword));
-        user.setOtp(null);
-        user.setOtpExpiryTime(null);
+
         userRepository.save(user);
 
         return "Password Reset successfully";

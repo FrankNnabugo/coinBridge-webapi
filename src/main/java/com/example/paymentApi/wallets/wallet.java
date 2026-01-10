@@ -41,9 +41,6 @@ public class Wallet {
     @Column(nullable = false, length = 255)
     private String address;
 
-    @Column(length = 36)
-    private String walletName = "POLYGON-AMOY";
-
     @Column(nullable = false)
     private String provider="circle";
 
@@ -137,14 +134,6 @@ public class Wallet {
 
     public void setAddress(String address) {
         this.address = address;
-    }
-
-    public String getWalletName() {
-        return walletName;
-    }
-
-    public void setWalletName(String walletName) {
-        this.walletName = walletName;
     }
 
     public String getProvider() {
