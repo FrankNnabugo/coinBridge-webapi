@@ -1,5 +1,6 @@
 package com.example.paymentApi.reservations;
 
+import com.example.paymentApi.shared.enums.ReservationReason;
 import com.example.paymentApi.shared.enums.ReservationStatus;
 import com.example.paymentApi.shared.enums.ReservationType;
 import com.example.paymentApi.wallets.Wallet;
@@ -35,6 +36,10 @@ public class Reservation {
     private ReservationStatus status = ReservationStatus.ACTIVE;
 
     private String transactionId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ReservationReason reason;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -106,5 +111,13 @@ public class Reservation {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public ReservationReason getReason() {
+        return reason;
+    }
+
+    public void setReason(ReservationReason reason) {
+        this.reason = reason;
     }
 }

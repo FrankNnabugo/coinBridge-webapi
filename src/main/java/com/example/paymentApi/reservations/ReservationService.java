@@ -22,6 +22,7 @@ public class ReservationService {
         reservation.setAmount(request.getAmount());
         reservation.setReservationType(request.getReservationType());
         reservation.setTransactionId(request.getTransactionId());
+        reservation.setReason(request.getReason());
 
         reservationRepository.save(reservation);
 

@@ -23,7 +23,6 @@ public class WalletCreationEventListener {
 
         walletService.createWallet(event.getCircleWalletResponse(), event.getUserId());
         log.info("Wallet successfully created for user {}", event.getUserId());
-        //TODO:
-    //Publish to email service
+        //TODO: publish a mail to user with details of their wallet.
     }
 }

@@ -28,11 +28,6 @@ public class User {
     @Column(length = 100)
     private String profilePhotoUrl;
 
-    @Column(length = 10)
-    private String Otp;
-
-    private LocalDateTime otpExpiryTime;
-
     @Column(nullable = false, length = 200)
     private String Password;
 
@@ -96,14 +91,6 @@ public class User {
         this.profilePhotoUrl = profilePhotoUrl;
     }
 
-    public String getOtp() {
-        return Otp;
-    }
-
-    public void setOtp(String otp) {
-        Otp = otp;
-    }
-
     public boolean isVerified() {
         return isVerified;
     }
@@ -144,11 +131,4 @@ public class User {
         Password = password;
     }
 
-    public LocalDateTime getOtpExpiryTime() {
-        return otpExpiryTime;
-    }
-
-    public void setOtpExpiryTime(LocalDateTime otpExpiryTime) {
-        this.otpExpiryTime = otpExpiryTime;
-    }
 }

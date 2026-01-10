@@ -14,8 +14,6 @@ public class UserResponse{
 
     private String profilePhotoUrl;
 
-    private String Otp;
-
     private boolean isVerified;
 
     private boolean acceptedTerms;
@@ -70,14 +68,6 @@ public class UserResponse{
 
     public void setProfilePhotoUrl(String profilePhotoUrl) {
         this.profilePhotoUrl = profilePhotoUrl;
-    }
-
-    public String getOtp() {
-        return Otp;
-    }
-
-    public void setOtp(String otp) {
-        Otp = otp;
     }
 
     public boolean isVerified() {

@@ -15,5 +15,5 @@ public interface WalletRepository extends JpaRepository<Wallet, String> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT w FROM Wallet w WHERE w.circleWalletId = :circleWalletId")
-    Optional<Wallet> findByCircleWalletIdForLock(@Param("circleWalletId") String circleWalletId);
+    Wallet findByCircleWalletIdForUpdate(@Param("circleWalletId") String circleWalletId);
 }

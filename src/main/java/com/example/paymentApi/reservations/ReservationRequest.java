@@ -1,5 +1,6 @@
 package com.example.paymentApi.reservations;
 
+import com.example.paymentApi.shared.enums.ReservationReason;
 import com.example.paymentApi.shared.enums.ReservationStatus;
 import com.example.paymentApi.shared.enums.ReservationType;
 
@@ -14,6 +15,8 @@ public class ReservationRequest {
     private ReservationStatus status;
 
     private String transactionId;
+
+    private ReservationReason reason;
 
     public BigDecimal getAmount() {
         return amount;
@@ -45,5 +48,13 @@ public class ReservationRequest {
 
     public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
+    }
+
+    public ReservationReason getReason() {
+        return reason;
+    }
+
+    public void setReason(ReservationReason reason) {
+        this.reason = reason;
     }
 }

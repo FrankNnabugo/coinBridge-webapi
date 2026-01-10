@@ -1,0 +1,12 @@
+BEGIN;
+CREATE TABLE IF NOT EXISTS payment_retry(
+id VARCHAR NOT NULL PRIMARY KEY,
+user_id VARCHAR NOT NULL,
+retry_status VARCHAR,
+retry_count BIGINT NOT NULL,
+reason VARCHAR DEFAULT 'reason',
+created_at TIMESTAMP NOT NULL DEFAULT CURRENT_DATE,
+updated_at TIMESTAMP
+
+);
+COMMIT;

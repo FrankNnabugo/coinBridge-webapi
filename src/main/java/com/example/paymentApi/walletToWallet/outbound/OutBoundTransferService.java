@@ -8,6 +8,7 @@ import com.example.paymentApi.reservations.ReservationRepository;
 import com.example.paymentApi.reservations.ReservationRequest;
 import com.example.paymentApi.reservations.ReservationService;
 import com.example.paymentApi.shared.enums.*;
+import com.example.paymentApi.shared.exception.InsufficientBalanceException;
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.shared.exception.ValidationException;
 import com.example.paymentApi.shared.mapper.WebhookMapper;
@@ -22,12 +23,14 @@ import com.example.paymentApi.wallets.WalletService;
 import com.example.paymentApi.webhook.circle.CircleOutBoundWebhookResponse;
 import com.example.paymentApi.webhook.circle.OutBoundPayload;
 import com.example.paymentApi.webhook.circle.OutboundTransferInitiationResponse;
+import com.example.paymentApi.worker.paymentInitiation.OutboundRetryService;
+import com.example.paymentApi.worker.paymentInitiation.OutboundRetryWorker;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
@@ -45,19 +48,19 @@ public class OutBoundTransferService {
     private final ReservationRepository reservationRepository;
     private final WalletService walletService;
     private final LedgerService ledgerService;
-    private final WebhookMapper webhookMapper;
+    private final OutboundRetryService outboundRetryService;
+    private final OutboundRetryWorker outboundRetryWorker;
 
     private static final String COMPLETE_STATE = "COMPLETE";
     private static final String FAILURE_STATE = "FAILED";
-
+    private static final String TRANSACTION_TYPE = "transactions.outbound";
 
 
     @Transactional
-    @Async
     public String initiateTransfer(OutBoundRequest outBoundRequest, String id) {
 
-       Verifier.validateAllInput(outBoundRequest.getDestinationAddress(),
-               outBoundRequest.getBlockchain(), outBoundRequest.getAmounts());
+        Verifier.validateAllInput(outBoundRequest.getDestinationAddress(),
+                outBoundRequest.getBlockchain(), outBoundRequest.getAmounts());
 
         if (outBoundRequest.getAmounts().compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("Amount must be greater than zero");
@@ -71,6 +74,14 @@ public class OutBoundTransferService {
 
         Wallet wallet = walletRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Wallet does not exist"));
+
+        //Things to consider
+        //Release hold and let transaction and reservation reflect this event
+        //Or 
+
+//        Reservation reservation = reservationRepository.findById(id).orElseThrow();
+//
+//        Transactions transaction = transactionRepository.findById(id).orElseThrow();
 
         OutboundTransferInitiationResponse response = new OutboundTransferInitiationResponse();
 
@@ -89,34 +100,60 @@ public class OutBoundTransferService {
         reservationRequest.setAmount(outBoundRequest.getAmounts());
         reservationRequest.setTransactionId(response.getId());
         reservationRequest.setReservationType(ReservationType.OUTBOUND_TRANSFER);
+        reservationRequest.setReason(ReservationReason.TRANSACTION_INITIATED);
 
         reservationService.reserveFund(id, reservationRequest);
+
+        if (wallet.getAvailableBalance().compareTo(outBoundRequest.getAmounts()) < 0) {
+
+            throw new InsufficientBalanceException("Insufficient available balance");
+
+        }
 
         wallet.setAvailableBalance(wallet.getAvailableBalance().subtract(outBoundRequest.getAmounts()));
         wallet.setReservedBalance(wallet.getReservedBalance().add(outBoundRequest.getAmounts()));
         walletRepository.save(wallet);
 
         circleWalletService.createTransferIntent(id, outBoundRequest.getDestinationAddress(),
-                outBoundRequest.getBlockchain(), outBoundRequest.getAmounts())
-                .subscribe();
+                    outBoundRequest.getBlockchain(), outBoundRequest.getAmounts());
+//
+//                    .doOnSuccess(initiationResponse -> {
+//                        log.info("payment successfully initiated with response {}", initiationResponse);
+//
+//                    })
+//
+//                    .onErrorResume(error -> {
+//                        outboundRetryService.createPaymentRetryRecord(id);
+//                        outboundRetryWorker.retryPaymentInitiation(outBoundRequest);
+//
+//                        return Mono.error(error);
+//                    });
 
-        return "Payment Successfully processed";
 
-        //validate input
-        //create txn = pending
-        //persist intent id
-        //create hold/reservation
-        //call provider
-        //no lock
-        //no ledger
-        //no debit
-        //no release
+//        } catch (Exception e) {
+//            log.error("Error initiating payment", e);
+//        }
+
+        return "Payment Successfully Processed";
+
+        /**
+
+        validate input
+        create txn = pending
+        persist intent id
+        create hold/reservation
+        call provider
+        no lock
+        no ledger
+        no debit
+        no release
+         */
 
     }
 
 
+
     @Transactional
-    @Async
     public void finalizeTransfer(String rawPayload) {
         CircleOutBoundWebhookResponse payload;
 
@@ -133,38 +170,39 @@ public class OutBoundTransferService {
         log.error("Webhook notification is null");
         return;
     }
+        String notificationType = payload.getNotificationType();
         OutBoundPayload notification = payload.getData().getNotification();
         String transferId = notification.getId();
         String circleWalletId = notification.getWalletId();
         String sourceAddress = notification.getSourceAddress();
         String destinationAddress = notification.getDestinationAddress();
-        TransactionType transactionType = webhookMapper.mapCircleTransactionType(notification.getTransactionType());
+        TransactionType transactionType = WebhookMapper.mapCircleTransactionType(notification.getTransactionType());
         String state = notification.getState();
-        BigDecimal amounts = webhookMapper.mapCircleAmountType(notification.getAmount());
+        BigDecimal amounts = WebhookMapper.mapCircleAmountType(notification.getAmount());
         String referenceId = notification.getTxHash();
         String fee = notification.getNetworkFee();
 
+        if (!TRANSACTION_TYPE.equalsIgnoreCase(notificationType)) return;
+        if (!COMPLETE_STATE.equalsIgnoreCase(state)) return;
+
+        Wallet wallet = walletRepository.findByCircleWalletIdForUpdate(circleWalletId);
 
         try {
 
-        boolean transaction = transactionRepository.existsByReferenceId(referenceId);
-                if(transaction){
+        boolean exist = transactionRepository.existsByReferenceId(referenceId);
+                if(exist){
             return;
         }
 
-            Wallet wallet = walletRepository.findByCircleWalletIdForLock(circleWalletId).orElseThrow(() ->
-                    new ResourceNotFoundException("Wallet does not exist"));
 
-            Transactions transactions = transactionRepository.findByReferenceId(transferId);
+            Transactions transactions = transactionRepository.findByTransferId(transferId);
 
-            Reservation reservation = reservationRepository.findByTransactionId(transferId).orElseThrow();
+            Reservation reservation = reservationRepository.findByTransactionId(transferId);
 
             if(reservation.getStatus() != ReservationStatus.ACTIVE) return;
 
 
-
-            if (COMPLETE_STATE.equalsIgnoreCase(state)) {
-                walletService.debitWallet(circleWalletId, amounts);
+            walletService.debitWallet(circleWalletId, amounts);
 
                 LedgerRequest request = new LedgerRequest();
                 request.setEntryType(LedgerType.OUTBOUND_TRANSFER);
@@ -180,37 +218,51 @@ public class OutBoundTransferService {
 
                 transactions.setReferenceId(referenceId);
                 transactions.setStatus(TransactionStatus.SUCCESS);
+                transactions.setType(transactionType);
                 transactionRepository.save(transactions);
 
                 reservation.setStatus(ReservationStatus.RELEASED);
+                reservation.setReason(ReservationReason.TRANSACTION_SUCCEEDED);
                 reservationRepository.save(reservation);
 
-            }
 
-            if(FAILURE_STATE.equalsIgnoreCase(state)){
+                if(FAILURE_STATE.equalsIgnoreCase(state)){
 
-                walletService.creditWallet(circleWalletId, amounts);
+//                if (wallet.getReservedBalance().compareTo(amounts) < 0) {
+//                    throw new InsufficientBalanceException("Insufficient reserved balance");
+//                }
+
+//              walletService.creditWallet(circleWalletId, amounts);
+
+                wallet.setReservedBalance(wallet.getReservedBalance().subtract(amounts));
+                wallet.setAvailableBalance(wallet.getAvailableBalance().add(amounts));
+                walletRepository.save(wallet);
+
                 reservation.setStatus(ReservationStatus.RELEASED);
+                reservation.setReason(ReservationReason.TRANSACTION_FAILED);
                 reservationRepository.save(reservation);
+
                 transactions.setStatus(TransactionStatus.FAILED);
                 transactionRepository.save(transactions);
 
             }
 
-            //TODO:
-            //parse webhook event
-            //fetch txn and check if txn been processed before using intent id
-            //lock row
-            //if webhook = success
-            //debit wallet
-            //create ledger
-            //set tnx to success
-            //release lock
+            /** EXECUTION FLOW:
+            parse webhook event
+            fetch txn and check if txn been processed before using intent id
+            lock row
+            if webhook = success
+            debit wallet
+            create ledger
+            set tnx to success
 
-            //if webhook = failure
-            //release hold/reservation
-            //mark txn = failed
-            //notify user
+            release lock
+
+            if webhook = failure
+            release hold/reservation
+            mark txn = failed
+             */
+
         } catch (Exception e) {
 
             throw new RuntimeException(e);

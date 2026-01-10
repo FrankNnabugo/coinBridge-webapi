@@ -1,31 +1,28 @@
 package com.example.paymentApi.messaging;
-import com.example.paymentApi.shared.utility.GeneralLogger;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 @Service
+@Slf4j
 public class OtpEmailService {
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
-    private final GeneralLogger logger;
 
-    public OtpEmailService(JavaMailSender mailSender, TemplateEngine templateEngine, GeneralLogger logger) {
+    public OtpEmailService(JavaMailSender mailSender, TemplateEngine templateEngine) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
-        this.logger = logger;
     }
 
+
     @Async
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void sendOtpEmail(String toEmail, String otpCode, String expiryTime) {
+    public void sendOtpEmail(String toEmail, String otpCode, long expiryTime) {
         try {
 
             Context context = new Context();
@@ -46,8 +43,11 @@ public class OtpEmailService {
         }
         catch (MessagingException e)
         {
-            logger.log(e.getMessage());
-            throw new RuntimeException("Failed to send OTP email", e);
+            //retry or publish
+            log.info("Failed to send OTP email", e);
+        }
+        catch (Exception e) {
+            log.info("Error sending Otp {}" , e.getMessage());
         }
     }
 }
