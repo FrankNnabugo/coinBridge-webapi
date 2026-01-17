@@ -31,7 +31,7 @@ public class WalletRetryWorker {
     }
 
 
-    public void retryCircleWalletCreation(String userId) {
+    public void retryCircleWalletCreation(String userId, String email) {
         List<WalletRetryRecord> records = walletRetryRepository.findByStatus(RetryStatus.PENDING);
         for (WalletRetryRecord record : records) {
             try {
@@ -54,7 +54,7 @@ public class WalletRetryWorker {
                             record.setStatus(RetryStatus.SUCCESS);
                             record.setReason("Success");
                             walletRetryRepository.save(record);
-                            WalletCreationEvent event = new WalletCreationEvent(response, userId);
+                            WalletCreationEvent event = new WalletCreationEvent(response, userId, email);
                             walletEventPublisher.publishWalletCreatedEvent((event));
 
                             log.info("Wallet creation successful after retries for user {}", record.getUserId());

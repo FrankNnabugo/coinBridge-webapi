@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 public class OutboundRetryService {
 
     private final OutboundRetryRepository outboundRetryRepository;
-    private final UserRepository userRepository;
 
     public void createPaymentRetryRecord(String userId){
         OutboundRetryRecord record = new OutboundRetryRecord();

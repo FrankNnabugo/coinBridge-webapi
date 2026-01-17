@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -28,21 +27,21 @@ public class RedisOtpService {
     }
 
 
-    public boolean verifyOtp(String userId, String purpose, String otp, long TTL){
+    public void verifyOtp(String userId, String purpose, String otp, long TTL){
 
         String key = buildKey(userId, purpose);
 
         String savedOtp = redisTemplate.opsForValue().get(key);
 
         if (savedOtp == null || TTL < 0) {
-            return false;
+           throw new ValidationException("OTP has expired. Please request a new one");
         }
 
         if (!savedOtp.equals(otp)) {
-           return false;
+           throw new ValidationException("Invalid OTP. Please request a new Otp");
         }
 
         redisTemplate.delete(key);
-        return true;
+
     }
 }

@@ -35,6 +35,8 @@ public class LedgerService {
         credit.setDestinationAddress(request.getDestinationAddress());
         credit.setSourceCurrency(request.getSourceCurrency());
         credit.setDestinationCurrency(request.getDestinationCurrency());
+        credit.setBalanceBefore(request.getBalanceBefore());
+        credit.setBalanceAfter(request.getBalanceAfter());
 
         Ledger debit = new Ledger();
         debit.setWallet(wallet);
@@ -49,6 +51,8 @@ public class LedgerService {
         debit.setDestinationAddress(request.getDestinationAddress());
         debit.setSourceCurrency(request.getSourceCurrency());
         debit.setDestinationCurrency(request.getDestinationCurrency());
+        debit.setBalanceBefore(request.getBalanceBefore());
+        debit.setBalanceAfter(request.getBalanceAfter());
 
         ledgerRepository.saveAll(List.of(credit, debit));
     }

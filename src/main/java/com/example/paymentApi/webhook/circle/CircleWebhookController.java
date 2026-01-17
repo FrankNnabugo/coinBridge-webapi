@@ -43,7 +43,6 @@ public class CircleWebhookController {
            log.error("Inbound transfer processing failed", e);
         }
 
-        //log.info("Processed webhook response and returning 200 to provider");
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -51,16 +50,18 @@ public class CircleWebhookController {
     public ResponseEntity<CircleOutBoundWebhookResponse> handleOutboundTransfer(@RequestBody String rawPayload,
                                                                                 @RequestHeader("X-Circle-Signature") String signatureBase64
                                                                                 ){
+
+        log.info("Received webhook response from circle and verifying signature");
+
         if(!circleWebhookService.verifySignature(rawPayload, signatureBase64)){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         };
 
-        log.info("Received webhook response from circle for USDC wallet to wallet transfer {}", rawPayload);
+        log.info("Received webhook response from circle for wallet to wallet transfer {}", rawPayload);
 
         outBoundTransferService.finalizeTransfer(rawPayload);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    //TODO: define other circle webHooks
 }

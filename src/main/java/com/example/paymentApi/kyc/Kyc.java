@@ -1,5 +1,6 @@
 package com.example.paymentApi.kyc;
 
+import com.example.paymentApi.shared.enums.KycDocType;
 import com.example.paymentApi.shared.enums.KycStatus;
 import com.example.paymentApi.users.User;
 import jakarta.persistence.*;
@@ -28,7 +29,8 @@ public class Kyc {
     private String bvn;
 
     @Column(nullable = false)
-    private String docType; //NIN, VOTER CARD, PASSPORT
+    @Enumerated(EnumType.STRING)
+    private KycDocType docType;
 
     @Column(nullable = false, length = 100)
     private String docNumber;
@@ -50,7 +52,6 @@ public class Kyc {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
 
     public String getId() {
         return id;
@@ -74,14 +75,6 @@ public class Kyc {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public String getDocType() {
-        return docType;
-    }
-
-    public void setDocType(String docType) {
-        this.docType = docType;
     }
 
     public String getDocNumber() {
@@ -146,5 +139,13 @@ public class Kyc {
 
     public void setVerifiedAt(LocalDateTime verifiedAt) {
         this.verifiedAt = verifiedAt;
+    }
+
+    public KycDocType getDocType() {
+        return docType;
+    }
+
+    public void setDocType(KycDocType docType) {
+        this.docType = docType;
     }
 }

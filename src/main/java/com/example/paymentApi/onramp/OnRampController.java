@@ -1,4 +1,19 @@
 package com.example.paymentApi.onramp;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/initiate/onRamp")
+@RequiredArgsConstructor
+@Slf4j
 public class OnRampController {
+
+    @PostMapping
+    public void initiateOnRamp(){
+
+    }
 }

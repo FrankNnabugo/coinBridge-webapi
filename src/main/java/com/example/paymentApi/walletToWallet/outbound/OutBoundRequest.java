@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 
 public class OutBoundRequest {
 
-    @Positive(message = "Amount should be a positive number")
     @NotEmpty(message = "Amount cannot be empty")
     @NotNull(message = "Amount cannot be null")
     @NotBlank(message = "Amount cannot be blank")

@@ -1,6 +1,7 @@
 package com.example.paymentApi.event.listeners;
 
 import com.example.paymentApi.event.wallet.WalletCreationEvent;
+import com.example.paymentApi.messaging.OnboardingEmailService;
 import com.example.paymentApi.wallets.WalletService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -11,9 +12,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class WalletCreationEventListener {
     private final WalletService walletService;
+    private final OnboardingEmailService onboardingEmailService;
 
-    public WalletCreationEventListener(WalletService walletService) {
+    public WalletCreationEventListener(WalletService walletService, OnboardingEmailService onboardingEmailService) {
         this.walletService = walletService;
+        this.onboardingEmailService = onboardingEmailService;
     }
 
 
@@ -23,6 +26,9 @@ public class WalletCreationEventListener {
 
         walletService.createWallet(event.getCircleWalletResponse(), event.getUserId());
         log.info("Wallet successfully created for user {}", event.getUserId());
-        //TODO: publish a mail to user with details of their wallet.
+
+        onboardingEmailService.sendWalletInfo(event.getEmail(), event.getCircleWalletResponse().getAddress());
+        log.info("onboarding mail sent to user with wallet address {} ", event.getCircleWalletResponse().getAddress());
+
     }
 }
