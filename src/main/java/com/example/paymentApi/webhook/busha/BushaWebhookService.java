@@ -1,5 +1,4 @@
 package com.example.paymentApi.webhook.busha;
 
-public class BushaWebhookResponse {
-
+public class BushaWebhookService {
 }

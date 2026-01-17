@@ -55,6 +55,13 @@ public class OutboundRetryWorker {
                          record.setReason(error.getMessage());
                          outboundRetryRepository.save(record);
 
+                         /**
+                         publish transfer permanently failed event
+                          Listener calls for hold release and let transaction and reservation reflect this event
+                          update reservation status to release and reason to transaction_failed
+                          update transaction record to failed
+                          */
+
 
                            log.error(
                                    "payment initiation failed for user {}",

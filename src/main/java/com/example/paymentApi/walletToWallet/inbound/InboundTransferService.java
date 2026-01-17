@@ -104,6 +104,9 @@ public class InboundTransferService {
                 transactionRequest.setDestinationAddress(destinationAddress);
                 transactionService.createTransactionRecord(transactionRequest, wallet);
 
+                BigDecimal balanceBefore = wallet.getAvailableBalance();
+                BigDecimal balanceAfter = balanceBefore.add(amounts);
+
                 LedgerRequest request = new LedgerRequest();
                 request.setEntryType(LedgerType.INBOUND_TRANSFER); // or get from wehbook
                 request.setAmount(amounts);
@@ -115,6 +118,8 @@ public class InboundTransferService {
                 request.setDestinationAddress(destinationAddress);
                 request.setSourceCurrency("USDC");
                 request.setDestinationCurrency("USDC");
+                request.setBalanceBefore(balanceBefore);
+                request.setBalanceAfter(balanceAfter);
                 ledgerService.createDoubleEntryLedger(request, wallet);
 
                 walletService.creditWallet(wallet.getId(), amounts);

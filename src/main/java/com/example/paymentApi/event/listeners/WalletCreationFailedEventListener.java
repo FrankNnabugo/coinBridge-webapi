@@ -25,7 +25,7 @@ public class WalletCreationFailedEventListener {
 
         try {
             walletRetryService.createRetryRecord(event.getUserId());
-            walletRetryWorker.retryCircleWalletCreation(event.getUserId());
+            walletRetryWorker.retryCircleWalletCreation(event.getUserId(), event.getEmail());
 
         }
         catch (Exception e) {

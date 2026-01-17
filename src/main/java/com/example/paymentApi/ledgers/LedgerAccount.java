@@ -1,5 +1,6 @@
 package com.example.paymentApi.ledgers;
 
+import com.example.paymentApi.shared.enums.AssetType;
 import com.example.paymentApi.wallets.Wallet;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -9,7 +10,7 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ledger_accounting")
+@Table(name = "ledger_account")
 public class LedgerAccount {
 
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -17,10 +18,15 @@ public class LedgerAccount {
     @Id
     private String id;
 
+    @ManyToOne
+    @JoinColumn(name = "wallet_id", nullable = false)
+    private Wallet wallet;
+
     @Column(precision = 38, scale = 8)
     private BigDecimal ledgerBalance;
 
-    private String currency;
+    @Enumerated(EnumType.STRING)
+    private AssetType asset;
 
     @Column(precision = 38, scale = 8)
     private BigDecimal openingBalance;
@@ -37,10 +43,6 @@ public class LedgerAccount {
     private BigInteger ledgerEntryStartId; //ledger accounting startID covers from this no. of ledger to that no.
 
     private BigInteger ledgerEntryEndId;
-
-    @ManyToOne
-    @JoinColumn(name = "wallet_id", nullable = false)
-    private Wallet wallet;
 
     private LocalDateTime computedAt;
 

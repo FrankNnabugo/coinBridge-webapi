@@ -12,7 +12,7 @@ public class UserEventPublisher {
         this.publisher = publisher;
     }
 
-    public void publishUserCreatedEvent(String userId){
-        publisher.publishEvent(new UserCreationEvent<>(userId));
+    public void publishUserCreatedEvent(String userId, String email){
+        publisher.publishEvent(new UserCreationEvent<>(userId, email));
     }
 }
