@@ -10,7 +10,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "kyc_table")
+@Table(name = "kyc")
 public class Kyc {
 
     @Id
@@ -26,6 +26,7 @@ public class Kyc {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @Column(nullable = false, length = 100)
     private String bvn;
 
     @Column(nullable = false)
@@ -35,15 +36,16 @@ public class Kyc {
     @Column(nullable = false, length = 100)
     private String docNumber;
 
-    @Column(length = 100)
+    @Column(length = 200)
     private String docPhotoFrontUrl;
 
-    @Column(length = 100)
+    @Column(length = 200)
     private String docPhotoBackUrl;
 
+    @Column(nullable = false)
     private String provider;
 
-    @Column(length = 100)
+    @Column(length = 200)
     private String referenceId; //provider reference
 
     @CreationTimestamp
