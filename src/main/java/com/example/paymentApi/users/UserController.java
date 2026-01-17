@@ -1,6 +1,7 @@
 package com.example.paymentApi.users;
 
 import com.example.paymentApi.shared.ApiResponse;
+import io.swagger.v3.core.util.ApiResponsesDeserializer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,10 +28,10 @@ public class UserController {
     }
 
     @Operation(summary = "user login")
-    @PostMapping("/login")
-    public ApiResponse<UserResponse> login(@RequestBody LoginRequest loginRequest,
+    @PostMapping("/authenticate")
+    public ApiResponse<UserResponse> authenticate(@RequestBody LoginRequest loginRequest,
                                            HttpServletResponse httpServletResponse){
-        UserResponse response = userService.login(loginRequest, httpServletResponse);
+        UserResponse response = userService.authenticate(loginRequest, httpServletResponse);
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
     }
 
@@ -71,6 +72,12 @@ public class UserController {
     public ApiResponse<String> resetPassword(@PathVariable String id, @RequestBody String newPassword,
                                              @RequestBody String newOtp){
         String response = userService.resetPassword(id, newPassword, newOtp);
+        return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
+
+    }
+    @DeleteMapping("/{id}")
+    public ApiResponse<String> deleteUser(@PathVariable("id") String id){
+        String response = userService.deleteUser(id);
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
 
     }

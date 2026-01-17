@@ -38,10 +38,14 @@ public class User {
     private boolean acceptedTerms;
 
     @Column(nullable = false)
+    private boolean isDeleted = false;
+
+    @Column(nullable = false)
     @CreationTimestamp
     private LocalDateTime registeredAt;
 
     private LocalDateTime accountDeletedAt;
+
 
     public String getId() {
         return id;
@@ -131,4 +135,11 @@ public class User {
         Password = password;
     }
 
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
 }

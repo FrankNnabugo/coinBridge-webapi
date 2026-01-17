@@ -27,6 +27,11 @@ public class LedgerRequest {
 
     private String destinationCurrency;
 
+    private BigDecimal balanceBefore;
+
+    private BigDecimal balanceAfter;
+
+
     public LedgerType getEntryType() {
         return entryType;
     }
@@ -114,5 +119,21 @@ public class LedgerRequest {
 
     public void setProvider(ProviderType provider) {
         this.provider = provider;
+    }
+
+    public BigDecimal getBalanceAfter() {
+        return balanceAfter;
+    }
+
+    public void setBalanceAfter(BigDecimal balanceAfter) {
+        this.balanceAfter = balanceAfter;
+    }
+
+    public BigDecimal getBalanceBefore() {
+        return balanceBefore;
+    }
+
+    public void setBalanceBefore(BigDecimal balanceBefore) {
+        this.balanceBefore = balanceBefore;
     }
 }

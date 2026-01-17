@@ -17,14 +17,12 @@ public class UserCreationEventListener {
 
     private final CircleWalletService circleWalletService;
     private final WalletEventPublisher walletEventPublisher;
-    private final WalletService walletService;
+
 
     public UserCreationEventListener(CircleWalletService circleWalletService,
-                                     WalletEventPublisher walletEventPublisher,
-                                     WalletService walletService){
+                                     WalletEventPublisher walletEventPublisher){
         this.circleWalletService = circleWalletService;
         this.walletEventPublisher = walletEventPublisher;
-        this.walletService = walletService;
 
 
     }
@@ -38,20 +36,21 @@ public class UserCreationEventListener {
             circleWalletService.createCircleWallet(event.getUserId())
 
                     .doOnSuccess(CircleResponse -> {
-                        WalletCreationEvent walletEvent = new WalletCreationEvent(CircleResponse, event.getUserId());
+                        WalletCreationEvent walletEvent = new WalletCreationEvent(CircleResponse, event.getUserId(), event.getEmail());
                         walletEventPublisher.publishWalletCreatedEvent(walletEvent);
                     }
                     )
 
                     .doOnError(error -> {
-                        WalletCreationFailedEvent failedEvent = new WalletCreationFailedEvent(event.getUserId());
+                        WalletCreationFailedEvent failedEvent = new WalletCreationFailedEvent(event.getUserId(), event.getEmail());
                         walletEventPublisher.publishWalletCreationFailed(failedEvent);
                     })
                     .subscribe();
         }
         catch (Exception e)
         {
-            System.out.println(e.getMessage());
+            log.error("Error {} ", e.getMessage());
+
             throw new RuntimeException(e.getMessage());
         }
     }

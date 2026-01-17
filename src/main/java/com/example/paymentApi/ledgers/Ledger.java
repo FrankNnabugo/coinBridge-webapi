@@ -57,9 +57,11 @@ public class Ledger{
 
     private String destinationCurrency;
 
-    private String balanceBefore;
+    @Column(nullable = false, precision = 38, scale = 8)
+    private BigDecimal balanceBefore;
 
-    private String balanceAfter;
+    @Column(nullable = false, precision = 38, scale = 8)
+    private BigDecimal balanceAfter;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -188,5 +190,21 @@ public class Ledger{
 
     public void setProvider(ProviderType provider) {
         this.provider = provider;
+    }
+
+    public BigDecimal getBalanceBefore() {
+        return balanceBefore;
+    }
+
+    public void setBalanceBefore(BigDecimal balanceBefore) {
+        this.balanceBefore = balanceBefore;
+    }
+
+    public BigDecimal getBalanceAfter() {
+        return balanceAfter;
+    }
+
+    public void setBalanceAfter(BigDecimal balanceAfter) {
+        this.balanceAfter = balanceAfter;
     }
 }

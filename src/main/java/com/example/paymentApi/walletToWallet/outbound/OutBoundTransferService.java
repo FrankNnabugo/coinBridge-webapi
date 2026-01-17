@@ -1,5 +1,7 @@
 package com.example.paymentApi.walletToWallet.outbound;
 
+import com.example.paymentApi.event.transfer.TransferInitiationFailedEvent;
+import com.example.paymentApi.event.transfer.TransferInitiationFailedPublisher;
 import com.example.paymentApi.integration.circle.CircleWalletService;
 import com.example.paymentApi.ledgers.LedgerRequest;
 import com.example.paymentApi.ledgers.LedgerService;
@@ -30,7 +32,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 
@@ -48,8 +49,7 @@ public class OutBoundTransferService {
     private final ReservationRepository reservationRepository;
     private final WalletService walletService;
     private final LedgerService ledgerService;
-    private final OutboundRetryService outboundRetryService;
-    private final OutboundRetryWorker outboundRetryWorker;
+    private final TransferInitiationFailedPublisher transferInitiationFailedPublisher;
 
     private static final String COMPLETE_STATE = "COMPLETE";
     private static final String FAILURE_STATE = "FAILED";
@@ -75,13 +75,6 @@ public class OutBoundTransferService {
         Wallet wallet = walletRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Wallet does not exist"));
 
-        //Things to consider
-        //Release hold and let transaction and reservation reflect this event
-        //Or 
-
-//        Reservation reservation = reservationRepository.findById(id).orElseThrow();
-//
-//        Transactions transaction = transactionRepository.findById(id).orElseThrow();
 
         OutboundTransferInitiationResponse response = new OutboundTransferInitiationResponse();
 
@@ -102,7 +95,7 @@ public class OutBoundTransferService {
         reservationRequest.setReservationType(ReservationType.OUTBOUND_TRANSFER);
         reservationRequest.setReason(ReservationReason.TRANSACTION_INITIATED);
 
-        reservationService.reserveFund(id, reservationRequest);
+        reservationService.reserveFund(wallet, reservationRequest);
 
         if (wallet.getAvailableBalance().compareTo(outBoundRequest.getAmounts()) < 0) {
 
@@ -114,41 +107,48 @@ public class OutBoundTransferService {
         wallet.setReservedBalance(wallet.getReservedBalance().add(outBoundRequest.getAmounts()));
         walletRepository.save(wallet);
 
-        circleWalletService.createTransferIntent(id, outBoundRequest.getDestinationAddress(),
-                    outBoundRequest.getBlockchain(), outBoundRequest.getAmounts());
-//
-//                    .doOnSuccess(initiationResponse -> {
-//                        log.info("payment successfully initiated with response {}", initiationResponse);
-//
-//                    })
-//
-//                    .onErrorResume(error -> {
-//                        outboundRetryService.createPaymentRetryRecord(id);
-//                        outboundRetryWorker.retryPaymentInitiation(outBoundRequest);
-//
-//                        return Mono.error(error);
-//                    });
+        /**
+         *
+         *
+         Things to consider on transfer initiation failure
+         Release hold and let transaction and reservation reflect this event
+         Or
+         */
+        try {
+            circleWalletService.createTransferIntent(id, outBoundRequest.getDestinationAddress(),
+                            outBoundRequest.getBlockchain(), outBoundRequest.getAmounts())
 
+                    .doOnSuccess(initiationResponse -> {
+                        log.info("payment successfully initiated with response {}", initiationResponse);
 
-//        } catch (Exception e) {
-//            log.error("Error initiating payment", e);
-//        }
+                    })
+
+                    .onErrorResume(error -> {
+                        TransferInitiationFailedEvent event = new TransferInitiationFailedEvent(id, outBoundRequest);
+                        transferInitiationFailedPublisher.publishTransferInitiationFailedEvent(event);
+                        return null;
+                    })
+                    .subscribe();
+
+        }
+        catch (Exception e) {
+            log.error("Error initiating payment", e);
+        }
 
         return "Payment Successfully Processed";
 
         /**
-
-        validate input
-        create txn = pending
-        persist intent id
-        create hold/reservation
-        call provider
-        no lock
-        no ledger
-        no debit
-        no release
+         Execution steps:
+         validate input
+         create txn = pending
+         persist intent id
+         create hold/reservation
+         call provider
+         no lock
+         no ledger
+         no debit
+         no release
          */
-
     }
 
 
@@ -204,6 +204,9 @@ public class OutBoundTransferService {
 
             walletService.debitWallet(circleWalletId, amounts);
 
+            BigDecimal balanceBefore = wallet.getAvailableBalance();
+            BigDecimal balanceAfter = balanceBefore.add(amounts);
+
                 LedgerRequest request = new LedgerRequest();
                 request.setEntryType(LedgerType.OUTBOUND_TRANSFER);
                 request.setAmount(amounts);
@@ -213,6 +216,10 @@ public class OutBoundTransferService {
                 request.setReferenceId(referenceId);
                 request.setSourceAddress(sourceAddress);
                 request.setDestinationAddress(destinationAddress);
+                request.setSourceCurrency("USDC");
+                request.setDestinationCurrency("USDC");
+                request.setBalanceBefore(balanceBefore);
+                request.setBalanceAfter(balanceAfter);
 
                 ledgerService.createDoubleEntryLedger(request, wallet);
 
@@ -228,11 +235,14 @@ public class OutBoundTransferService {
 
                 if(FAILURE_STATE.equalsIgnoreCase(state)){
 
-//                if (wallet.getReservedBalance().compareTo(amounts) < 0) {
-//                    throw new InsufficientBalanceException("Insufficient reserved balance");
-//                }
+                    /**
+                     * if money moved, refund user, otherwise release only hold
+                if (wallet.getReservedBalance().compareTo(amounts) < 0) {
+                    throw new InsufficientBalanceException("Insufficient reserved balance");
+                }
+                     */
 
-//              walletService.creditWallet(circleWalletId, amounts);
+              walletService.creditWallet(circleWalletId, amounts);
 
                 wallet.setReservedBalance(wallet.getReservedBalance().subtract(amounts));
                 wallet.setAvailableBalance(wallet.getAvailableBalance().add(amounts));
@@ -247,7 +257,8 @@ public class OutBoundTransferService {
 
             }
 
-            /** EXECUTION FLOW:
+            /**
+             * Execution steps:
             parse webhook event
             fetch txn and check if txn been processed before using intent id
             lock row
@@ -255,9 +266,7 @@ public class OutBoundTransferService {
             debit wallet
             create ledger
             set tnx to success
-
             release lock
-
             if webhook = failure
             release hold/reservation
             mark txn = failed
