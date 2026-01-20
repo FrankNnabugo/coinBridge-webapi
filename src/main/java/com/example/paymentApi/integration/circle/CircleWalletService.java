@@ -1,29 +1,21 @@
 package com.example.paymentApi.integration.circle;
 
-import com.example.paymentApi.shared.enums.BlockchainType;
-import com.example.paymentApi.shared.exception.ResourceNotFoundException;
-import com.example.paymentApi.shared.mapper.WebhookMapper;
 import com.example.paymentApi.shared.utility.EntitySecretCipherTextUtil;
 import com.example.paymentApi.shared.utility.RedisUtil;
 import com.example.paymentApi.shared.utility.PublicKeyFormatter;
-import com.example.paymentApi.wallets.Wallet;
-import com.example.paymentApi.wallets.WalletRepository;
-import com.example.paymentApi.webhook.circle.CircleInboundWebhookResponse;
-import com.example.paymentApi.webhook.circle.CircleOutBoundWebhookResponse;
 import com.example.paymentApi.webhook.circle.OutboundTransferInitiationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
 import java.security.PublicKey;
-import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class CircleWalletService {
 
     @Value("${circle-api-key}")
@@ -47,12 +39,6 @@ public class CircleWalletService {
     private final WebClient webClient;
     private final RedisUtil redisUtil;
 
-
-    public CircleWalletService(WebClient webClient, RedisUtil redisUtil) {
-        this.webClient = webClient;
-        this.redisUtil = redisUtil;
-
-    }
 
     public Mono<CircleWalletResponse> createCircleWallet(String userId) throws Exception {
         try {
@@ -135,8 +121,8 @@ public class CircleWalletService {
     }
 
     public Mono<OutboundTransferInitiationResponse> createTransferIntent(String userId, String destinationAddress,
-                                                                         BlockchainType blockchain,
-                                                                         BigDecimal amounts
+                                                                         String blockchain,
+                                                                         String[] amounts, String walletAddress
     ) {
         try {
             String idempotencyKey = redisUtil.getOrCreateKey(userId);
@@ -151,8 +137,8 @@ public class CircleWalletService {
                     amounts,
                     "MEDIUM",
                     entitySecretCipherText,
-                    blockchain
-
+                    blockchain,
+                    walletAddress
             );
 
             return webClient.post()
@@ -163,10 +149,11 @@ public class CircleWalletService {
                     .bodyValue(Map.of(
                             "idempotencyKey", data.idempotencyKey(),
                             "destinationAddress", data.destinationAddress(),
+                            "entitySecretCipherText", data.entitySecretCiphertext(),
                             "amounts", data.amounts(),
                             "feeLevel", data.feeLevel(),
-                            "entitySecretCipherText", data.entitySecretCiphertext(),
-                            " blockchain", data.blockchain()
+                            " blockchain", data.blockchain(),
+                            "walletAddress", data.walletAddress()
                     ))
                     .retrieve()
                     .bodyToMono(JsonNode.class)

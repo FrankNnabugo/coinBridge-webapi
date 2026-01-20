@@ -6,6 +6,7 @@ import com.example.paymentApi.event.wallet.WalletCreationFailedEvent;
 import com.example.paymentApi.event.wallet.WalletEventPublisher;
 import com.example.paymentApi.integration.circle.CircleWalletService;
 import com.example.paymentApi.wallets.WalletService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -13,19 +14,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class UserCreationEventListener {
 
     private final CircleWalletService circleWalletService;
     private final WalletEventPublisher walletEventPublisher;
-
-
-    public UserCreationEventListener(CircleWalletService circleWalletService,
-                                     WalletEventPublisher walletEventPublisher){
-        this.circleWalletService = circleWalletService;
-        this.walletEventPublisher = walletEventPublisher;
-
-
-    }
 
 
     @Async

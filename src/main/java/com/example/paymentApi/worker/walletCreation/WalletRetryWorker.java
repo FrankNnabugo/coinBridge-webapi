@@ -5,6 +5,7 @@ import com.example.paymentApi.event.wallet.WalletCreationEvent;
 import com.example.paymentApi.event.wallet.WalletCreationPermanentlyFailedEvent;
 import com.example.paymentApi.event.wallet.WalletEventPublisher;
 import com.example.paymentApi.shared.enums.RetryStatus;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -15,20 +16,13 @@ import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class WalletRetryWorker {
 
     private final CircleWalletService circleWalletService;
     private final WalletRetryRepository walletRetryRepository;
     private final WalletEventPublisher walletEventPublisher;
     private static final long MAX_RETRIES = 3;
-
-
-    public WalletRetryWorker(CircleWalletService circleWalletService, WalletRetryRepository walletRetryRepository,
-                             WalletEventPublisher walletEventPublisher) {
-        this.circleWalletService = circleWalletService;
-        this.walletRetryRepository = walletRetryRepository;
-        this.walletEventPublisher = walletEventPublisher;
-    }
 
 
     public void retryCircleWalletCreation(String userId, String email) {

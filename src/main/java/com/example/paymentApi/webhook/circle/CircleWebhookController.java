@@ -2,6 +2,7 @@ package com.example.paymentApi.webhook.circle;
 
 import com.example.paymentApi.walletToWallet.inbound.InboundTransferService;
 import com.example.paymentApi.walletToWallet.outbound.OutBoundTransferService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,19 +11,13 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/circle")
+@RequiredArgsConstructor
 @Slf4j
 public class CircleWebhookController {
 
     private final CircleWebhookService circleWebhookService;
     private final InboundTransferService inboundTransferService;
     private final OutBoundTransferService outBoundTransferService;
-
-    public CircleWebhookController(CircleWebhookService circleWebhookService, InboundTransferService inboundTransferService,
-                                   OutBoundTransferService outBoundTransferService) {
-        this.circleWebhookService = circleWebhookService;
-        this.inboundTransferService = inboundTransferService;
-        this.outBoundTransferService = outBoundTransferService;
-    }
 
 
     @PostMapping("/pay-in")
@@ -59,8 +54,7 @@ public class CircleWebhookController {
 
         log.info("Received webhook response from circle for wallet to wallet transfer {}", rawPayload);
 
-        outBoundTransferService.finalizeTransfer(rawPayload);
-
+       outBoundTransferService.finalizeTransfer(rawPayload);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

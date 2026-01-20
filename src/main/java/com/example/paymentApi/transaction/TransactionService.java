@@ -2,6 +2,7 @@ package com.example.paymentApi.transaction;
 
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.wallets.Wallet;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -12,16 +13,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class TransactionService{
 
     private final TransactionRepository transactionRepository;
     private final ModelMapper modelMapper;
-
-    public TransactionService(TransactionRepository transactionRepository,
-                             ModelMapper modelMapper){
-        this.transactionRepository = transactionRepository;
-        this.modelMapper = modelMapper;
-    }
 
     @CacheEvict(value = "allTransactions", allEntries = true)
     public void createTransactionRecord(TransactionRequest request, Wallet wallet){

@@ -20,7 +20,7 @@ public class OutboundRetryRecord {
     private String userId;
 
     @Enumerated(EnumType.STRING)
-    private RetryStatus status;
+    private RetryStatus retryStatus;
 
     @Column(nullable = false)
     private long retryCount;
@@ -40,14 +40,6 @@ public class OutboundRetryRecord {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public RetryStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(RetryStatus status) {
-        this.status = status;
     }
 
     public long getRetryCount() {
@@ -88,5 +80,13 @@ public class OutboundRetryRecord {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public RetryStatus getRetryStatus() {
+        return retryStatus;
+    }
+
+    public void setRetryStatus(RetryStatus retryStatus) {
+        this.retryStatus = retryStatus;
     }
 }

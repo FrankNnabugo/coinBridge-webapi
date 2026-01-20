@@ -1,9 +1,5 @@
 package com.example.paymentApi.transaction;
 
-import com.example.paymentApi.shared.enums.TransactionStatus;
-import com.example.paymentApi.shared.enums.TransactionType;
-import com.example.paymentApi.wallets.Wallet;
-
 public class TransactionResponse{
     private String id;
 

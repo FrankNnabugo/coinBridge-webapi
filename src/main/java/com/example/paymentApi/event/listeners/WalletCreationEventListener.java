@@ -3,6 +3,7 @@ package com.example.paymentApi.event.listeners;
 import com.example.paymentApi.event.wallet.WalletCreationEvent;
 import com.example.paymentApi.messaging.OnboardingEmailService;
 import com.example.paymentApi.wallets.WalletService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -10,15 +11,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class WalletCreationEventListener {
     private final WalletService walletService;
     private final OnboardingEmailService onboardingEmailService;
-
-    public WalletCreationEventListener(WalletService walletService, OnboardingEmailService onboardingEmailService) {
-        this.walletService = walletService;
-        this.onboardingEmailService = onboardingEmailService;
-    }
-
 
     @Async
     @EventListener

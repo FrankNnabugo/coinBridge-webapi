@@ -4,19 +4,19 @@ import com.example.paymentApi.shared.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/wallets")
+@RequiredArgsConstructor
 @Tag(name = "wallet", description = "Read Wallet")
 public class WalletController {
+
     private final WalletService walletService;
 
-    public WalletController(WalletService walletService){
-        this.walletService = walletService;
-    }
 
     @Operation(summary = "fetch wallet")
     @GetMapping("/{id}")

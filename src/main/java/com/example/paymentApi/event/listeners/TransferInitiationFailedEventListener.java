@@ -24,7 +24,7 @@ public class TransferInitiationFailedEventListener {
 
         try{
             outboundRetryService.createPaymentRetryRecord(event.getUserId());
-            outboundRetryWorker.retryPaymentInitiation(event.getOutBoundRequest());
+            outboundRetryWorker.retryPaymentInitiation(event.getOutBoundRequest(), event.getUserId());
         }
         catch (Exception e) {
            log.error("Error occurred {}", e.getMessage());

@@ -3,59 +3,49 @@ package com.example.paymentApi.users;
 import com.example.paymentApi.event.user.UserEventPublisher;
 import com.example.paymentApi.messaging.AccountVerificationEmailService;
 import com.example.paymentApi.messaging.PasswordResetEmailService;
-import com.example.paymentApi.shared.ExceptionThrower;
-import com.example.paymentApi.shared.HttpRequestUtil;
 import com.example.paymentApi.shared.exception.DuplicateRecordException;
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.shared.exception.ValidationException;
 import com.example.paymentApi.shared.utility.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class UserService {
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final Verifier verifier;
-    private final PasswordHashUtil passwordHashUtil;
     private final AccountVerificationEmailService accountVerificationEmailService;
     private final UserEventPublisher userCreatedEventPublisher;
     private final RedisOtpService redisOtpService;
     private final PasswordResetEmailService passwordResetEmailService;
-    private static final Duration TTL = Duration.ofMinutes(5);
+    private static final Duration TTL = Duration.ofMinutes(10);
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-
-    public UserService(ModelMapper modelMapper, JwtService jwtService, UserRepository userRepository,
-                       Verifier verifier, PasswordHashUtil passwordHashUtil, AccountVerificationEmailService emailService,
-                       UserEventPublisher userCreatedEventPublisher, RedisOtpService userOtpService,
-                       PasswordResetEmailService passwordResetEmailService) {
-        this.modelMapper = modelMapper;
-        this.jwtService = jwtService;
-        this.userRepository = userRepository;
-        this.verifier = verifier;
-        this.passwordHashUtil = passwordHashUtil;
-        this.accountVerificationEmailService = emailService;
-        this.userCreatedEventPublisher = userCreatedEventPublisher;
-        this.redisOtpService = userOtpService;
-        this.passwordResetEmailService = passwordResetEmailService;
-    }
 
 
     public SignUpResponse signUp(UserRequest userRequest) {
 
         userRepository.findByEmailAddress(userRequest.getEmailAddress())
                 .ifPresent(user-> {
-                    throw new DuplicateRecordException("user already exist");
+                    throw new DuplicateRecordException("User already exist");
                 });
 
        userRepository.findByPhoneNumber(userRequest.getPhoneNumber())
@@ -80,8 +70,11 @@ public class UserService {
         user.setLastName(userRequest.getLastName());
         user.setPhoneNumber(userRequest.getPhoneNumber());
         user.setEmailAddress(userRequest.getEmailAddress());
-        user.setPassword(passwordHashUtil.hashPassword(userRequest.getPassword()));
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setAcceptedTerms(userRequest.getAcceptedTerms());
+
+        //TODO: Implement role access
+        user.setRole(Role.USER);
 
         User savedUser = userRepository.save(user);
 
@@ -91,33 +84,35 @@ public class UserService {
 
     }
 
-    public UserResponse authenticate (LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
+    public AuthenticationResponse authenticate (LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
 
         User user = userRepository.findByEmailAddress(loginRequest.getEmailAddress()).orElseThrow(() ->
                new ResourceNotFoundException("User does not exist"));
 
-        if(!user.isDeleted()){
+        if(user.isDeleted()){
             throw new ValidationException("User account does not exist");
         }
 
-        boolean passwordMatch = passwordHashUtil.verifyPassword(loginRequest.getPassword(), user.getPassword());
-        if (!passwordMatch) {
-            throw new ValidationException("Invalid Login Credential");
-        }
         if (!user.isVerified()) {
             throw new ValidationException("Please verify your account to enable login");
         }
 
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                loginRequest.getEmailAddress(),
+                loginRequest.getPassword()
+                )
+        );
+
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
-        TokenUtil.setAccessTokenHeader(httpServletResponse, accessToken);
-        TokenUtil.setRefreshTokenCookie(httpServletResponse, refreshToken);
+        TokenUtil.setAccessTokenToHeader(httpServletResponse, accessToken);
+        TokenUtil.setRefreshTokenToCookie(httpServletResponse, refreshToken);
 
-        UserResponse userResponse = modelMapper.map(user, UserResponse.class);
-        userResponse.setAccessToken(accessToken);
-        userResponse.setRefreshToken(refreshToken);
-        return userResponse;
+        AuthenticationResponse response = modelMapper.map(user, AuthenticationResponse.class);
+        response.setAccessToken(accessToken);
+        response.setRefreshToken(refreshToken);
+        return response;
 
     }
 
@@ -130,9 +125,6 @@ public class UserService {
         User user = userRepository.findByEmailAddress(emailAddress).orElseThrow(() ->
                new ResourceNotFoundException("User does not exist"));
 
-        if(!user.isDeleted()){
-            throw new ValidationException("User account does not exist");
-        }
 
         Verifier.verifyEmail(emailAddress);
 
@@ -157,10 +149,6 @@ public class UserService {
         User user = userRepository.findByEmailAddress(emailAddress).orElseThrow(() ->
                 new ResourceNotFoundException("User does not exist"));
 
-        if(!user.isDeleted()){
-            throw new ValidationException("User account does not exist");
-        }
-
         redisOtpService.verifyOtp(user.getId(), "EMAIL_VERIFICATION", otp, time);
 
         Verifier.verifyOtpFormat(otp);
@@ -175,37 +163,28 @@ public class UserService {
     }
 
 
-    public UserResponse refreshToken(String id, HttpServletResponse httpServletResponse,
-                                     HttpServletRequest httpServletRequest) {
+    public AuthenticationResponse refreshToken(String id, HttpServletResponse servletResponse,
+                                               HttpServletRequest servletRequest) {
 
         User user = userRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("User does not exist"));
 
-
-        if(!user.isDeleted()){
-            throw new ValidationException("User account does not exist");
-        }
-
-        if(!user.isVerified()){
-            throw new ValidationException("Please verify your account to proceed");
-        }
-
-        String refreshToken = TokenUtil.extractRefreshTokenFromRequest(httpServletRequest);
+        String refreshToken = TokenUtil.extractRefreshTokenFromRequest(servletRequest);
 
         if (!jwtService.validateRefreshToken(refreshToken)) {
             throw new ValidationException("Invalid or expired refreshToken");
         }
+
         String newAccessToken = jwtService.generateAccessToken(user);
         String newRefreshToken = jwtService.generateRefreshToken(user);
 
-        TokenUtil.setAccessTokenHeader(httpServletResponse, newAccessToken);
-        TokenUtil.setRefreshTokenCookie(httpServletResponse, newRefreshToken);
+        TokenUtil.setAccessTokenToHeader(servletResponse, newAccessToken);
+        TokenUtil.setRefreshTokenToCookie(servletResponse, newRefreshToken);
 
-        UserResponse response = modelMapper.map(user, UserResponse.class);
+        AuthenticationResponse response = modelMapper.map(user, AuthenticationResponse.class);
         response.setAccessToken(newAccessToken);
         response.setRefreshToken(newRefreshToken);
         return response;
-
     }
 
     @Transactional
@@ -216,14 +195,6 @@ public class UserService {
         User user = userRepository.findByEmailAddress(emailAddress).orElseThrow(()->
                 new ResourceNotFoundException("User does not exist"));
 
-        if(!user.isDeleted()){
-            throw new ValidationException("User account does not exist");
-        }
-
-        if(!user.isVerified()){
-            throw new ValidationException("Please verify your account to proceed");
-        }
-
         OtpGenerator.OtpData otp = OtpGenerator.generateOtp();
         redisOtpService.saveOtp(user.getId(), "PASSWORD_RESET", otp.getOtp(), time);
 
@@ -232,33 +203,27 @@ public class UserService {
         return "OTP sent successfully";
     }
 
-    public String resetPassword(String id, String newPassword, String newOtp) {
+
+    public String resetPassword(String id, ResetPasswordRequest request) {
 
         long time = TTL.toMinutes();
 
         User user = userRepository.findById(id).orElseThrow(() ->
                new ResourceNotFoundException("User does not exist"));
 
-        if(!user.isDeleted()){
-            throw new ValidationException("User account does not exist");
-        }
+       redisOtpService.verifyOtp(user.getId(),"PASSWORD_RESET", request.getOtp(), time );
 
-        if(!user.isVerified()){
-            throw new ValidationException("Please verify your account to proceed");
-        }
+        Verifier.verifyOtpFormat(request.getOtp());
 
-       redisOtpService.verifyOtp(user.getId(),"PASSWORD_RESET", newOtp, time );
+        Verifier.verifyPasswordFormat(request.getNewPassword());
 
-        Verifier.verifyOtpFormat(newOtp);
-
-        Verifier.verifyPasswordFormat(newPassword);
-
-        user.setPassword(passwordHashUtil.hashPassword(newPassword));
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         userRepository.save(user);
 
         return "Password Reset successful";
     }
+
 
    public String deleteUser(String id){
         User user = userRepository.findById(id).orElseThrow(()->

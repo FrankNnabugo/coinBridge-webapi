@@ -5,6 +5,7 @@ import com.example.paymentApi.shared.exception.InsufficientBalanceException;
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.shared.exception.ValidationException;
 import com.example.paymentApi.users.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -14,17 +15,12 @@ import java.util.List;
 
 
 @Service
+@RequiredArgsConstructor
 public class WalletService {
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
-    public WalletService(WalletRepository walletRepository, UserRepository userRepository,
-                         ModelMapper modelMapper) {
-        this.walletRepository = walletRepository;
-        this.userRepository = userRepository;
-        this.modelMapper = modelMapper;
-    }
 
     public void createWallet(CircleWalletResponse circleWalletResponse, String id) {
         Wallet wallet = new Wallet();

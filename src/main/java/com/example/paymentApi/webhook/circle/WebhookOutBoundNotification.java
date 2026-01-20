@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class WebhookOutBoundNotification {
-    private OutBoundPayload notification;
+    private OutBoundPayload transaction;
 
-    public OutBoundPayload getNotification() {
-        return notification;
+    public OutBoundPayload getTransaction() {
+        return transaction;
     }
 
-    public void setNotification(OutBoundPayload notification) {
-        this.notification = notification;
+    public void setTransaction(OutBoundPayload transaction) {
+        this.transaction = transaction;
     }
 }
+

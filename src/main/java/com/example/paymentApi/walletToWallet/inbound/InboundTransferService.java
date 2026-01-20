@@ -3,7 +3,7 @@ package com.example.paymentApi.walletToWallet.inbound;
 import com.example.paymentApi.ledgers.LedgerRequest;
 import com.example.paymentApi.ledgers.LedgerService;
 import com.example.paymentApi.shared.enums.*;
-import com.example.paymentApi.shared.mapper.WebhookMapper;
+import com.example.paymentApi.shared.mapper.CircleWebhookMapper;
 import com.example.paymentApi.transaction.TransactionRepository;
 import com.example.paymentApi.transaction.TransactionRequest;
 import com.example.paymentApi.transaction.TransactionService;
@@ -15,6 +15,7 @@ import com.example.paymentApi.webhook.circle.WebhookInboundNotification;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class InboundTransferService {
 
@@ -34,18 +36,7 @@ public class InboundTransferService {
     private final LedgerService ledgerService;
     private final TransactionRepository transactionRepository;
     private final WalletRepository walletRepository;
-    public InboundTransferService(ObjectMapper objectMapper, WalletService walletService,
-                                  TransactionService transactionService, LedgerService ledgerService,
-                                  TransactionRepository transactionRepository,
-                                  WalletRepository walletRepository
-                                  ) {
-        this.objectMapper = objectMapper;
-        this.walletService = walletService;
-        this.transactionService = transactionService;
-        this.ledgerService = ledgerService;
-        this.transactionRepository = transactionRepository;
-        this.walletRepository = walletRepository;
-    }
+
 
     @Transactional
     public void processInboundTransfer(String rawPayload) {
@@ -75,9 +66,9 @@ public class InboundTransferService {
         String tokenId = notification.getTokenId();
         String destinationAddress = notification.getDestinationAddress();
         String sourceAddress = notification.getSourceAddress();
-        BigDecimal amounts = WebhookMapper.mapCircleAmountType(notification.getAmounts());
+        BigDecimal amounts = CircleWebhookMapper.mapCircleAmountType(notification.getAmounts());
         String state = notification.getState();
-        TransactionType transactionType = WebhookMapper.mapCircleTransactionType(notification.getTransactionType());
+        TransactionType transactionType = CircleWebhookMapper.mapCircleTransactionType(notification.getTransactionType());
         String referenceId = notification.getTxHash();
 
 

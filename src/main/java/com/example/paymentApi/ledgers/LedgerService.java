@@ -4,21 +4,18 @@ import com.example.paymentApi.shared.enums.LedgerDirection;
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.wallets.Wallet;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class LedgerService {
 
     private final LedgerRepository ledgerRepository;
     private final ModelMapper modelMapper;
-
-    public LedgerService(LedgerRepository ledgerRepository, ModelMapper modelMapper){
-        this.ledgerRepository = ledgerRepository;
-        this.modelMapper = modelMapper;
-    }
 
     @Transactional
     public void createDoubleEntryLedger(LedgerRequest request, Wallet wallet){

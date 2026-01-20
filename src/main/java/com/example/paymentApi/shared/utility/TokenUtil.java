@@ -1,7 +1,5 @@
 package com.example.paymentApi.shared.utility;
 
-import com.example.paymentApi.shared.ExceptionThrower;
-import com.example.paymentApi.shared.HttpRequestUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,29 +9,22 @@ import org.springframework.stereotype.Component;
 public class TokenUtil {
 
     private static final String ACCESS_TOKEN_HEADER = "Authorization";
-    private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
-
-    private final ExceptionThrower exceptionThrower;
-
-    private TokenUtil(ExceptionThrower exceptionThrower) {
-        this.exceptionThrower = exceptionThrower;
-
-    }
+    private static final String REFRESH_TOKEN_COOKIE = "EmailAddress";
 
     /**
      * Sets the access token into the response headers as:
      * Authorization: Bearer <token>
      */
-    public static void setAccessTokenHeader(HttpServletResponse response, String accessToken) {
+    public static void setAccessTokenToHeader(HttpServletResponse response, String accessToken) {
         response.setHeader(ACCESS_TOKEN_HEADER, "Bearer " + accessToken);
     }
 
 
-    public static void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+    public static void setRefreshTokenToCookie(HttpServletResponse response, String refreshToken) {
         Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE, refreshToken);
         cookie.setHttpOnly(true);
         cookie.setSecure(true); // only over HTTPS
-        cookie.setPath("/auth/refresh"); // only sent when refreshing
+        cookie.setPath("/api/v1/users/{userId}/refresh-token"); // only sent when accessed through path
         cookie.setMaxAge(604800000); // 7 days
         cookie.setAttribute("SameSite", "Strict");
 
@@ -47,21 +38,11 @@ public class TokenUtil {
 
         for (Cookie cookie : request.getCookies()) {
             if (REFRESH_TOKEN_COOKIE.equals(cookie.getName())) {
-                return cookie.getValue();
+                return cookie.getName();
             }
         }
-
         return null;
     }
 
-    public String extractTokenFromHeader(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")){
-            exceptionThrower.throwMissingTokenException(HttpRequestUtil.getServletPath());
-
-        }
-        return authHeader.substring(7);
-    }
 
 }
