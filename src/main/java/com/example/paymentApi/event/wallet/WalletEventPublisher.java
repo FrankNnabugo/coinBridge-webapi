@@ -1,15 +1,14 @@
 package com.example.paymentApi.event.wallet;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class WalletEventPublisher {
-    private final ApplicationEventPublisher publisher;
 
-    public WalletEventPublisher(ApplicationEventPublisher publisher){
-        this.publisher = publisher;
-    }
+    private final ApplicationEventPublisher publisher;
 
     public void publishWalletCreatedEvent(WalletCreationEvent event){
         publisher.publishEvent(event);

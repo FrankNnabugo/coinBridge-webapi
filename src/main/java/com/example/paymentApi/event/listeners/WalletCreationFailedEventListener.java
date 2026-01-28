@@ -1,22 +1,20 @@
 package com.example.paymentApi.event.listeners;
 
 import com.example.paymentApi.event.wallet.WalletCreationFailedEvent;
+import com.example.paymentApi.shared.exception.InternalProcessingException;
 import com.example.paymentApi.worker.walletCreation.WalletRetryService;
 import com.example.paymentApi.worker.walletCreation.WalletRetryWorker;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class WalletCreationFailedEventListener {
 
     private final WalletRetryService walletRetryService;
     private final WalletRetryWorker walletRetryWorker;
-
-     public WalletCreationFailedEventListener(WalletRetryService walletRetryService, WalletRetryWorker walletRetryWorker){
-         this.walletRetryService = walletRetryService;
-         this.walletRetryWorker = walletRetryWorker;
-     }
 
 
     @Async
@@ -25,12 +23,11 @@ public class WalletCreationFailedEventListener {
 
         try {
             walletRetryService.createRetryRecord(event.getUserId());
-            walletRetryWorker.retryCircleWalletCreation(event.getUserId(), event.getEmail());
+            walletRetryWorker.retryCircleWalletCreation(event.getUserId());
 
         }
         catch (Exception e) {
-
-            throw new RuntimeException(e.getMessage());
+            throw new InternalProcessingException("Error occurred while processing retries", e);
 
         }
 

@@ -16,7 +16,7 @@ public class ReservationResponse {
 
     private ReservationStatus status;
 
-    private String transactionId;
+    private String providerTransactionId;
 
     public String getId() {
         return id;
@@ -50,19 +50,19 @@ public class ReservationResponse {
         this.status = status;
     }
 
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
-    }
-
     public String getWalletId() {
         return walletId;
     }
 
     public void setWalletId(String walletId) {
         this.walletId = walletId;
+    }
+
+    public String getProviderTransactionId() {
+        return providerTransactionId;
+    }
+
+    public void setProviderTransactionId(String providerTransactionId) {
+        this.providerTransactionId = providerTransactionId;
     }
 }

@@ -1,17 +1,16 @@
 package com.example.paymentApi.integration.circle;
 
-import com.example.paymentApi.shared.enums.BlockchainType;
-
-import java.math.BigDecimal;
-import java.util.List;
+import com.example.paymentApi.shared.enums.TransferBlockchain;
 
 public record CircleTransferRequest(
         String idempotencyKey,
         String destinationAddress,
-        BigDecimal amounts,
+        String[] amounts,
         String feeLevel,
         String entitySecretCiphertext,
-        BlockchainType blockchain
+        TransferBlockchain blockchain,
+        String walletAddress,
+        String tokenId
 
 ) {
 }

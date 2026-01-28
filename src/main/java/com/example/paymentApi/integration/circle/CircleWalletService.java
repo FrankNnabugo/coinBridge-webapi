@@ -1,29 +1,23 @@
 package com.example.paymentApi.integration.circle;
 
-import com.example.paymentApi.shared.enums.BlockchainType;
-import com.example.paymentApi.shared.exception.ResourceNotFoundException;
-import com.example.paymentApi.shared.mapper.WebhookMapper;
+import com.example.paymentApi.shared.enums.TransferBlockchain;
+import com.example.paymentApi.shared.exception.ExternalServiceException;
 import com.example.paymentApi.shared.utility.EntitySecretCipherTextUtil;
 import com.example.paymentApi.shared.utility.RedisUtil;
 import com.example.paymentApi.shared.utility.PublicKeyFormatter;
-import com.example.paymentApi.wallets.Wallet;
-import com.example.paymentApi.wallets.WalletRepository;
-import com.example.paymentApi.webhook.circle.CircleInboundWebhookResponse;
-import com.example.paymentApi.webhook.circle.CircleOutBoundWebhookResponse;
 import com.example.paymentApi.webhook.circle.OutboundTransferInitiationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
 import java.security.PublicKey;
-import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class CircleWalletService {
 
     @Value("${circle-api-key}")
@@ -44,15 +38,12 @@ public class CircleWalletService {
     @Value("${circle-transfer-url}")
     private String circleTransferUrl;
 
+    @Value("${polygon-amoy-tokenId}")
+    private String tokenId;
+
     private final WebClient webClient;
     private final RedisUtil redisUtil;
 
-
-    public CircleWalletService(WebClient webClient, RedisUtil redisUtil) {
-        this.webClient = webClient;
-        this.redisUtil = redisUtil;
-
-    }
 
     public Mono<CircleWalletResponse> createCircleWallet(String userId) throws Exception {
         try {
@@ -135,8 +126,8 @@ public class CircleWalletService {
     }
 
     public Mono<OutboundTransferInitiationResponse> createTransferIntent(String userId, String destinationAddress,
-                                                                         BlockchainType blockchain,
-                                                                         BigDecimal amounts
+                                                                         TransferBlockchain blockchain,
+                                                                         String[] amounts, String walletAddress
     ) {
         try {
             String idempotencyKey = redisUtil.getOrCreateKey(userId);
@@ -151,8 +142,9 @@ public class CircleWalletService {
                     amounts,
                     "MEDIUM",
                     entitySecretCipherText,
-                    blockchain
-
+                    blockchain,
+                    walletAddress,
+                    tokenId
             );
 
             return webClient.post()
@@ -163,18 +155,17 @@ public class CircleWalletService {
                     .bodyValue(Map.of(
                             "idempotencyKey", data.idempotencyKey(),
                             "destinationAddress", data.destinationAddress(),
+                            "entitySecretCipherText", data.entitySecretCiphertext(),
                             "amounts", data.amounts(),
                             "feeLevel", data.feeLevel(),
-                            "entitySecretCipherText", data.entitySecretCiphertext(),
-                            " blockchain", data.blockchain()
+                            "tokenId", data.tokenId(),
+                            "blockchain", data.blockchain(),
+                            "walletAddress", data.walletAddress()
                     ))
                     .retrieve()
                     .bodyToMono(JsonNode.class)
                     .map(json->{
-                        JsonNode response = json.path("data")
-                                .path("id")
-                                .path("state")
-                                .get(0);
+                        JsonNode response = json.path("data");
                         OutboundTransferInitiationResponse out = new OutboundTransferInitiationResponse();
                         out.setId(response.path("id").asText());
                         out.setState(response.path("state").asText());
@@ -183,7 +174,7 @@ public class CircleWalletService {
 
         }
         catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+           throw new ExternalServiceException("Error occurred during api call", e);
         }
     }
 }

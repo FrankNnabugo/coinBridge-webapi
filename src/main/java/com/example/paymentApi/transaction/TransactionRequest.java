@@ -1,15 +1,23 @@
 package com.example.paymentApi.transaction;
 
+import com.example.paymentApi.shared.enums.CurrencyType;
+import com.example.paymentApi.shared.enums.TransactionDirection;
 import com.example.paymentApi.shared.enums.TransactionStatus;
 import com.example.paymentApi.shared.enums.TransactionType;
+import com.example.paymentApi.users.User;
+import com.example.paymentApi.wallets.Wallet;
 
 import java.math.BigDecimal;
 
 
 public class TransactionRequest {
-    private String transferId;
+    private String providerTransactionId;
 
-    private String sourceAddress; // doesn't have
+    private Wallet wallet;
+
+    private User user;
+
+    private String sourceAddress;
 
     private String destinationAddress;
 
@@ -19,11 +27,13 @@ public class TransactionRequest {
 
     private TransactionType type;
 
+    private TransactionDirection direction;
+
     private String referenceId;
 
-    private String sourceCurrency;
+    private CurrencyType sourceCurrency;
 
-    private String destinationCurrency;
+    private CurrencyType destinationCurrency;
 
     public String getSourceAddress() {
         return sourceAddress;
@@ -57,30 +67,6 @@ public class TransactionRequest {
         this.referenceId = referenceId;
     }
 
-    public String getSourceCurrency() {
-        return sourceCurrency;
-    }
-
-    public void setSourceCurrency(String sourceCurrency) {
-        this.sourceCurrency = sourceCurrency;
-    }
-
-    public String getDestinationCurrency() {
-        return destinationCurrency;
-    }
-
-    public void setDestinationCurrency(String destinationCurrency) {
-        this.destinationCurrency = destinationCurrency;
-    }
-
-    public String getTransferId() {
-        return transferId;
-    }
-
-    public void setTransferId(String transferId) {
-        this.transferId = transferId;
-    }
-
     public TransactionType getType() {
         return type;
     }
@@ -95,5 +81,53 @@ public class TransactionRequest {
 
     public void setStatus(TransactionStatus status) {
         this.status = status;
+    }
+
+    public String getProviderTransactionId() {
+        return providerTransactionId;
+    }
+
+    public void setProviderTransactionId(String providerTransactionId) {
+        this.providerTransactionId = providerTransactionId;
+    }
+
+    public TransactionDirection getDirection() {
+        return direction;
+    }
+
+    public void setDirection(TransactionDirection direction) {
+        this.direction = direction;
+    }
+
+    public Wallet getWallet() {
+        return wallet;
+    }
+
+    public void setWallet(Wallet wallet) {
+        this.wallet = wallet;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public CurrencyType getSourceCurrency() {
+        return sourceCurrency;
+    }
+
+    public void setSourceCurrency(CurrencyType sourceCurrency) {
+        this.sourceCurrency = sourceCurrency;
+    }
+
+    public CurrencyType getDestinationCurrency() {
+        return destinationCurrency;
+    }
+
+    public void setDestinationCurrency(CurrencyType destinationCurrency) {
+        this.destinationCurrency = destinationCurrency;
     }
 }

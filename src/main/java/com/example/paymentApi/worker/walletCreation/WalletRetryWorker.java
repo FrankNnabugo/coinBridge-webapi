@@ -5,6 +5,8 @@ import com.example.paymentApi.event.wallet.WalletCreationEvent;
 import com.example.paymentApi.event.wallet.WalletCreationPermanentlyFailedEvent;
 import com.example.paymentApi.event.wallet.WalletEventPublisher;
 import com.example.paymentApi.shared.enums.RetryStatus;
+import com.example.paymentApi.shared.exception.ExternalServiceException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -15,6 +17,7 @@ import java.util.List;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class WalletRetryWorker {
 
     private final CircleWalletService circleWalletService;
@@ -23,15 +26,7 @@ public class WalletRetryWorker {
     private static final long MAX_RETRIES = 3;
 
 
-    public WalletRetryWorker(CircleWalletService circleWalletService, WalletRetryRepository walletRetryRepository,
-                             WalletEventPublisher walletEventPublisher) {
-        this.circleWalletService = circleWalletService;
-        this.walletRetryRepository = walletRetryRepository;
-        this.walletEventPublisher = walletEventPublisher;
-    }
-
-
-    public void retryCircleWalletCreation(String userId, String email) {
+    public void retryCircleWalletCreation(String userId) {
         List<WalletRetryRecord> records = walletRetryRepository.findByStatus(RetryStatus.PENDING);
         for (WalletRetryRecord record : records) {
             try {
@@ -54,7 +49,7 @@ public class WalletRetryWorker {
                             record.setStatus(RetryStatus.SUCCESS);
                             record.setReason("Success");
                             walletRetryRepository.save(record);
-                            WalletCreationEvent event = new WalletCreationEvent(response, userId, email);
+                            WalletCreationEvent event = new WalletCreationEvent(response, userId);
                             walletEventPublisher.publishWalletCreatedEvent((event));
 
                             log.info("Wallet creation successful after retries for user {}", record.getUserId());
@@ -79,7 +74,7 @@ public class WalletRetryWorker {
                         .subscribe();
 
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new ExternalServiceException("Error occurred", e);
             }
 
 

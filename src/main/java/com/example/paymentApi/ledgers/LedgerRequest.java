@@ -1,9 +1,14 @@
 package com.example.paymentApi.ledgers;
 
 import com.example.paymentApi.shared.enums.*;
+import com.example.paymentApi.wallets.Wallet;
+
 import java.math.BigDecimal;
 
 public class LedgerRequest {
+    private Wallet sourceWallet;
+
+    private Wallet destinationWallet;
 
     private LedgerType entryType;
 
@@ -23,9 +28,9 @@ public class LedgerRequest {
 
     private String destinationAddress;
 
-    private String sourceCurrency;
+    private CurrencyType sourceCurrency;
 
-    private String destinationCurrency;
+    private CurrencyType destinationCurrency;
 
     private BigDecimal balanceBefore;
 
@@ -80,23 +85,6 @@ public class LedgerRequest {
         this.referenceId = referenceId;
     }
 
-    public String getSourceCurrency() {
-        return sourceCurrency;
-    }
-
-    public void setSourceCurrency(String sourceCurrency) {
-        this.sourceCurrency = sourceCurrency;
-    }
-
-    public String getDestinationCurrency() {
-        return destinationCurrency;
-    }
-
-    public void setDestinationCurrency(String destinationCurrency) {
-        this.destinationCurrency = destinationCurrency;
-    }
-
-
     public String getSourceAddress() {
         return sourceAddress;
     }
@@ -135,5 +123,37 @@ public class LedgerRequest {
 
     public void setBalanceBefore(BigDecimal balanceBefore) {
         this.balanceBefore = balanceBefore;
+    }
+
+    public Wallet getSourceWallet() {
+        return sourceWallet;
+    }
+
+    public void setSourceWallet(Wallet sourceWallet) {
+        this.sourceWallet = sourceWallet;
+    }
+
+    public Wallet getDestinationWallet() {
+        return destinationWallet;
+    }
+
+    public void setDestinationWallet(Wallet destinationWallet) {
+        this.destinationWallet = destinationWallet;
+    }
+
+    public CurrencyType getSourceCurrency() {
+        return sourceCurrency;
+    }
+
+    public void setSourceCurrency(CurrencyType sourceCurrency) {
+        this.sourceCurrency = sourceCurrency;
+    }
+
+    public CurrencyType getDestinationCurrency() {
+        return destinationCurrency;
+    }
+
+    public void setDestinationCurrency(CurrencyType destinationCurrency) {
+        this.destinationCurrency = destinationCurrency;
     }
 }

@@ -5,8 +5,8 @@ import com.example.paymentApi.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class OutboundRetryService {
 
     private final OutboundRetryRepository outboundRetryRepository;
@@ -14,7 +14,7 @@ public class OutboundRetryService {
     public void createPaymentRetryRecord(String userId){
         OutboundRetryRecord record = new OutboundRetryRecord();
         record.setUserId(userId);
-        record.setStatus(RetryStatus.PENDING);
+        record.setRetryStatus(RetryStatus.PENDING);
         record.setRetryCount(0);
         outboundRetryRepository.save(record);
     }

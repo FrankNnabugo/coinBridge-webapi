@@ -1,5 +1,7 @@
 package com.example.paymentApi.transaction;
 
+import com.example.paymentApi.shared.enums.CurrencyType;
+import com.example.paymentApi.shared.enums.TransactionDirection;
 import com.example.paymentApi.shared.enums.TransactionStatus;
 import com.example.paymentApi.shared.enums.TransactionType;
 import com.example.paymentApi.users.User;
@@ -39,15 +41,21 @@ public class Transactions {
     @Column(nullable = false)
     private TransactionStatus status;
 
-    @Column(nullable = false, length = 50)
-    private String transferId;
+    @Column(length = 50)
+    private String providerTransactionId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TransactionDirection direction;
 
     @Column(length = 50, unique = true)
     private String referenceId; //tx_hash, payment_intent_id, reference
 
-    private String sourceCurrency;
+    @Enumerated(EnumType.STRING)
+    private CurrencyType sourceCurrency;
 
-    private String destinationCurrency;
+    @Enumerated(EnumType.STRING)
+    private CurrencyType destinationCurrency;
 
     private String sourceAddress;
 
@@ -132,30 +140,6 @@ public class Transactions {
         this.destinationAddress = destinationAddress;
     }
 
-    public String getSourceCurrency() {
-        return sourceCurrency;
-    }
-
-    public void setSourceCurrency(String sourceCurrency) {
-        this.sourceCurrency = sourceCurrency;
-    }
-
-    public String getTransferId() {
-        return transferId;
-    }
-
-    public void setTransferId(String transferId) {
-        this.transferId = transferId;
-    }
-
-    public String getDestinationCurrency() {
-        return destinationCurrency;
-    }
-
-    public void setDestinationCurrency(String destinationCurrency) {
-        this.destinationCurrency = destinationCurrency;
-    }
-
     public TransactionType getType() {
         return type;
     }
@@ -170,5 +154,37 @@ public class Transactions {
 
     public void setStatus(TransactionStatus status) {
         this.status = status;
+    }
+
+    public String getProviderTransactionId() {
+        return providerTransactionId;
+    }
+
+    public void setProviderTransactionId(String providerTransactionId) {
+        this.providerTransactionId = providerTransactionId;
+    }
+
+    public TransactionDirection getDirection() {
+        return direction;
+    }
+
+    public void setDirection(TransactionDirection direction) {
+        this.direction = direction;
+    }
+
+    public CurrencyType getSourceCurrency() {
+        return sourceCurrency;
+    }
+
+    public void setSourceCurrency(CurrencyType sourceCurrency) {
+        this.sourceCurrency = sourceCurrency;
+    }
+
+    public CurrencyType getDestinationCurrency() {
+        return destinationCurrency;
+    }
+
+    public void setDestinationCurrency(CurrencyType destinationCurrency) {
+        this.destinationCurrency = destinationCurrency;
     }
 }

@@ -27,9 +27,9 @@ public class LedgerResponse {
 
     private String destinationAddress;
 
-    private String sourceCurrency;
+    private CurrencyType sourceCurrency;
 
-    private String destinationCurrency;
+    private CurrencyType destinationCurrency;
 
     public String getId() {
         return id;
@@ -119,19 +119,19 @@ public class LedgerResponse {
         this.destinationAddress = destinationAddress;
     }
 
-    public String getSourceCurrency() {
+    public CurrencyType getSourceCurrency() {
         return sourceCurrency;
     }
 
-    public void setSourceCurrency(String sourceCurrency) {
+    public void setSourceCurrency(CurrencyType sourceCurrency) {
         this.sourceCurrency = sourceCurrency;
     }
 
-    public String getDestinationCurrency() {
+    public CurrencyType getDestinationCurrency() {
         return destinationCurrency;
     }
 
-    public void setDestinationCurrency(String destinationCurrency) {
+    public void setDestinationCurrency(CurrencyType destinationCurrency) {
         this.destinationCurrency = destinationCurrency;
     }
 }

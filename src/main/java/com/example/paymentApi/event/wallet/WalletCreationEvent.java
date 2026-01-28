@@ -6,14 +6,11 @@ public class WalletCreationEvent {
 
     private final String userId;
 
-    private final String email;
-
     private final CircleWalletResponse circleWalletResponse;
 
-    public WalletCreationEvent(CircleWalletResponse circleWalletResponse, String userId, String email){
+    public WalletCreationEvent(CircleWalletResponse circleWalletResponse, String userId){
         this.circleWalletResponse = circleWalletResponse;
         this.userId = userId;
-        this.email = email;
     }
 
 
@@ -23,9 +20,5 @@ public class WalletCreationEvent {
 
     public CircleWalletResponse getCircleWalletResponse() {
         return circleWalletResponse;
-    }
-
-    public String getEmail() {
-        return email;
     }
 }

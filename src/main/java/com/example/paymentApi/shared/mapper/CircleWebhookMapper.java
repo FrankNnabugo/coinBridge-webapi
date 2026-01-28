@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Component
-public class WebhookMapper {
+public class CircleWebhookMapper {
 
     public static TransactionType mapCircleTransactionType(CircleTransactionType type) {
         return switch (type) {
@@ -20,4 +20,5 @@ public class WebhookMapper {
     public static BigDecimal mapCircleAmountType(List<BigDecimal> amounts) {
         return amounts.get(0);
     }
+
 }

@@ -1,15 +1,11 @@
 package com.example.paymentApi.shared.utility;
 
-import com.example.paymentApi.shared.ExceptionThrower;
-import com.example.paymentApi.shared.enums.BlockchainType;
-import com.example.paymentApi.shared.exception.GeneralAppException;
+import com.example.paymentApi.shared.enums.TransferBlockchain;
 import com.example.paymentApi.shared.exception.IllegalArgumentException;
 import com.example.paymentApi.shared.exception.NullParameterException;
 import com.example.paymentApi.shared.exception.ValidationException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,11 +40,6 @@ public class Verifier {
         }
     }
 
-    public static void isValidString(String param){
-        if(param != null && !param.isEmpty()){
-            throw new NullParameterException("Please provide all the required information");
-        };
-    }
 
     public static void verifyObject(Object... objects){
         for (Object object : objects) {
@@ -58,21 +49,6 @@ public class Verifier {
         }
     }
 
-    public static void verifyInteger(String... params){
-        for (String param : params) {
-            try {
-                Integer.parseInt(param);
-            } catch (Exception e) {
-               throw new IllegalArgumentException("A number is expected, please provided a valid number");
-            }
-        }
-    }
-
-    public void verifyIntGreaterThanZero(int param){
-        if (param < 1){
-            throw new IllegalArgumentException("A number is expected, please provided a valid number");
-        }
-    }
 
     public static void verifyEmail(String param){
         if (param == null || param.isEmpty()) {
@@ -114,21 +90,21 @@ public class Verifier {
 
     public static void validatePaymentInput(
             String address,
-            BlockchainType blockchain) {
+            TransferBlockchain blockchain) {
 
         if (!EVM_ADDRESS_PATTERN.matcher(address).matches()) {
             throw new ValidationException("Invalid EVM wallet address");
         }
 
-        if (blockchain != BlockchainType.POLYGON) {
+        if (blockchain!= TransferBlockchain.MATIC_AMOY) {
             throw new ValidationException(
-                    "Unsupported blockchain. Only POLYGON is allowed"
+                    "Unsupported blockchain. Only MATIC is allowed"
             );
         }
     }
 
-    public static void validateAllInput(String address, BlockchainType blockchain, BigDecimal amount){
-        if (amount == null
+    public static void validateAllInput(String address, TransferBlockchain blockchain, String[] amounts){
+        if (amounts == null
                 && address == null
                 && blockchain == null) {
             throw new ValidationException("Amount, address, blockchain must be provided");

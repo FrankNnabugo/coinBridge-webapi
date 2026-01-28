@@ -1,0 +1,5 @@
+BEGIN;
+ALTER TABLE transactions
+ADD COLUMN direction VARCHAR NOT NULL;
+
+COMMIT;

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ledger_account")
-public class LedgerAccount {
+public class Account {
 
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)

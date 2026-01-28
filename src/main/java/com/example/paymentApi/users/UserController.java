@@ -1,24 +1,21 @@
 package com.example.paymentApi.users;
 
 import com.example.paymentApi.shared.ApiResponse;
-import io.swagger.v3.core.util.ApiResponsesDeserializer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
 @Tag(name = "user authentication", description = "user onboarding & authentication controller")
 public class UserController {
 
     private final UserService userService;
-
-    public UserController(UserService userService){
-        this.userService = userService;
-    }
 
     @Operation(summary = "user signup")
     @PostMapping
@@ -29,9 +26,9 @@ public class UserController {
 
     @Operation(summary = "user login")
     @PostMapping("/authenticate")
-    public ApiResponse<UserResponse> authenticate(@RequestBody LoginRequest loginRequest,
+    public ApiResponse<AuthenticationResponse> authenticate(@RequestBody LoginRequest loginRequest,
                                            HttpServletResponse httpServletResponse){
-        UserResponse response = userService.authenticate(loginRequest, httpServletResponse);
+        AuthenticationResponse response = userService.authenticate(loginRequest, httpServletResponse);
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
     }
 
@@ -45,39 +42,38 @@ public class UserController {
 
     @Operation(summary = "verify Otp")
     @PostMapping("otp/verify")
-    public ApiResponse<String> verifyOtp(@RequestParam String otp, @RequestParam String emailAddress){
+    public ApiResponse<String> verifyOtp(@RequestBody String otp, @RequestParam String emailAddress){
         String response = userService.verifyOtp(otp, emailAddress);
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
 
     }
 
     @Operation(summary = "refresh token")
-    @PostMapping("/refresh-token/{id}")
-    public ApiResponse<UserResponse> refreshToken(@PathVariable String id, HttpServletResponse httpServletResponse,
-                                                  HttpServletRequest httpServletRequest){
-        UserResponse response = userService.refreshToken(id, httpServletResponse, httpServletRequest);
+    @PostMapping("/{userId}/refresh-token")
+    public ApiResponse<AuthenticationResponse> refreshToken(@PathVariable String userId, HttpServletResponse httpServletResponse,
+                                                            HttpServletRequest httpServletRequest){
+        AuthenticationResponse response = userService.refreshToken(userId, httpServletResponse, httpServletRequest);
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
 
     }
     @Operation(summary = "request password reset")
-    @PostMapping("/reset-password/request")
-    public ApiResponse<String> requestPasswordReset(@RequestBody String emailAddress){
+    @PostMapping("/request/reset-password")
+    public ApiResponse<String> requestPasswordReset(@RequestParam String emailAddress){
         String response = userService.requestPasswordReset(emailAddress);
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
 
     }
 
     @Operation(summary = "change password")
-    @PutMapping("/reset-password/confirm/{id}")
-    public ApiResponse<String> resetPassword(@PathVariable String id, @RequestBody String newPassword,
-                                             @RequestBody String newOtp){
-        String response = userService.resetPassword(id, newPassword, newOtp);
+    @PutMapping("/{userId}/reset-password")
+    public ApiResponse<String> resetPassword(@PathVariable("UserId") String userId, @RequestBody ResetPasswordRequest request){
+        String response = userService.resetPassword(userId, request);
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
 
     }
-    @DeleteMapping("/{id}")
-    public ApiResponse<String> deleteUser(@PathVariable("id") String id){
-        String response = userService.deleteUser(id);
+    @DeleteMapping("/{userId}")
+    public ApiResponse<String> deleteUser(@PathVariable("UserId") String userId){
+        String response = userService.deleteUser(userId);
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
 
     }

@@ -14,7 +14,7 @@ public class ReservationRequest {
 
     private ReservationStatus status;
 
-    private String transactionId;
+    private String providerTransactionId;
 
     private ReservationReason reason;
 
@@ -42,19 +42,19 @@ public class ReservationRequest {
         this.status = status;
     }
 
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
-    }
-
     public ReservationReason getReason() {
         return reason;
     }
 
     public void setReason(ReservationReason reason) {
         this.reason = reason;
+    }
+
+    public String getProviderTransactionId() {
+        return providerTransactionId;
+    }
+
+    public void setProviderTransactionId(String providerTransactionId) {
+        this.providerTransactionId = providerTransactionId;
     }
 }
