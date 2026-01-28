@@ -1,5 +1,7 @@
 package com.example.paymentApi.transaction;
 
+import com.example.paymentApi.shared.enums.CurrencyType;
+
 public class TransactionResponse{
     private String id;
 

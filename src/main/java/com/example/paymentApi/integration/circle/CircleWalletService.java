@@ -1,5 +1,7 @@
 package com.example.paymentApi.integration.circle;
 
+import com.example.paymentApi.shared.enums.TransferBlockchain;
+import com.example.paymentApi.shared.exception.ExternalServiceException;
 import com.example.paymentApi.shared.utility.EntitySecretCipherTextUtil;
 import com.example.paymentApi.shared.utility.RedisUtil;
 import com.example.paymentApi.shared.utility.PublicKeyFormatter;
@@ -35,6 +37,9 @@ public class CircleWalletService {
 
     @Value("${circle-transfer-url}")
     private String circleTransferUrl;
+
+    @Value("${polygon-amoy-tokenId}")
+    private String tokenId;
 
     private final WebClient webClient;
     private final RedisUtil redisUtil;
@@ -121,7 +126,7 @@ public class CircleWalletService {
     }
 
     public Mono<OutboundTransferInitiationResponse> createTransferIntent(String userId, String destinationAddress,
-                                                                         String blockchain,
+                                                                         TransferBlockchain blockchain,
                                                                          String[] amounts, String walletAddress
     ) {
         try {
@@ -138,7 +143,8 @@ public class CircleWalletService {
                     "MEDIUM",
                     entitySecretCipherText,
                     blockchain,
-                    walletAddress
+                    walletAddress,
+                    tokenId
             );
 
             return webClient.post()
@@ -152,16 +158,14 @@ public class CircleWalletService {
                             "entitySecretCipherText", data.entitySecretCiphertext(),
                             "amounts", data.amounts(),
                             "feeLevel", data.feeLevel(),
-                            " blockchain", data.blockchain(),
+                            "tokenId", data.tokenId(),
+                            "blockchain", data.blockchain(),
                             "walletAddress", data.walletAddress()
                     ))
                     .retrieve()
                     .bodyToMono(JsonNode.class)
                     .map(json->{
-                        JsonNode response = json.path("data")
-                                .path("id")
-                                .path("state")
-                                .get(0);
+                        JsonNode response = json.path("data");
                         OutboundTransferInitiationResponse out = new OutboundTransferInitiationResponse();
                         out.setId(response.path("id").asText());
                         out.setState(response.path("state").asText());
@@ -170,7 +174,7 @@ public class CircleWalletService {
 
         }
         catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+           throw new ExternalServiceException("Error occurred during api call", e);
         }
     }
 }

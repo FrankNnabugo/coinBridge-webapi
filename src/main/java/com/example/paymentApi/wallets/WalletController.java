@@ -3,9 +3,7 @@ package com.example.paymentApi.wallets;
 import com.example.paymentApi.shared.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,5 +29,12 @@ public class WalletController {
                                                      @RequestParam(defaultValue = "5") int size){
         WalletListResponse responses = walletService.getAllWallets(page, size);
         return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), responses);
+    }
+
+    @Operation(summary = "get wallet balance")
+    @GetMapping("/balance/{id}")
+    public ApiResponse<WalletBalanceResponse> getWalletBalance(@PathVariable("id")String id){
+        WalletBalanceResponse response = walletService.getWalletBalance(id);
+        return new ApiResponse<>(HttpStatus.OK.value(), HttpStatus.OK.name(), response);
     }
 }

@@ -44,7 +44,7 @@ public class ApplicationConfig {
 
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -57,9 +57,9 @@ public class ApplicationConfig {
 
 
     @Bean
-    public ModelMapper modelMapper () {
-            return new ModelMapper();
-        }
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
+    }
 
     @Bean
     public RequestContextListener requestContextListener() {

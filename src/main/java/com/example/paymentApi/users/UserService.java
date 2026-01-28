@@ -1,8 +1,8 @@
 package com.example.paymentApi.users;
 
 import com.example.paymentApi.event.user.UserEventPublisher;
-import com.example.paymentApi.messaging.AccountVerificationEmailService;
-import com.example.paymentApi.messaging.PasswordResetEmailService;
+import com.example.paymentApi.messaging.AccountVerificationEmail;
+import com.example.paymentApi.messaging.PasswordResetEmail;
 import com.example.paymentApi.shared.exception.DuplicateRecordException;
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.shared.exception.ValidationException;
@@ -12,8 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,27 +29,26 @@ public class UserService {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final Verifier verifier;
-    private final AccountVerificationEmailService accountVerificationEmailService;
+    private final AccountVerificationEmail accountVerificationEmail;
     private final UserEventPublisher userCreatedEventPublisher;
     private final RedisOtpService redisOtpService;
-    private final PasswordResetEmailService passwordResetEmailService;
+    private final PasswordResetEmail passwordResetEmail;
     private static final Duration TTL = Duration.ofMinutes(10);
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
 
-
     public SignUpResponse signUp(UserRequest userRequest) {
 
         userRepository.findByEmailAddress(userRequest.getEmailAddress())
-                .ifPresent(user-> {
+                .ifPresent(user -> {
                     throw new DuplicateRecordException("User already exist");
                 });
 
-       userRepository.findByPhoneNumber(userRequest.getPhoneNumber())
-                       .ifPresent(phoneNumber->{
-                           throw new DuplicateRecordException("Phone number already exist. Please use another phone number");
-                       });
+        userRepository.findByPhoneNumber(userRequest.getPhoneNumber())
+                .ifPresent(phoneNumber -> {
+                    throw new DuplicateRecordException("Phone number already exist. Please use another phone number");
+                });
         verifier.verifyParams(
                 userRequest.getFirstName(),
                 userRequest.getLastName(),
@@ -62,7 +59,7 @@ public class UserService {
         Verifier.verifyPasswordFormat(userRequest.getPassword());
 
         if (!userRequest.getAcceptedTerms()) {
-            throw new ValidationException("You must accept terms and conditions to create account.");
+            throw new ValidationException("You must accept terms and condition to create account.");
         }
 
         User user = new User();
@@ -73,23 +70,22 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setAcceptedTerms(userRequest.getAcceptedTerms());
 
-        //TODO: Implement role access
         user.setRole(Role.USER);
 
         User savedUser = userRepository.save(user);
 
-        userCreatedEventPublisher.publishUserCreatedEvent(savedUser.getId(), savedUser.getEmailAddress());
+        userCreatedEventPublisher.publishUserCreatedEvent(savedUser.getId());
 
         return modelMapper.map(savedUser, SignUpResponse.class);
 
     }
 
-    public AuthenticationResponse authenticate (LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
+    public AuthenticationResponse authenticate(LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
 
         User user = userRepository.findByEmailAddress(loginRequest.getEmailAddress()).orElseThrow(() ->
-               new ResourceNotFoundException("User does not exist"));
+                new ResourceNotFoundException("User does not exist"));
 
-        if(user.isDeleted()){
+        if (user.isDeleted()) {
             throw new ValidationException("User account does not exist");
         }
 
@@ -98,8 +94,8 @@ public class UserService {
         }
 
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmailAddress(),
-                loginRequest.getPassword()
+                        loginRequest.getEmailAddress(),
+                        loginRequest.getPassword()
                 )
         );
 
@@ -116,14 +112,13 @@ public class UserService {
 
     }
 
-
     @Transactional
     public String sendOtp(String emailAddress) {
 
         long time = TTL.toMinutes();
 
         User user = userRepository.findByEmailAddress(emailAddress).orElseThrow(() ->
-               new ResourceNotFoundException("User does not exist"));
+                new ResourceNotFoundException("User does not exist"));
 
 
         Verifier.verifyEmail(emailAddress);
@@ -136,7 +131,7 @@ public class UserService {
 
         log.info("saved otp on redis server");
 
-        accountVerificationEmailService.sendOtpEmail(emailAddress, otp.getOtp(), time);
+        accountVerificationEmail.sendOtpEmail(emailAddress, otp.getOtp(), time);
 
         return "Otp successfully sent";
     }
@@ -188,17 +183,17 @@ public class UserService {
     }
 
     @Transactional
-    public String requestPasswordReset(String emailAddress){
+    public String requestPasswordReset(String emailAddress) {
 
         long time = TTL.toMinutes();
 
-        User user = userRepository.findByEmailAddress(emailAddress).orElseThrow(()->
+        User user = userRepository.findByEmailAddress(emailAddress).orElseThrow(() ->
                 new ResourceNotFoundException("User does not exist"));
 
         OtpGenerator.OtpData otp = OtpGenerator.generateOtp();
         redisOtpService.saveOtp(user.getId(), "PASSWORD_RESET", otp.getOtp(), time);
 
-        passwordResetEmailService.sendOtpEmail(user.getEmailAddress(), otp.getOtp(), time);
+        passwordResetEmail.sendOtpEmail(user.getEmailAddress(), otp.getOtp(), time);
 
         return "OTP sent successfully";
     }
@@ -209,9 +204,9 @@ public class UserService {
         long time = TTL.toMinutes();
 
         User user = userRepository.findById(id).orElseThrow(() ->
-               new ResourceNotFoundException("User does not exist"));
+                new ResourceNotFoundException("User does not exist"));
 
-       redisOtpService.verifyOtp(user.getId(),"PASSWORD_RESET", request.getOtp(), time );
+        redisOtpService.verifyOtp(user.getId(), "PASSWORD_RESET", request.getOtp(), time);
 
         Verifier.verifyOtpFormat(request.getOtp());
 
@@ -225,8 +220,8 @@ public class UserService {
     }
 
 
-   public String deleteUser(String id){
-        User user = userRepository.findById(id).orElseThrow(()->
+    public String deleteUser(String id) {
+        User user = userRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("User does not exist"));
         user.setDeleted(true);
         user.setAccountDeletedAt(LocalDateTime.now());

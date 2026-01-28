@@ -1,5 +1,6 @@
 package com.example.paymentApi.shared.utility;
 
+import com.example.paymentApi.shared.enums.TransferBlockchain;
 import com.example.paymentApi.shared.exception.IllegalArgumentException;
 import com.example.paymentApi.shared.exception.NullParameterException;
 import com.example.paymentApi.shared.exception.ValidationException;
@@ -24,8 +25,6 @@ public class Verifier {
 
     private static final Pattern EVM_ADDRESS_PATTERN =
             Pattern.compile("^0x[a-fA-F0-9]{40}$");
-
-    private static final String BLOCKCHAIN_TYPE = "MATIC-AMOY";
 
 
     public Verifier setResourceUrl(String url) {
@@ -91,20 +90,20 @@ public class Verifier {
 
     public static void validatePaymentInput(
             String address,
-            String blockchain) {
+            TransferBlockchain blockchain) {
 
         if (!EVM_ADDRESS_PATTERN.matcher(address).matches()) {
             throw new ValidationException("Invalid EVM wallet address");
         }
 
-        if (!BLOCKCHAIN_TYPE.equalsIgnoreCase(blockchain)) {
+        if (blockchain!= TransferBlockchain.MATIC_AMOY) {
             throw new ValidationException(
                     "Unsupported blockchain. Only MATIC is allowed"
             );
         }
     }
 
-    public static void validateAllInput(String address, String blockchain, String[] amounts){
+    public static void validateAllInput(String address, TransferBlockchain blockchain, String[] amounts){
         if (amounts == null
                 && address == null
                 && blockchain == null) {

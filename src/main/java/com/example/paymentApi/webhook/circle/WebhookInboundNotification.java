@@ -1,8 +1,6 @@
 package com.example.paymentApi.webhook.circle;
 
 import com.example.paymentApi.shared.enums.CircleTransactionType;
-import com.example.paymentApi.shared.enums.TransactionType;
-import com.example.paymentApi.wallets.Wallet;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
@@ -17,7 +15,7 @@ public class WebhookInboundNotification {
 
     private String tokenId;
 
-    private String sourceAddress; // doesn't have
+    private String sourceAddress;
 
     private String destinationAddress;
 
@@ -28,6 +26,8 @@ public class WebhookInboundNotification {
     private CircleTransactionType transactionType;
 
     private String txHash;
+
+    private String networkFee;
 
     public String getDestinationAddress() {
         return destinationAddress;
@@ -106,5 +106,13 @@ public class WebhookInboundNotification {
 
     public void setTransactionType(CircleTransactionType transactionType) {
         this.transactionType = transactionType;
+    }
+
+    public String getNetworkFee() {
+        return networkFee;
+    }
+
+    public void setNetworkFee(String networkFee) {
+        this.networkFee = networkFee;
     }
 }

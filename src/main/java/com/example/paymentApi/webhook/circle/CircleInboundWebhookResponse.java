@@ -8,7 +8,7 @@ public class CircleInboundWebhookResponse {
 
     private String notificationId;
 
-    private String notificationType;
+    private String notificationType; //"transactions.inbound"
 
     private WebhookInboundNotification notification;
 

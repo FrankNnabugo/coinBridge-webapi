@@ -3,22 +3,15 @@ package com.example.paymentApi.webhook.circle;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CircleOutBoundWebhookResponse {
+public class CircleOutboundWebhookResponse {
+
     private String subscriptionId;
 
     private String notificationId;
 
-    private String notificationType;
+    private String notificationType; //transactions.outbound
 
-    private WebhookOutBoundNotification data;
-
-    public WebhookOutBoundNotification getData() {
-        return data;
-    }
-
-    public void setData(WebhookOutBoundNotification data) {
-        this.data = data;
-    }
+    private WebhookInboundNotification notification;
 
     public String getSubscriptionId() {
         return subscriptionId;
@@ -42,5 +35,13 @@ public class CircleOutBoundWebhookResponse {
 
     public void setNotificationType(String notificationType) {
         this.notificationType = notificationType;
+    }
+
+    public WebhookInboundNotification getNotification() {
+        return notification;
+    }
+
+    public void setNotification(WebhookInboundNotification notification) {
+        this.notification = notification;
     }
 }

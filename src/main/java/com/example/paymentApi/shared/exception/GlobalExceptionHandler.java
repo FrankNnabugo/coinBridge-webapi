@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(DuplicateRecordException.class)
-    public ResponseEntity<ApiError> handleDuplicateRecordException(DuplicateRecordException e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleDuplicateRecordException(DuplicateRecordException e) {
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 "DUPLICATE_RECORD_ERROR",
@@ -26,7 +26,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiError> handleValidationException(ValidationException e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleValidationException(ValidationException e) {
         ApiError error = new ApiError(
                 HttpStatus.UNAUTHORIZED.value(),
                 "VALIDATION_ERROR",
@@ -48,7 +48,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException e, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException e){
         ApiError error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 e.getMessage(),
@@ -91,10 +91,62 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 HttpRequestUtil.getServletPath()
         );
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+
+    @ExceptionHandler(InternalProcessingException.class)
+    public ResponseEntity<ApiError> handleIllegalArgumentException(InternalProcessingException e){
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                "INTERNAL_PROCESSING_ERROR",
+                HttpRequestUtil.getServletPath()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
 
     }
+
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ApiError> handleIllegalArgumentException(DataAccessException e){
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                "DATA_ACCESS_ERROR",
+                HttpRequestUtil.getServletPath()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+    }
+
+
+    @ExceptionHandler(ExternalServiceException.class)
+    public ResponseEntity<ApiError> handleIllegalArgumentException(ExternalServiceException e){
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                "EXTERNAL_SERVICE_ERROR",
+                HttpRequestUtil.getServletPath()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+    }
+
+
+    @ExceptionHandler(InfrastructureException.class)
+    public ResponseEntity<ApiError> handleIllegalArgumentException(InfrastructureException e){
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                "INFRASTRUCTURE_ERROR",
+                HttpRequestUtil.getServletPath()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+
+    }
+
     @ExceptionHandler(GeneralAppException.class)
-    public ResponseEntity<ApiError> handleGeneralAppException(GeneralAppException e, HttpServletRequest request){
+    public ResponseEntity<ApiError> handleGeneralAppException(GeneralAppException e){
         ApiError error = new ApiError(
                 e.getStatus().value(),
                 e.getErrorCode(),
@@ -106,7 +158,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleGenericExceptions(Exception e, HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleGenericExceptions(Exception e) {
         ApiError error = new ApiError(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "INTERNAL_SERVER_ERROR",

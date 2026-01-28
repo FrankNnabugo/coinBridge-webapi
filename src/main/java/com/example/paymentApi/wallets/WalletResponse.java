@@ -1,10 +1,7 @@
 package com.example.paymentApi.wallets;
 
-import com.example.paymentApi.reservations.Reservation;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class WalletResponse {
     private String id;
@@ -23,15 +20,11 @@ public class WalletResponse {
 
     private String address;
 
-    private String walletName;
-
     private String provider;
 
     private String walletSetId;
 
     private String circleWalletId;
-
-    private String referenceId;
 
     private BigDecimal totalBalance;
 
@@ -39,13 +32,9 @@ public class WalletResponse {
 
     private BigDecimal availableBalance;
 
-    private List<Reservation> reservations;
-
     private String status;
 
     private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
 
     public String getId() {
         return id;
@@ -104,14 +93,6 @@ public class WalletResponse {
         this.address = address;
     }
 
-    public String getWalletName() {
-        return walletName;
-    }
-
-    public void setWalletName(String walletName) {
-        this.walletName = walletName;
-    }
-
     public String getProvider() {
         return provider;
     }
@@ -126,14 +107,6 @@ public class WalletResponse {
 
     public void setWalletSetId(String walletSetId) {
         this.walletSetId = walletSetId;
-    }
-
-    public String getReferenceId() {
-        return referenceId;
-    }
-
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
     }
 
     public BigDecimal getTotalBalance() {
@@ -160,14 +133,6 @@ public class WalletResponse {
         this.availableBalance = availableBalance;
     }
 
-    public List<Reservation> getReservations() {
-        return reservations;
-    }
-
-    public void setReservations(List<Reservation> reservations) {
-        this.reservations = reservations;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -182,14 +147,6 @@ public class WalletResponse {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public String getUserId() {

@@ -20,19 +20,22 @@ public class TransactionService{
     private final ModelMapper modelMapper;
 
     @CacheEvict(value = "allTransactions", allEntries = true)
-    public void createTransactionRecord(TransactionRequest request, Wallet wallet){
+    public Transactions createTransactionRecord(TransactionRequest request){
         Transactions transaction = new Transactions();
-        transaction.setWallet(wallet);
-        transaction.setUser(wallet.getUser());
-        transaction.setTransferId(request.getTransferId());
+        transaction.setWallet(request.getWallet());
+        transaction.setUser(request.getUser());
+        transaction.setProviderTransactionId(request.getProviderTransactionId());
         transaction.setType(request.getType());
         transaction.setAmount(request.getAmounts());
         transaction.setStatus(request.getStatus());
         transaction.setReferenceId(request.getReferenceId());
         transaction.setSourceAddress(request.getSourceAddress());
         transaction.setDestinationAddress(request.getDestinationAddress());
+        transaction.setSourceCurrency(request.getSourceCurrency());
+        transaction.setDestinationCurrency(request.getDestinationCurrency());
+        transaction.setDirection(request.getDirection());
 
-        transactionRepository.save(transaction);
+        return transactionRepository.save(transaction);
 
     }
 

@@ -53,9 +53,11 @@ public class Ledger{
     @Column(length = 200)
     private String destinationAddress;
 
-    private String sourceCurrency;
+    @Enumerated(EnumType.STRING)
+    private CurrencyType sourceCurrency;
 
-    private String destinationCurrency;
+    @Enumerated(EnumType.STRING)
+    private CurrencyType destinationCurrency;
 
     @Column(nullable = false, precision = 38, scale = 8)
     private BigDecimal balanceBefore;
@@ -109,23 +111,6 @@ public class Ledger{
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-
-    public String getSourceCurrency() {
-        return sourceCurrency;
-    }
-
-    public void setSourceCurrency(String sourceCurrency) {
-        this.sourceCurrency = sourceCurrency;
-    }
-
-    public String getDestinationCurrency() {
-        return destinationCurrency;
-    }
-
-    public void setDestinationCurrency(String destinationCurrency) {
-        this.destinationCurrency = destinationCurrency;
     }
 
     public LedgerType getEntryType() {
@@ -206,5 +191,21 @@ public class Ledger{
 
     public void setBalanceAfter(BigDecimal balanceAfter) {
         this.balanceAfter = balanceAfter;
+    }
+
+    public CurrencyType getSourceCurrency() {
+        return sourceCurrency;
+    }
+
+    public void setSourceCurrency(CurrencyType sourceCurrency) {
+        this.sourceCurrency = sourceCurrency;
+    }
+
+    public CurrencyType getDestinationCurrency() {
+        return destinationCurrency;
+    }
+
+    public void setDestinationCurrency(CurrencyType destinationCurrency) {
+        this.destinationCurrency = destinationCurrency;
     }
 }

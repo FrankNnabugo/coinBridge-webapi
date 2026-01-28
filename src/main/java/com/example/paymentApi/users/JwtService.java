@@ -30,7 +30,7 @@ public class JwtService {
     @Value("${security.jwt.refresh-expiration-time}")
     private long refreshExpiration;
 
-    //Call this direct to generate access token
+
     public String generateAccessToken(UserDetails userDetails){
         HashMap<String, Object> extraClaims = new HashMap<>();
         return generateToken(extraClaims, userDetails);
@@ -42,7 +42,6 @@ public class JwtService {
 
 }
 
-    //The actual implementation that builds the jwt Token
     private String buildToken(Map<String, Object> extraClaims,
                              UserDetails userDetails, long expiration){
         return Jwts.builder()
@@ -54,25 +53,20 @@ public class JwtService {
                 .compact();
     }
 
-    //To getSignKey
     private Key getAccessKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-
-    //To check if jwt token is expired
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-
 
     //To extract UserDetail(id, or userName) from jwt token
     public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    //To check if jwt token is valid
     public boolean isTokenValid(String token, UserDetails userDetails) {
 
         final String userEmail = extractSubject(token);
@@ -80,20 +74,16 @@ public class JwtService {
         return userEmail.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-
-    //To extract a claim from a jwt
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    //To extract jwt expiration date from jwt token
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
 
 
-    //To extract All claims from a jwt
     public Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()
@@ -108,8 +98,6 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-
-     //generate refresh token
         public String generateRefreshToken(UserDetails userDetails) {
              return Jwts.builder()
                      .setSubject(userDetails.getUsername())
@@ -120,7 +108,6 @@ public class JwtService {
                      .compact();
     }
 
-   //Validate refresh token
     public boolean validateRefreshToken(String refreshToken) {
         try {
             Jwts.parserBuilder()

@@ -10,7 +10,7 @@ public class UserEventPublisher {
 
     private final ApplicationEventPublisher publisher;
 
-    public void publishUserCreatedEvent(String userId, String email){
-        publisher.publishEvent(new UserCreationEvent<>(userId, email));
+    public void publishUserCreatedEvent(String userId){
+        publisher.publishEvent(new UserCreationEvent<>(userId));
     }
 }

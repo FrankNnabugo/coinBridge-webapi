@@ -35,7 +35,7 @@ public class Reservation {
     @Column(nullable = false)
     private ReservationStatus status = ReservationStatus.ACTIVE;
 
-    private String transactionId;
+    private String providerTransactionId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -97,14 +97,6 @@ public class Reservation {
         this.createdAt = createdAt;
     }
 
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
-    }
-
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
@@ -119,5 +111,13 @@ public class Reservation {
 
     public void setReason(ReservationReason reason) {
         this.reason = reason;
+    }
+
+    public String getProviderTransactionId() {
+        return providerTransactionId;
+    }
+
+    public void setProviderTransactionId(String providerTransactionId) {
+        this.providerTransactionId = providerTransactionId;
     }
 }

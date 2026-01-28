@@ -2,7 +2,6 @@ package com.example.paymentApi.reservations;
 
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.wallets.Wallet;
-import com.example.paymentApi.wallets.WalletRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -14,17 +13,16 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final ModelMapper modelMapper;
 
-    public void reserveFund(Wallet wallet, ReservationRequest request){
+    public Reservation createReservation(Wallet wallet, ReservationRequest request){
 
         Reservation reservation = new Reservation();
         reservation.setWallet(wallet);
         reservation.setAmount(request.getAmount());
         reservation.setReservationType(request.getReservationType());
-        reservation.setTransactionId(request.getTransactionId());
+        reservation.setProviderTransactionId(request.getProviderTransactionId());
         reservation.setReason(request.getReason());
 
-        reservationRepository.save(reservation);
-
+       return reservationRepository.save(reservation);
     }
 
     public ReservationResponse getReservation(String id){
@@ -32,7 +30,6 @@ public class ReservationService {
                 new ResourceNotFoundException("Reservation record with id " + id + "does not exist"));
 
         return modelMapper.map(reservation, ReservationResponse.class);
-
 
     }
 }

@@ -1,8 +1,9 @@
-package com.example.paymentApi.walletToWallet.outbound;
+package com.example.paymentApi.walletTransaction;
 
+import com.example.paymentApi.shared.enums.TransferBlockchain;
 import jakarta.validation.constraints.*;
 
-public class OutBoundRequest {
+public class TransferRequest {
 
     @NotEmpty(message = "Amounts cannot be empty")
     private String[] amounts;
@@ -12,10 +13,8 @@ public class OutBoundRequest {
     @NotBlank(message = "destinationAddress cannot be blank")
     private String destinationAddress;
 
-    @NotEmpty(message = "blockchain cannot be empty" )
-    @NotBlank(message = "blockchain cannot be blank")
-    @NotNull(message = "blockchain is required" )
-    private String blockchain;
+    @NotNull(message = "Blockchain is required" )
+    private TransferBlockchain blockchain;
 
     public String getDestinationAddress() {
         return destinationAddress;
@@ -33,11 +32,11 @@ public class OutBoundRequest {
         this.amounts = amounts;
     }
 
-    public String getBlockchain() {
+    public TransferBlockchain getBlockchain() {
         return blockchain;
     }
 
-    public void setBlockchain(String blockchain) {
+    public void setBlockchain(TransferBlockchain blockchain) {
         this.blockchain = blockchain;
     }
 }

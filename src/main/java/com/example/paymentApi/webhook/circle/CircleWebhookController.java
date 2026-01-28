@@ -1,7 +1,6 @@
 package com.example.paymentApi.webhook.circle;
 
-import com.example.paymentApi.walletToWallet.inbound.InboundTransferService;
-import com.example.paymentApi.walletToWallet.outbound.OutBoundTransferService;
+import com.example.paymentApi.settlement.SettlementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,45 +15,34 @@ import org.springframework.web.bind.annotation.*;
 public class CircleWebhookController {
 
     private final CircleWebhookService circleWebhookService;
-    private final InboundTransferService inboundTransferService;
-    private final OutBoundTransferService outBoundTransferService;
+    private final SettlementService settlementService;
 
 
-    @PostMapping("/pay-in")
-    public ResponseEntity<CircleInboundWebhookResponse> handleInboundTransfer(@RequestBody String rawPayload,
+    @PostMapping("/inbound/transaction")
+    public ResponseEntity<CircleInboundWebhookResponse> handleInboundTransactions(@RequestBody String payload,
 
-                                                                              @RequestHeader("X-Circle-Signature") String signatureBase64)
-    {
-        log.info("Received webhook response from circle and verifying signature");
+                                                                                  @RequestHeader("X-Circle-Signature") String signatureBase64) {
+        log.info("Received webhook response from circle for Inbound transaction with payload {}", payload);
 
-       if(!circleWebhookService.verifySignature(rawPayload, signatureBase64)){
-           return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-       };
-        log.info("Signature successfully verified, processing webhook response for USDC wallet deposit {}", rawPayload);
-        try {
-           inboundTransferService.processInboundTransfer(rawPayload);
+        if (!circleWebhookService.verifySignature(payload, signatureBase64)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        catch (Exception e) {
-           log.error("Inbound transfer processing failed", e);
-        }
+        log.info("Signature successfully verified for inbound transaction");
+            settlementService.settleInboundTransactions(payload);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @PostMapping("/finalize/transfer")
-    public ResponseEntity<CircleOutBoundWebhookResponse> handleOutboundTransfer(@RequestBody String rawPayload,
-                                                                                @RequestHeader("X-Circle-Signature") String signatureBase64
-                                                                                ){
 
-        log.info("Received webhook response from circle and verifying signature");
-
-        if(!circleWebhookService.verifySignature(rawPayload, signatureBase64)){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        };
-
-        log.info("Received webhook response from circle for wallet to wallet transfer {}", rawPayload);
-
-       outBoundTransferService.finalizeTransfer(rawPayload);
+    @PostMapping("/outbound/transaction")
+    public ResponseEntity<CircleOutboundWebhookResponse> handleOutboundTransactions(@RequestBody String payload,
+                                                                                    @RequestHeader("X-Circle-Signature") String signatureBase64)
+    {
+        log.info("Received webhook response from circle for Outbound transaction with payload {}", payload);
+        if(!circleWebhookService.verifySignature(payload, signatureBase64)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        log.info("Signature successfully verified for outbound transaction");
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
