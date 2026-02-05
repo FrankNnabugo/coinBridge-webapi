@@ -1,47 +1,28 @@
 package com.example.paymentApi.ledgers;
 
 import com.example.paymentApi.shared.enums.*;
-import com.example.paymentApi.wallets.Wallet;
+import com.example.paymentApi.transaction.Transactions;
 
 import java.math.BigDecimal;
 
 public class LedgerRequest {
-    private Wallet sourceWallet;
+    private Account accountId;
 
-    private Wallet destinationWallet;
+    private Transactions transactionId;
 
-    private LedgerType entryType;
+    private EntryType entryType;
 
     private BigDecimal amount;
-
-    private LedgerDirection direction;
 
     private AssetType asset;
 
     private LedgerStatus status;
 
-    private ProviderType provider;
-
-    private String referenceId;
-
-    private String sourceAddress;
-
-    private String destinationAddress;
-
-    private CurrencyType sourceCurrency;
-
-    private CurrencyType destinationCurrency;
-
-    private BigDecimal balanceBefore;
-
-    private BigDecimal balanceAfter;
-
-
-    public LedgerType getEntryType() {
+    public EntryType getEntryType() {
         return entryType;
     }
 
-    public void setEntryType(LedgerType entryType) {
+    public void setEntryType(EntryType entryType) {
         this.entryType = entryType;
     }
 
@@ -51,14 +32,6 @@ public class LedgerRequest {
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
-    }
-
-    public LedgerDirection getDirection() {
-        return direction;
-    }
-
-    public void setDirection(LedgerDirection direction) {
-        this.direction = direction;
     }
 
     public AssetType getAsset() {
@@ -77,83 +50,19 @@ public class LedgerRequest {
         this.status = status;
     }
 
-    public String getReferenceId() {
-        return referenceId;
+    public Account getAccountId() {
+        return accountId;
     }
 
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
+    public void setAccountId(Account accountId) {
+        this.accountId = accountId;
     }
 
-    public String getSourceAddress() {
-        return sourceAddress;
+    public Transactions getTransactionId() {
+        return transactionId;
     }
 
-    public void setSourceAddress(String sourceAddress) {
-        this.sourceAddress = sourceAddress;
-    }
-
-    public String getDestinationAddress() {
-        return destinationAddress;
-    }
-
-    public void setDestinationAddress(String destinationAddress) {
-        this.destinationAddress = destinationAddress;
-    }
-
-    public ProviderType getProvider() {
-        return provider;
-    }
-
-    public void setProvider(ProviderType provider) {
-        this.provider = provider;
-    }
-
-    public BigDecimal getBalanceAfter() {
-        return balanceAfter;
-    }
-
-    public void setBalanceAfter(BigDecimal balanceAfter) {
-        this.balanceAfter = balanceAfter;
-    }
-
-    public BigDecimal getBalanceBefore() {
-        return balanceBefore;
-    }
-
-    public void setBalanceBefore(BigDecimal balanceBefore) {
-        this.balanceBefore = balanceBefore;
-    }
-
-    public Wallet getSourceWallet() {
-        return sourceWallet;
-    }
-
-    public void setSourceWallet(Wallet sourceWallet) {
-        this.sourceWallet = sourceWallet;
-    }
-
-    public Wallet getDestinationWallet() {
-        return destinationWallet;
-    }
-
-    public void setDestinationWallet(Wallet destinationWallet) {
-        this.destinationWallet = destinationWallet;
-    }
-
-    public CurrencyType getSourceCurrency() {
-        return sourceCurrency;
-    }
-
-    public void setSourceCurrency(CurrencyType sourceCurrency) {
-        this.sourceCurrency = sourceCurrency;
-    }
-
-    public CurrencyType getDestinationCurrency() {
-        return destinationCurrency;
-    }
-
-    public void setDestinationCurrency(CurrencyType destinationCurrency) {
-        this.destinationCurrency = destinationCurrency;
+    public void setTransactionId(Transactions transactionId) {
+        this.transactionId = transactionId;
     }
 }

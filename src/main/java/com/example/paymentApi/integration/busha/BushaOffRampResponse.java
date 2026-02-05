@@ -1,53 +1,29 @@
 package com.example.paymentApi.integration.busha;
 
 public class BushaOffRampResponse {
-    private String id;
+    private String status;
 
-    private String qouteId;
+    private String message;
 
-    private String description;
+    private Data data;
 
-    private String subDescription;
+    private Rate rate;
 
-    private String sourceCurrency;
+    private String[] fees;
 
-    private String targetCurrency;
-
-    private String sourceAmount;
-
-    private String targetAmount;
-
-    private String trade;
-
-    private RateDto rate;
+    private String status2;
 
     private String referenceId;
 
-    private String status;
+    private String expiresAt;
 
     private String createdAt;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getTrade() {
-        return trade;
-    }
-
-    public void setTrade(String trade) {
-        this.trade = trade;
-    }
-
-    public RateDto getRate() {
+    public Rate getRate() {
         return rate;
     }
 
-    public void setRate(RateDto rate) {
+    public void setRate(Rate rate) {
         this.rate = rate;
     }
 
@@ -67,22 +43,6 @@ public class BushaOffRampResponse {
         this.createdAt = createdAt;
     }
 
-    public String getQouteId() {
-        return qouteId;
-    }
-
-    public void setQouteId(String qouteId) {
-        this.qouteId = qouteId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getReferenceId() {
         return referenceId;
     }
@@ -91,43 +51,43 @@ public class BushaOffRampResponse {
         this.referenceId = referenceId;
     }
 
-    public String getSubDescription() {
-        return subDescription;
+    public String getMessage() {
+        return message;
     }
 
-    public void setSubDescription(String subDescription) {
-        this.subDescription = subDescription;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    public String getSourceCurrency() {
-        return sourceCurrency;
+    public Data getData() {
+        return data;
     }
 
-    public void setSourceCurrency(String sourceCurrency) {
-        this.sourceCurrency = sourceCurrency;
+    public void setData(Data data) {
+        this.data = data;
     }
 
-    public String getTargetCurrency() {
-        return targetCurrency;
+    public String[] getFees() {
+        return fees;
     }
 
-    public void setTargetCurrency(String targetCurrency) {
-        this.targetCurrency = targetCurrency;
+    public void setFees(String[] fees) {
+        this.fees = fees;
     }
 
-    public String getSourceAmount() {
-        return sourceAmount;
+    public String getStatus2() {
+        return status2;
     }
 
-    public void setSourceAmount(String sourceAmount) {
-        this.sourceAmount = sourceAmount;
+    public void setStatus2(String status2) {
+        this.status2 = status2;
     }
 
-    public String getTargetAmount() {
-        return targetAmount;
+    public String getExpiresAt() {
+        return expiresAt;
     }
 
-    public void setTargetAmount(String targetAmount) {
-        this.targetAmount = targetAmount;
+    public void setExpiresAt(String expiresAt) {
+        this.expiresAt = expiresAt;
     }
 }

@@ -1,6 +1,6 @@
 package com.example.paymentApi.wallets;
 
-import com.example.paymentApi.reservations.Reservation;
+import com.example.paymentApi.ledgers.Account;
 import com.example.paymentApi.users.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -8,7 +8,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "wallets")
@@ -38,6 +37,10 @@ public class Wallet {
     @Column(nullable = false)
     private String accountType;
 
+    @OneToOne
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+
     @Column(nullable = false, length = 255)
     private String address;
 
@@ -58,9 +61,6 @@ public class Wallet {
 
     @Column(nullable = false, precision = 38, scale = 8 )
     private BigDecimal availableBalance = BigDecimal.ZERO;
-
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reservation> reservations;
 
     @Column(nullable = false)
     private String status = "active";
@@ -176,13 +176,6 @@ public class Wallet {
         this.availableBalance = availableBalance;
     }
 
-    public List<Reservation> getReservations() {
-        return reservations;
-    }
-
-    public void setReservations(List<Reservation> reservations) {
-        this.reservations = reservations;
-    }
 
     public String getStatus() {
         return status;
@@ -214,5 +207,13 @@ public class Wallet {
 
     public void setCircleWalletId(String circleWalletId) {
         this.circleWalletId = circleWalletId;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
     }
 }

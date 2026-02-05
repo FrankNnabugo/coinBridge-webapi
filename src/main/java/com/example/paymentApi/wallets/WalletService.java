@@ -7,16 +7,19 @@ import com.example.paymentApi.shared.exception.ValidationException;
 import com.example.paymentApi.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-
 @Service
 @RequiredArgsConstructor
 public class WalletService {
+
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
@@ -59,17 +62,15 @@ public class WalletService {
 
     }
 
-    public void creditWallet(String id, BigDecimal amount){
+    public void creditWallet(String circleWalletId, BigDecimal amount) {
         if (amount == null || amount.signum() <= 0) {
             throw new ValidationException("Credit amount must be greater than zero");
         }
 
-        Wallet wallet = walletRepository.findById(id).orElseThrow();
+        Wallet wallet = walletRepository.findByCircleWalletIdForUpdate(circleWalletId);
 
         BigDecimal currentTotal = wallet.getTotalBalance();
-        BigDecimal reserved = wallet.getReservedBalance() != null
-                ? wallet.getReservedBalance()
-                : BigDecimal.ZERO;
+        BigDecimal reserved = wallet.getReservedBalance() != null ? wallet.getReservedBalance() : BigDecimal.ZERO;
 
         BigDecimal newTotal = currentTotal.add(amount);
         BigDecimal newAvailable = newTotal.subtract(reserved);
@@ -80,18 +81,12 @@ public class WalletService {
         walletRepository.save(wallet);
     }
 
-
-    public void debitWallet(String id, BigDecimal amount) {
-
+    public void debitWallet(String circleWalletId, BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new ValidationException("Amount must be greater than zero");
         }
 
-        Wallet wallet = walletRepository.findById(id).orElseThrow();
-
-        if (wallet.getAvailableBalance().compareTo(amount) < 0) {
-            throw new InsufficientBalanceException("Insufficient fund");
-        }
+        Wallet wallet = walletRepository.findByCircleWalletIdForUpdate(circleWalletId);
 
         BigDecimal reservedBalance = wallet.getReservedBalance();
         BigDecimal totalBalance = wallet.getTotalBalance();
@@ -107,43 +102,12 @@ public class WalletService {
         wallet.setAvailableBalance(wallet.getTotalBalance().subtract(wallet.getReservedBalance()));
 
         walletRepository.save(wallet);
-
     }
-
 
     public WalletBalanceResponse getWalletBalance(String id) {
-
-        Wallet wallet = walletRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
-
+        Wallet wallet = walletRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Wallet not found"));
         return modelMapper.map(wallet, WalletBalanceResponse.class);
-
     }
 
-
-
-
-
-
-
-//        BigDecimal totalBalance = wallet.getTotalBalance();
-//        BigDecimal reservedBalance = wallet.getReservedBalance();
-//        BigDecimal availableBalance = wallet.getAvailableBalance();
-//
-//        if (totalBalance.compareTo(BigDecimal.ZERO) < 0 ||
-//                availableBalance.compareTo(BigDecimal.ZERO) < 0) {
-//            throw new IllegalStateException("Wallet balances are corrupted");
-//        }
-//
-//        if (reservedBalance.compareTo(totalBalance) > 0) {
-//            throw new IllegalStateException("Reserved balance exceeds total balance");
-//        }
-//        BigDecimal newTotalBalance = totalBalance.subtract(amount);
-//        BigDecimal newAvailableBalance = newTotalBalance.subtract(reservedBalance);
-//
-//        wallet.setTotalBalance(newTotalBalance);
-//        wallet.setAvailableBalance(newAvailableBalance);
-//        walletRepository.save(wallet);
-//    }
-
 }
-

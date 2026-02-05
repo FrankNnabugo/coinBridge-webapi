@@ -35,6 +35,8 @@ public class TransactionRequest {
 
     private CurrencyType destinationCurrency;
 
+    private BigDecimal balanceAfter;
+
     public String getSourceAddress() {
         return sourceAddress;
     }
@@ -129,5 +131,13 @@ public class TransactionRequest {
 
     public void setDestinationCurrency(CurrencyType destinationCurrency) {
         this.destinationCurrency = destinationCurrency;
+    }
+
+    public BigDecimal getBalanceAfter() {
+        return balanceAfter;
+    }
+
+    public void setBalanceAfter(BigDecimal balanceAfter) {
+        this.balanceAfter = balanceAfter;
     }
 }

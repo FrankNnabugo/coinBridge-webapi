@@ -34,6 +34,7 @@ public class TransactionService{
         transaction.setSourceCurrency(request.getSourceCurrency());
         transaction.setDestinationCurrency(request.getDestinationCurrency());
         transaction.setDirection(request.getDirection());
+        transaction.setBalanceAfter(request.getBalanceAfter());
 
         return transactionRepository.save(transaction);
 

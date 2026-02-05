@@ -1,8 +1,8 @@
 package com.example.paymentApi.settlement;
 
 
+import com.example.paymentApi.ledgers.AccountRepository;
 import com.example.paymentApi.ledgers.LedgerService;
-import com.example.paymentApi.reservations.Reservation;
 import com.example.paymentApi.reservations.ReservationRepository;
 import com.example.paymentApi.shared.enums.*;
 import com.example.paymentApi.shared.exception.*;
@@ -10,6 +10,7 @@ import com.example.paymentApi.shared.mapper.CircleWebhookMapper;
 import com.example.paymentApi.shared.utility.RedisUtil;
 import com.example.paymentApi.transaction.TransactionRepository;
 import com.example.paymentApi.transaction.TransactionService;
+import com.example.paymentApi.transaction.Transactions;
 import com.example.paymentApi.wallets.Wallet;
 import com.example.paymentApi.wallets.WalletRepository;
 import com.example.paymentApi.wallets.WalletService;
@@ -27,17 +28,16 @@ import java.math.BigDecimal;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SettlementService {
+public class InboundTransactionSettlement {
 
     private final ObjectMapper objectMapper;
-    private final TransactionService transactionService;
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
-    private final ReservationRepository reservationRepository;
     private final WalletService walletService;
-    private final LedgerService ledgerService;
     private final RedisUtil redisUtil;
     private final Settlement settlement;
+    private final LedgerService ledgerService;
+    private final AccountRepository accountRepository;
 
     private static final String COMPLETE_STATE = "COMPLETE";
     private static final String FAILURE_STATE = "FAILED";
@@ -82,8 +82,7 @@ public class SettlementService {
             return;
         }
 
-        Wallet wallet = walletRepository.findByCircleWalletIdForUpdate(circleWalletId);
-        Reservation reservation = reservationRepository.findByProviderTransactionId(providerTransactionId);
+        Wallet wallet = walletRepository.findByCircleWalletId(circleWalletId).orElseThrow();
 
         Wallet sourceWallet = walletRepository.findByAddress(sourceAddress);
         Wallet destinationWallet = walletRepository.findByAddress(destinationAddress);
@@ -95,15 +94,23 @@ public class SettlementService {
                 boolean exist = transactionRepository.existsByReferenceId(referenceId);
                 if (exist) return;
 
+                BigDecimal balanceAfter = destinationWallet.getAvailableBalance().add(amounts);
+
+                walletService.creditWallet(destinationWallet.getCircleWalletId(), amounts);
+
                 settlement.settleExternalInbound(amounts,
                         destinationAddress,
                         transactionType,
                         providerTransactionId,
                         referenceId,
                         sourceAddress,
-                        destinationWallet);
+                        destinationWallet,
+                        balanceAfter);
 
-                walletService.creditWallet(destinationWallet.getId(), amounts);
+                ledgerService.postExternalInbound(amounts,
+                        providerTransactionId,
+                        destinationWallet.getAccount());
+
 
                 log.info("External inbound transaction successfully processed and settled");
 
@@ -112,10 +119,15 @@ public class SettlementService {
             }
 
 
-            if (COMPLETE_STATE.equalsIgnoreCase(state) && sourceWallet != null && destinationWallet !=null){
+            if (COMPLETE_STATE.equalsIgnoreCase(state) && sourceWallet != null && destinationWallet != null){
 
                 boolean exist = transactionRepository.existsByReferenceId(referenceId);
                 if (exist) return;
+
+                BigDecimal sourceBalanceAfter = sourceWallet.getAvailableBalance().subtract(amounts);
+                BigDecimal destinationBalanceAfter = destinationWallet.getAvailableBalance().add(amounts);
+
+                walletService.creditWallet(destinationWallet.getCircleWalletId(), amounts);
 
                 settlement.settleInternalInbound(amounts,
                         referenceId,
@@ -123,9 +135,14 @@ public class SettlementService {
                         destinationAddress,
                         providerTransactionId,
                         transactionType,
-                        destinationWallet);
+                        destinationWallet,
+                        sourceBalanceAfter,
+                        destinationBalanceAfter);
 
-                walletService.creditWallet(destinationWallet.getId(), amounts);
+                ledgerService.postInternalInbound(amounts,
+                        providerTransactionId,
+                        sourceWallet.getAccount(),
+                        destinationWallet.getAccount());
 
                 log.info("Internal Inbound Transaction successfully processed and settled");
 
@@ -135,12 +152,23 @@ public class SettlementService {
 
             if (FAILURE_STATE.equalsIgnoreCase(state) && sourceWallet != null && destinationWallet != null) {
 
+                boolean exist = transactionRepository.existsByReferenceId(referenceId);
+                if (exist) return;
+
+                BigDecimal balanceAfter = wallet.getAvailableBalance().add(amounts);
+
+                walletService.creditWallet(wallet.getCircleWalletId(), amounts);
+
                 settlement.settleInternalInboundFailure(providerTransactionId,
                         referenceId,
                         wallet,
                         amounts,
-                        destinationAddress);
-                walletService.creditWallet(wallet.getId(), amounts);
+                        destinationAddress,
+                        balanceAfter);
+
+                ledgerService.postInternalReversal(amounts,
+                        sourceWallet.getAccount(),
+                        providerTransactionId);
 
                 log.info("Internal Inbound transaction failed, reversal have been issued and records updated");
 

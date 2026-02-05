@@ -4,6 +4,8 @@ public enum AssetType {
     USDC,
     MATIC,
     NGN,
-    KSH
+    KSH,
+    GHS,
+
 
 }

@@ -1,6 +1,7 @@
 package com.example.paymentApi.ledgers;
 
 import com.example.paymentApi.shared.enums.*;
+import com.example.paymentApi.transaction.Transactions;
 import com.example.paymentApi.wallets.Wallet;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -18,23 +19,19 @@ public class Ledger{
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "wallet_id", nullable = false)
-    private Wallet wallet;
+    @JoinColumn(name = "account_id", nullable = false)
+    private Account account;
+
+    @ManyToOne
+    @JoinColumn(name = "transaction_id", nullable = false)
+    private Transactions transaction;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private LedgerType entryType;
+    private EntryType entryType;
 
     @Column(nullable = false, precision = 38, scale = 8)
     private BigDecimal amount;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private LedgerDirection direction;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ProviderType provider;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -44,41 +41,9 @@ public class Ledger{
     @Column(nullable = false)
     private LedgerStatus status;
 
-    @Column(nullable = false)
-    private String referenceId; //tx_hash, payment_intent_id, reference
-
-    @Column(length = 200)
-    private String sourceAddress;
-
-    @Column(length = 200)
-    private String destinationAddress;
-
-    @Enumerated(EnumType.STRING)
-    private CurrencyType sourceCurrency;
-
-    @Enumerated(EnumType.STRING)
-    private CurrencyType destinationCurrency;
-
-    @Column(nullable = false, precision = 38, scale = 8)
-    private BigDecimal balanceBefore;
-
-    @Column(nullable = false, precision = 38, scale = 8)
-    private BigDecimal balanceAfter;
-
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
-    public String getReferenceId() {
-        return referenceId;
-    }
-
-    public void setReferenceId(String referenceId) {
-        this.referenceId = referenceId;
-    }
 
     public String getId() {
         return id;
@@ -88,36 +53,27 @@ public class Ledger{
         this.id = id;
     }
 
-    public Wallet getWallet() {
-        return wallet;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public Transactions getTransaction() {
+        return transaction;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setTransaction(Transactions transaction) {
+        this.transaction = transaction;
     }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public LedgerType getEntryType() {
+    public EntryType getEntryType() {
         return entryType;
     }
 
-    public void setEntryType(LedgerType entryType) {
+    public void setEntryType(EntryType entryType) {
         this.entryType = entryType;
     }
 
@@ -127,14 +83,6 @@ public class Ledger{
 
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
-    }
-
-    public LedgerDirection getDirection() {
-        return direction;
-    }
-
-    public void setDirection(LedgerDirection direction) {
-        this.direction = direction;
     }
 
     public AssetType getAsset() {
@@ -153,59 +101,11 @@ public class Ledger{
         this.status = status;
     }
 
-    public String getSourceAddress() {
-        return sourceAddress;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setSourceAddress(String sourceAddress) {
-        this.sourceAddress = sourceAddress;
-    }
-
-    public String getDestinationAddress() {
-        return destinationAddress;
-    }
-
-    public void setDestinationAddress(String destinationAddress) {
-        this.destinationAddress = destinationAddress;
-    }
-
-    public ProviderType getProvider() {
-        return provider;
-    }
-
-    public void setProvider(ProviderType provider) {
-        this.provider = provider;
-    }
-
-    public BigDecimal getBalanceBefore() {
-        return balanceBefore;
-    }
-
-    public void setBalanceBefore(BigDecimal balanceBefore) {
-        this.balanceBefore = balanceBefore;
-    }
-
-    public BigDecimal getBalanceAfter() {
-        return balanceAfter;
-    }
-
-    public void setBalanceAfter(BigDecimal balanceAfter) {
-        this.balanceAfter = balanceAfter;
-    }
-
-    public CurrencyType getSourceCurrency() {
-        return sourceCurrency;
-    }
-
-    public void setSourceCurrency(CurrencyType sourceCurrency) {
-        this.sourceCurrency = sourceCurrency;
-    }
-
-    public CurrencyType getDestinationCurrency() {
-        return destinationCurrency;
-    }
-
-    public void setDestinationCurrency(CurrencyType destinationCurrency) {
-        this.destinationCurrency = destinationCurrency;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

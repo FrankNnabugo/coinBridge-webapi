@@ -1,6 +1,6 @@
 package com.example.paymentApi.integration.busha;
 
-public class RateDto {
+public class Rate {
     private String product;
 
     private String rate;
@@ -9,6 +9,9 @@ public class RateDto {
 
     private String type;
 
+    private String sourceCurrency;
+
+    private String targetCurrency;
 
     public String getProduct() {
         return product;
@@ -42,4 +45,19 @@ public class RateDto {
         this.type = type;
     }
 
+    public String getSourceCurrency() {
+        return sourceCurrency;
+    }
+
+    public void setSourceCurrency(String sourceCurrency) {
+        this.sourceCurrency = sourceCurrency;
+    }
+
+    public String getTargetCurrency() {
+        return targetCurrency;
+    }
+
+    public void setTargetCurrency(String targetCurrency) {
+        this.targetCurrency = targetCurrency;
+    }
 }

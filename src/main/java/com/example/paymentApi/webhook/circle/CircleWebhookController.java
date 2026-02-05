@@ -1,6 +1,7 @@
 package com.example.paymentApi.webhook.circle;
 
-import com.example.paymentApi.settlement.SettlementService;
+import com.example.paymentApi.settlement.InboundTransactionSettlement;
+import com.example.paymentApi.settlement.OutboundTransactionSettlement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,7 +16,8 @@ import org.springframework.web.bind.annotation.*;
 public class CircleWebhookController {
 
     private final CircleWebhookService circleWebhookService;
-    private final SettlementService settlementService;
+    private final InboundTransactionSettlement inboundTransactionSettlement;
+    private final OutboundTransactionSettlement outboundTransactionSettlement;
 
 
     @PostMapping("/inbound/transaction")
@@ -28,7 +30,7 @@ public class CircleWebhookController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         log.info("Signature successfully verified for inbound transaction");
-            settlementService.settleInboundTransactions(payload);
+            inboundTransactionSettlement.settleInboundTransactions(payload);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -43,6 +45,7 @@ public class CircleWebhookController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         log.info("Signature successfully verified for outbound transaction");
+        outboundTransactionSettlement.settleOutboundTransactions(payload);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

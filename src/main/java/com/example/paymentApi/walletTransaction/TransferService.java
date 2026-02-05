@@ -113,7 +113,7 @@ public class TransferService {
                         log.info("payment successfully initiated with response {}, {}", initiationResponse.getId(),
                                 initiationResponse.getState());
 
-                        walletService.debitWallet(wallet.getId(), amounts);
+                        walletService.debitWallet(wallet.getCircleWalletId(), amounts);
 
                         transaction.setProviderTransactionId(initiationResponse.getId());
                         transactionRepository.save(transaction);

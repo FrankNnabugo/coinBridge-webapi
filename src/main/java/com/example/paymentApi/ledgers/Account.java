@@ -1,55 +1,71 @@
 package com.example.paymentApi.ledgers;
 
-import com.example.paymentApi.shared.enums.AssetType;
-import com.example.paymentApi.wallets.Wallet;
+import com.example.paymentApi.shared.enums.CurrencyType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ledger_account")
+@Table(name = "accounts")
 public class Account {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
-    @Id
     private String id;
 
-    @ManyToOne
-    @JoinColumn(name = "wallet_id", nullable = false)
-    private Wallet wallet;
-
-    @Column(precision = 38, scale = 8)
-    private BigDecimal ledgerBalance;
+    @Enumerated(EnumType.STRING)
+    private CurrencyType currency;
 
     @Enumerated(EnumType.STRING)
-    private AssetType asset;
-
-    @Column(precision = 38, scale = 8)
-    private BigDecimal openingBalance;
-
-    @Column(precision = 38, scale = 8)
-    private BigDecimal closingBalance;
-
-    @Column(precision = 38, scale = 8)
-    private BigDecimal totalDebits;
-
-    @Column(precision = 38, scale = 8)
-    private BigDecimal totalCredits;
-
-    private BigInteger ledgerEntryStartId; //ledger accounting startID covers from this no. of ledger to that no.
-
-    private BigInteger ledgerEntryEndId;
-
-    private LocalDateTime computedAt;
+    private AccountType accountType;
 
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public CurrencyType getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(CurrencyType currency) {
+        this.currency = currency;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public AccountType getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(AccountType accountType) {
+        this.accountType = accountType;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

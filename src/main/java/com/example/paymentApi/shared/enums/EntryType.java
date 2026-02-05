@@ -1,6 +1,8 @@
 package com.example.paymentApi.shared.enums;
 
-public enum LedgerDirection {
+public enum EntryType {
+    CREDIT,
     DEBIT,
-    CREDIT
+    REVERSAL,
+
 }

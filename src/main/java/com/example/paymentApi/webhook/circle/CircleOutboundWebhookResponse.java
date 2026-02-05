@@ -11,7 +11,7 @@ public class CircleOutboundWebhookResponse {
 
     private String notificationType; //transactions.outbound
 
-    private WebhookInboundNotification notification;
+    private WebhookOutboundNotification notification;
 
     public String getSubscriptionId() {
         return subscriptionId;
@@ -37,11 +37,11 @@ public class CircleOutboundWebhookResponse {
         this.notificationType = notificationType;
     }
 
-    public WebhookInboundNotification getNotification() {
+    public WebhookOutboundNotification getNotification() {
         return notification;
     }
 
-    public void setNotification(WebhookInboundNotification notification) {
+    public void setNotification(WebhookOutboundNotification notification) {
         this.notification = notification;
     }
 }
