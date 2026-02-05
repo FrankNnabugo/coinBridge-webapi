@@ -94,10 +94,8 @@ public class InboundTransactionSettlement {
                 boolean exist = transactionRepository.existsByReferenceId(referenceId);
                 if (exist) return;
 
-                BigDecimal balanceAfter = destinationWallet.getAvailableBalance().add(amounts);
-
                 walletService.creditWallet(destinationWallet.getCircleWalletId(), amounts);
-
+                BigDecimal balanceAfter = destinationWallet.getAvailableBalance().add(amounts);
                 settlement.settleExternalInbound(amounts,
                         destinationAddress,
                         transactionType,
@@ -155,14 +153,13 @@ public class InboundTransactionSettlement {
                 boolean exist = transactionRepository.existsByReferenceId(referenceId);
                 if (exist) return;
 
-                BigDecimal balanceAfter = wallet.getAvailableBalance().add(amounts);
-
                 walletService.creditWallet(wallet.getCircleWalletId(), amounts);
-
+                BigDecimal balanceAfter = wallet.getAvailableBalance().add(amounts);
                 settlement.settleInternalInboundFailure(providerTransactionId,
                         referenceId,
                         wallet,
                         amounts,
+                        sourceAddress,
                         destinationAddress,
                         balanceAfter);
 

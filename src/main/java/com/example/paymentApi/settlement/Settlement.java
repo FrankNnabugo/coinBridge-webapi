@@ -1,6 +1,5 @@
 package com.example.paymentApi.settlement;
 
-import com.example.paymentApi.ledgers.LedgerService;
 import com.example.paymentApi.reservations.Reservation;
 import com.example.paymentApi.reservations.ReservationRepository;
 import com.example.paymentApi.shared.enums.*;
@@ -9,8 +8,6 @@ import com.example.paymentApi.transaction.TransactionRequest;
 import com.example.paymentApi.transaction.TransactionService;
 import com.example.paymentApi.transaction.Transactions;
 import com.example.paymentApi.wallets.Wallet;
-import com.example.paymentApi.wallets.WalletRepository;
-import com.example.paymentApi.wallets.WalletService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +21,6 @@ public class Settlement {
    private final TransactionService transactionService;
    private final TransactionRepository transactionRepository;
    private final ReservationRepository reservationRepository;
-   private final LedgerService ledgerService;
 
 
    @Transactional
@@ -107,6 +103,7 @@ public class Settlement {
                                              String referenceId,
                                              Wallet wallet,
                                              BigDecimal amounts,
+                                             String sourceAddress,
                                              String destinationAddress,
                                              BigDecimal balanceAfter){
 
@@ -130,7 +127,7 @@ public class Settlement {
         transactionRequest.setProviderTransactionId(providerTransactionId);
         transactionRequest.setAmounts(amounts);
         transactionRequest.setReferenceId(referenceId);
-        transactionRequest.setSourceAddress("@Internal");
+        transactionRequest.setSourceAddress(sourceAddress);
         transactionRequest.setDestinationAddress(destinationAddress);
         transactionRequest.setDirection(TransactionDirection.CREDIT);
         transactionRequest.setSourceCurrency(CurrencyType.USDC);
@@ -162,6 +159,7 @@ public class Settlement {
                                                  String referenceId,
                                                  Wallet wallet,
                                                  BigDecimal amounts,
+                                                 String sourceAddress,
                                                  String destinationAddress,
                                                  BigDecimal initialBalanceAfter,
                                                  BigDecimal reversalBalanceAfter){
@@ -187,7 +185,7 @@ public class Settlement {
         transactionRequest.setProviderTransactionId(providerTransactionId);
         transactionRequest.setAmounts(amounts);
         transactionRequest.setReferenceId(referenceId);
-        transactionRequest.setSourceAddress("@Internal");
+        transactionRequest.setSourceAddress(sourceAddress);
         transactionRequest.setDestinationAddress(destinationAddress);
         transactionRequest.setDirection(TransactionDirection.CREDIT);
         transactionRequest.setSourceCurrency(CurrencyType.USDC);

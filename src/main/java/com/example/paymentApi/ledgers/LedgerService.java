@@ -2,10 +2,8 @@ package com.example.paymentApi.ledgers;
 
 import com.example.paymentApi.shared.enums.*;
 import com.example.paymentApi.transaction.TransactionRepository;
-import com.example.paymentApi.wallets.Wallet;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

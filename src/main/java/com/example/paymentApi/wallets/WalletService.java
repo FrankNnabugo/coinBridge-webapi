@@ -1,6 +1,7 @@
 package com.example.paymentApi.wallets;
 
 import com.example.paymentApi.integration.circle.CircleWalletResponse;
+import com.example.paymentApi.ledgers.AccountRepository;
 import com.example.paymentApi.shared.exception.InsufficientBalanceException;
 import com.example.paymentApi.shared.exception.ResourceNotFoundException;
 import com.example.paymentApi.shared.exception.ValidationException;
@@ -23,12 +24,14 @@ public class WalletService {
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final AccountRepository accountRepository;
 
 
     public void createWallet(CircleWalletResponse circleWalletResponse, String id) {
         Wallet wallet = new Wallet();
         wallet.setCircleWalletId(circleWalletResponse.getId());
         wallet.setUser(userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found")));
+        wallet.setAccount(accountRepository.findById(id).orElseThrow());
         wallet.setBlockchain(circleWalletResponse.getBlockchain());
         wallet.setState(circleWalletResponse.getState());
         wallet.setCustodyType(circleWalletResponse.getCustodyType());

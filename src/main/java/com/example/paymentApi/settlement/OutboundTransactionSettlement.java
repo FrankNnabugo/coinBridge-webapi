@@ -127,6 +127,7 @@ public class OutboundTransactionSettlement {
                         referenceId,
                         sourceWallet,
                         amounts,
+                        sourceAddress,
                         destinationAddress,
                         initialBalanceAfter,
                         reversalBalanceAfter);
