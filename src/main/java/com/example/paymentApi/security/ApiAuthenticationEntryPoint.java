@@ -28,7 +28,7 @@ public class ApiAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.getWriter().write("""
             {
               "error": "UNAUTHORIZED",
-              "message": "Authentication required to access this resource",
+              "message": "Authentication is required to access this resource",
               "path": "%s"
             }
         """.formatted(request.getRequestURI()));

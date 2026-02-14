@@ -1,6 +1,7 @@
 package com.example.paymentApi.transaction;
 
-import com.example.paymentApi.shared.enums.CurrencyType;
+
+import java.math.BigDecimal;
 
 public class TransactionResponse{
     private String id;
@@ -16,6 +17,8 @@ public class TransactionResponse{
     private String transactionType;
 
     private String referenceId;
+
+    private BigDecimal balanceAfter;
 
     public String getId() {
         return id;
@@ -72,5 +75,13 @@ public class TransactionResponse{
 
     public void setReferenceId(String referenceId) {
         this.referenceId = referenceId;
+    }
+
+    public BigDecimal getBalanceAfter() {
+        return balanceAfter;
+    }
+
+    public void setBalanceAfter(BigDecimal balanceAfter) {
+        this.balanceAfter = balanceAfter;
     }
 }

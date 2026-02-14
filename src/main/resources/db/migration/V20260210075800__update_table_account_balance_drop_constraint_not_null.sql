@@ -1,0 +1,5 @@
+BEGIN;
+ALTER TABLE account_balance
+ALTER COLUMN account_id DROP NOT NULL;
+
+COMMIT;

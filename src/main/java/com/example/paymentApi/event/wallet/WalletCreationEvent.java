@@ -4,21 +4,21 @@ import com.example.paymentApi.integration.circle.CircleWalletResponse;
 
 public class WalletCreationEvent {
 
-    private final String userId;
+    private final String id;
 
     private final CircleWalletResponse circleWalletResponse;
 
-    public WalletCreationEvent(CircleWalletResponse circleWalletResponse, String userId){
+    public WalletCreationEvent(CircleWalletResponse circleWalletResponse,
+                               String id){
         this.circleWalletResponse = circleWalletResponse;
-        this.userId = userId;
-    }
-
-
-    public String getUserId() {
-        return userId;
+        this.id = id;
     }
 
     public CircleWalletResponse getCircleWalletResponse() {
         return circleWalletResponse;
+    }
+
+    public String getId() {
+        return id;
     }
 }

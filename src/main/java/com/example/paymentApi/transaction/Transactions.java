@@ -57,9 +57,6 @@ public class Transactions {
     @Enumerated(EnumType.STRING)
     private CurrencyType destinationCurrency;
 
-    @Column(precision = 38, scale = 8)
-    private BigDecimal balanceAfter;
-
     private String sourceAddress;
 
     private String destinationAddress;
@@ -189,13 +186,5 @@ public class Transactions {
 
     public void setDestinationCurrency(CurrencyType destinationCurrency) {
         this.destinationCurrency = destinationCurrency;
-    }
-
-    public BigDecimal getBalanceAfter() {
-        return balanceAfter;
-    }
-
-    public void setBalanceAfter(BigDecimal balanceAfter) {
-        this.balanceAfter = balanceAfter;
     }
 }

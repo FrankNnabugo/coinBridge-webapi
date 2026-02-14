@@ -7,12 +7,18 @@ import com.example.paymentApi.shared.utility.RedisUtil;
 import com.example.paymentApi.shared.utility.PublicKeyFormatter;
 import com.example.paymentApi.webhook.circle.OutboundTransferInitiationResponse;
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import javax.net.ssl.SSLHandshakeException;
 import java.security.PublicKey;
 import java.util.Map;
 

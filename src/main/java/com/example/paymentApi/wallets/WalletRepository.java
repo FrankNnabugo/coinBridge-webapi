@@ -1,6 +1,5 @@
 package com.example.paymentApi.wallets;
 
-
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -19,6 +18,6 @@ public interface WalletRepository extends JpaRepository<Wallet, String> {
     @Query("SELECT w FROM Wallet w WHERE w.circleWalletId = :circleWalletId")
     Wallet findByCircleWalletIdForUpdate(@Param("circleWalletId") String circleWalletId);
 
-   Wallet findByAddress(String address);
+   Optional<Wallet> findByAddress(String address);
 
 }

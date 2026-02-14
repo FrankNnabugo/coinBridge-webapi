@@ -9,6 +9,8 @@ import com.example.paymentApi.shared.exception.ExternalServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
@@ -29,10 +31,13 @@ public class WalletRetryWorker {
     public void retryCircleWalletCreation(String userId) {
         List<WalletRetryRecord> records = walletRetryRepository.findByStatus(RetryStatus.PENDING);
         for (WalletRetryRecord record : records) {
+            if(record.getStatus() == RetryStatus.SUCCESS) return;
+            if(record.getRetryCount() >= MAX_RETRIES) return;
             try {
                 circleWalletService.createCircleWallet(record.getUserId())
                         .retryWhen(
-                                Retry.backoff(MAX_RETRIES, Duration.ofSeconds(3))
+                                Retry.backoff(MAX_RETRIES - record.getRetryCount(), Duration.ofSeconds(3))
+                                        .filter(this::isRetryable)
                                         .doBeforeRetry(retrySignal -> {
                                             long newCount = retrySignal.totalRetries() + 1;
                                             record.setRetryCount(newCount);
@@ -79,5 +84,20 @@ public class WalletRetryWorker {
 
 
         }
+    }
+
+    private boolean isRetryable(Throwable throwable) {
+
+        if (throwable instanceof WebClientResponseException ex) {
+            int status = ex.getStatusCode().value();
+
+            return status == 500
+                    || status == 502
+                    || status == 503
+                    || status == 504;
+        }
+
+        return throwable instanceof WebClientRequestException;
+
     }
 }

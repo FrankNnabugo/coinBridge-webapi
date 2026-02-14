@@ -1,15 +1,14 @@
 package com.example.paymentApi.settlement;
 
 
-import com.example.paymentApi.ledgers.AccountRepository;
-import com.example.paymentApi.ledgers.LedgerService;
-import com.example.paymentApi.reservations.ReservationRepository;
+import com.example.paymentApi.event.computeLedgerBalance.LedgerEntryEvent;
+import com.example.paymentApi.event.computeLedgerBalance.LedgerEntryPublisher;
+import com.example.paymentApi.ledgers.*;
 import com.example.paymentApi.shared.enums.*;
 import com.example.paymentApi.shared.exception.*;
 import com.example.paymentApi.shared.mapper.CircleWebhookMapper;
 import com.example.paymentApi.shared.utility.RedisUtil;
 import com.example.paymentApi.transaction.TransactionRepository;
-import com.example.paymentApi.transaction.TransactionService;
 import com.example.paymentApi.transaction.Transactions;
 import com.example.paymentApi.wallets.Wallet;
 import com.example.paymentApi.wallets.WalletRepository;
@@ -37,7 +36,9 @@ public class InboundTransactionSettlement {
     private final RedisUtil redisUtil;
     private final Settlement settlement;
     private final LedgerService ledgerService;
-    private final AccountRepository accountRepository;
+    private final LedgerEntryPublisher ledgerEntryPublisher;
+    private final LedgerRepository ledgerRepository;
+    private final AccountBalanceRepository accountBalanceRepository;
 
     private static final String COMPLETE_STATE = "COMPLETE";
     private static final String FAILURE_STATE = "FAILED";
@@ -76,16 +77,19 @@ public class InboundTransactionSettlement {
         String fee = notification.getNetworkFee();
 
         if (!NOTIFICATION_TYPE.equals(notificationType)) return;
+        if(!COMPLETE_STATE.equalsIgnoreCase(state) && !FAILURE_STATE.equalsIgnoreCase(state)) return;
 
         boolean lock = redisUtil.acquireLock(circleWalletId);
         if (!lock) {
             return;
         }
+        log.info("Fetching source wallet");
+        Wallet sourceWallet = walletRepository.findByAddress(sourceAddress).orElse(null);
+        log.info("Fetched source wallet");
 
-        Wallet wallet = walletRepository.findByCircleWalletId(circleWalletId).orElseThrow();
-
-        Wallet sourceWallet = walletRepository.findByAddress(sourceAddress);
-        Wallet destinationWallet = walletRepository.findByAddress(destinationAddress);
+        log.info("Fetching destination wallet");
+        Wallet destinationWallet = walletRepository.findByAddress(destinationAddress).orElse(null);
+        log.info("Fetched destination wallet");
 
         try {
 
@@ -95,20 +99,35 @@ public class InboundTransactionSettlement {
                 if (exist) return;
 
                 walletService.creditWallet(destinationWallet.getCircleWalletId(), amounts);
-                BigDecimal balanceAfter = destinationWallet.getAvailableBalance().add(amounts);
+
+                log.info("Settling transaction");
                 settlement.settleExternalInbound(amounts,
                         destinationAddress,
                         transactionType,
                         providerTransactionId,
                         referenceId,
                         sourceAddress,
-                        destinationWallet,
-                        balanceAfter);
+                        destinationWallet);
+                log.info("settled transaction");
 
+                log.info("creating ledger entry");
                 ledgerService.postExternalInbound(amounts,
                         providerTransactionId,
                         destinationWallet.getAccount());
+                log.info("created ledger entry");
 
+
+                log.info("Fetching transaction");
+                Transactions transaction = transactionRepository.findByProviderTransactionId(providerTransactionId);
+                log.info("Fetched transaction");
+
+                log.info("Fetching ledger by transactionId");
+                Ledger ledger = ledgerRepository.findByTransactionId(transaction.getId());
+                log.info("Fetched ledger by transactionId");
+
+                log.info("publishing event");
+                ledgerEntryPublisher.publishLedgerEntryCreatedEvent(new LedgerEntryEvent(ledger.getAccount()));
+                log.info("published event");
 
                 log.info("External inbound transaction successfully processed and settled");
 
@@ -122,9 +141,7 @@ public class InboundTransactionSettlement {
                 boolean exist = transactionRepository.existsByReferenceId(referenceId);
                 if (exist) return;
 
-                BigDecimal sourceBalanceAfter = sourceWallet.getAvailableBalance().subtract(amounts);
-                BigDecimal destinationBalanceAfter = destinationWallet.getAvailableBalance().add(amounts);
-
+                walletService.debitWallet(sourceWallet.getCircleWalletId(), amounts);
                 walletService.creditWallet(destinationWallet.getCircleWalletId(), amounts);
 
                 settlement.settleInternalInbound(amounts,
@@ -133,14 +150,16 @@ public class InboundTransactionSettlement {
                         destinationAddress,
                         providerTransactionId,
                         transactionType,
-                        destinationWallet,
-                        sourceBalanceAfter,
-                        destinationBalanceAfter);
+                        destinationWallet);
 
                 ledgerService.postInternalInbound(amounts,
                         providerTransactionId,
                         sourceWallet.getAccount(),
                         destinationWallet.getAccount());
+
+                Transactions transaction = transactionRepository.findByProviderTransactionId(providerTransactionId);
+                Ledger ledger = ledgerRepository.findByTransactionId(transaction.getId());
+                ledgerEntryPublisher.publishLedgerEntryCreatedEvent(new LedgerEntryEvent(ledger.getAccount()));
 
                 log.info("Internal Inbound Transaction successfully processed and settled");
 
@@ -153,21 +172,24 @@ public class InboundTransactionSettlement {
                 boolean exist = transactionRepository.existsByReferenceId(referenceId);
                 if (exist) return;
 
-                walletService.creditWallet(wallet.getCircleWalletId(), amounts);
-                BigDecimal balanceAfter = wallet.getAvailableBalance().add(amounts);
+                walletService.creditWallet(sourceWallet.getCircleWalletId(), amounts);
+
                 settlement.settleInternalInboundFailure(providerTransactionId,
                         referenceId,
-                        wallet,
+                        sourceWallet,
                         amounts,
                         sourceAddress,
-                        destinationAddress,
-                        balanceAfter);
+                        destinationAddress);
 
                 ledgerService.postInternalReversal(amounts,
                         sourceWallet.getAccount(),
                         providerTransactionId);
 
-                log.info("Internal Inbound transaction failed, reversal have been issued and records updated");
+                Transactions transaction = transactionRepository.findByProviderTransactionId(providerTransactionId);
+                Ledger ledger = ledgerRepository.findByTransactionId(transaction.getId());
+                ledgerEntryPublisher.publishLedgerEntryCreatedEvent(new LedgerEntryEvent(ledger.getAccount()));
+
+                log.info("Internal Inbound transaction failed, reversal issued and records updated");
 
             }
 

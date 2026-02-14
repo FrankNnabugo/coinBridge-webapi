@@ -20,9 +20,17 @@ public class WalletCreationEventListener {
     @EventListener
     public void handleWalletCreatedEvent(WalletCreationEvent event) {
 
-        accountService.createAccount();
-        walletService.createWallet(event.getCircleWalletResponse(), event.getUserId());
-        log.info("Wallet successfully created for user {}", event.getUserId());
+        walletService.createWallet(event.getCircleWalletResponse(), event.getId());
+        log.info("Wallet successfully created for user {}", event.getId());
+
+        /**
+         * This would create a default account balance record per account.
+         * used for computing ledger balance
+         * Each wallet in the system gets a corresponding reconciliation account
+         */
+        accountService.createAccountForWallet(event.getId());
+        log.info("Wallet_account and account_balance successfully created for wallet {}",
+                event.getCircleWalletResponse().getId());
 
 
     }

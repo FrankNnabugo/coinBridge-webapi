@@ -32,7 +32,6 @@ import java.math.BigDecimal;
 public class TransferInitiationFailedEventListener {
 
     private final TransferInitiationFailedPublisher transferInitiationFailedPublisher;
-    private final OutboundRetryService outboundRetryService;
     private final OutboundRetryWorker outboundRetryWorker;
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
@@ -42,8 +41,9 @@ public class TransferInitiationFailedEventListener {
     public void handleTransferInitiationFailedEvent(TransferInitiationFailedEvent event){
 
         try{
-            outboundRetryService.createPaymentRetryRecord(event.getUserId());
-            outboundRetryWorker.retryPaymentInitiation(event.getOutBoundRequest(), event.getUserId(), event.getReservationId(),
+            outboundRetryWorker.retryPaymentInitiation(event.getOutBoundRequest(),
+                    event.getUserId(),
+                    event.getReservationId(),
                     event.getTransactionId());
         }
         catch (Exception e) {

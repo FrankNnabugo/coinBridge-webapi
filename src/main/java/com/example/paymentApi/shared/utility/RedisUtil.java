@@ -42,9 +42,4 @@ public class RedisUtil {
         );
     }
 
-    public void releaseLock(String key ){
-
-        Boolean deleted = redisTemplate.delete(key);
-    }
-
 }

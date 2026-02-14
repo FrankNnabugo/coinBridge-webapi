@@ -8,6 +8,7 @@ import com.example.paymentApi.integration.circle.CircleWalletService;
 import com.example.paymentApi.shared.exception.ExternalServiceException;
 import com.example.paymentApi.shared.exception.InternalProcessingException;
 import com.example.paymentApi.wallets.WalletService;
+import com.example.paymentApi.worker.walletCreation.WalletRetryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -21,6 +22,7 @@ public class UserCreationEventListener {
 
     private final CircleWalletService circleWalletService;
     private final WalletEventPublisher walletEventPublisher;
+    private final WalletRetryService walletRetryService;
 
 
     @Async
@@ -31,13 +33,16 @@ public class UserCreationEventListener {
             circleWalletService.createCircleWallet(event.getUserId())
 
                     .doOnSuccess(CircleResponse -> {
-                        WalletCreationEvent walletEvent = new WalletCreationEvent(CircleResponse, event.getUserId());
+                        WalletCreationEvent walletEvent = new WalletCreationEvent(CircleResponse,
+                                event.getUserId());
                         walletEventPublisher.publishWalletCreatedEvent(walletEvent);
                     }
                     )
 
                     .doOnError(error -> {
                         WalletCreationFailedEvent failedEvent = new WalletCreationFailedEvent(event.getUserId());
+
+                        walletRetryService.createRetryRecord(event.getUserId());
                         walletEventPublisher.publishWalletCreationFailed(failedEvent);
                     })
                     .subscribe();

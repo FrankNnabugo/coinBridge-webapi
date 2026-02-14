@@ -30,7 +30,7 @@ public class WalletService {
     public void createWallet(CircleWalletResponse circleWalletResponse, String id) {
         Wallet wallet = new Wallet();
         wallet.setCircleWalletId(circleWalletResponse.getId());
-        wallet.setUser(userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User not found")));
+        wallet.setUser(userRepository.findById(id).orElseThrow());
         wallet.setAccount(accountRepository.findById(id).orElseThrow());
         wallet.setBlockchain(circleWalletResponse.getBlockchain());
         wallet.setState(circleWalletResponse.getState());

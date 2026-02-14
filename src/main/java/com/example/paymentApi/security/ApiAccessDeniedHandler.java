@@ -25,7 +25,7 @@ public class ApiAccessDeniedHandler implements AccessDeniedHandler {
         response.getWriter().write("""
             {
               "error": "FORBIDDEN",
-              "message": "You do not have permission to access this resource",
+              "message": "You do not have the permission to access this resource",
               "path": "%s"
             }
         """.formatted(request.getRequestURI()));

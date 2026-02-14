@@ -22,6 +22,10 @@ public class LedgerService {
                                     BigDecimal amounts,
                                     String transactionId,
                                     Account accountId) {
+        /**
+         *
+         * T1
+         */
 
         Ledger internal = new Ledger();
         internal.setAccount(accountId);
@@ -49,7 +53,10 @@ public class LedgerService {
                                     String transactionId,
                                     Account sourceAccount,
                                     Account destinationAccount) {
-
+        /**
+         *
+         * T1
+         */
         Ledger sourceDebit = new Ledger();
         sourceDebit.setAccount(sourceAccount);
         sourceDebit.setTransaction(transactionRepository.findByProviderTransactionId(transactionId));
@@ -78,7 +85,10 @@ public class LedgerService {
     public void postInternalReversal(BigDecimal amounts,
                                      Account accountId,
                                      String providerTransactionId) {
-
+        /**
+         *
+         * T1 AND T2
+         */
         Ledger sourceDebit = new Ledger();
         sourceDebit.setAccount(accountId);
         sourceDebit.setTransaction(transactionRepository.findByProviderTransactionId(providerTransactionId));
@@ -96,9 +106,9 @@ public class LedgerService {
         settlementCredit.setStatus(LedgerStatus.POSTED);
 
         Ledger sourceCredit = new Ledger();
-        sourceCredit.setAccount(accountRepository.findByAccountType(AccountType.SETTLEMENT));
+        sourceCredit.setAccount(accountId);
         sourceCredit.setTransaction(transactionRepository.findByProviderTransactionId(providerTransactionId));
-        sourceCredit.setEntryType(EntryType.REVERSAL);
+        sourceCredit.setEntryType(EntryType.CREDIT);
         sourceCredit.setAmount(amounts);
         sourceCredit.setAsset(AssetType.USDC);
         sourceCredit.setStatus(LedgerStatus.POSTED);
@@ -120,7 +130,10 @@ public class LedgerService {
     public void postInternalToExternal(BigDecimal amounts,
                                        Account accountId,
                                        String providerTransactionId){
-
+        /**
+         *
+         * T1
+         */
         Ledger sourceDebit = new Ledger();
         sourceDebit.setAccount(accountId);
         sourceDebit.setTransaction(transactionRepository.findByProviderTransactionId(providerTransactionId));
@@ -144,6 +157,10 @@ public class LedgerService {
     public void postInternalToExternalFailure(BigDecimal amounts,
                                               Account accountId,
                                               String providerTransactionId){
+        /**
+         *
+         * T1 AND T2
+         */
         Ledger sourceDebit = new Ledger();
         sourceDebit.setAccount(accountId);
         sourceDebit.setTransaction(transactionRepository.findByProviderTransactionId(providerTransactionId));
@@ -161,9 +178,9 @@ public class LedgerService {
         settlementCredit.setStatus(LedgerStatus.POSTED);
 
         Ledger sourceCredit = new Ledger();
-        sourceCredit.setAccount(accountRepository.findByAccountType(AccountType.SETTLEMENT));
+        sourceCredit.setAccount(accountId);
         sourceCredit.setTransaction(transactionRepository.findByProviderTransactionId(providerTransactionId));
-        sourceCredit.setEntryType(EntryType.REVERSAL);
+        sourceCredit.setEntryType(EntryType.CREDIT);
         sourceCredit.setAmount(amounts);
         sourceCredit.setAsset(AssetType.USDC);
         sourceCredit.setStatus(LedgerStatus.POSTED);

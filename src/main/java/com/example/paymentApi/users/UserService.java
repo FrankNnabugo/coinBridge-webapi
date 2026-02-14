@@ -69,13 +69,10 @@ public class UserService {
         user.setEmailAddress(userRequest.getEmailAddress());
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setAcceptedTerms(userRequest.getAcceptedTerms());
-
         user.setRole(Role.USER);
-
         User savedUser = userRepository.save(user);
 
         userCreatedEventPublisher.publishUserCreatedEvent(savedUser.getId());
-
         return modelMapper.map(savedUser, SignUpResponse.class);
 
     }

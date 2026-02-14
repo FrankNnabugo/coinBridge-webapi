@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
 @Table(name =  "ledger_entry")
 public class Ledger{
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
-    private String id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "account_id", nullable = false)
@@ -35,23 +35,15 @@ public class Ledger{
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AssetType asset;
+    private AssetType asset; //may or may not be needed in production
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private LedgerStatus status;
+    private LedgerStatus status; //not needed in production
 
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public Account getAccount() {
         return account;
@@ -107,5 +99,13 @@ public class Ledger{
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

@@ -2,7 +2,6 @@ package com.example.paymentApi.event.listeners;
 
 import com.example.paymentApi.event.wallet.WalletCreationFailedEvent;
 import com.example.paymentApi.shared.exception.InternalProcessingException;
-import com.example.paymentApi.worker.walletCreation.WalletRetryService;
 import com.example.paymentApi.worker.walletCreation.WalletRetryWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class WalletCreationFailedEventListener {
 
-    private final WalletRetryService walletRetryService;
     private final WalletRetryWorker walletRetryWorker;
 
 
@@ -22,7 +20,6 @@ public class WalletCreationFailedEventListener {
     public void handleWalletCreationFailedEvent(WalletCreationFailedEvent event){
 
         try {
-            walletRetryService.createRetryRecord(event.getUserId());
             walletRetryWorker.retryCircleWalletCreation(event.getUserId());
 
         }

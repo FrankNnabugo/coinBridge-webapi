@@ -21,6 +21,7 @@ import com.example.paymentApi.transaction.Transactions;
 import com.example.paymentApi.wallets.Wallet;
 import com.example.paymentApi.wallets.WalletRepository;
 import com.example.paymentApi.wallets.WalletService;
+import com.example.paymentApi.worker.paymentInitiation.OutboundRetryService;
 import io.netty.resolver.dns.DnsNameResolverTimeoutException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,7 @@ public class TransferService {
     private final ReservationRepository reservationRepository;
     private final TransferInitiationFailedPublisher transferInitiationFailedPublisher;
     private final RedisUtil redisUtil;
-    private final WalletService walletService;
+    private final OutboundRetryService outboundRetryService;
 
 
     @Transactional
@@ -99,7 +100,6 @@ public class TransferService {
         reservationRequest.setReason(ReservationReason.TRANSACTION_INITIATED);
         Reservation reservation = reservationService.createReservation(wallet, reservationRequest);
 
-
         wallet.setAvailableBalance(wallet.getAvailableBalance().subtract(amounts));
         wallet.setReservedBalance(wallet.getReservedBalance().add(amounts));
         walletRepository.save(wallet);
@@ -113,8 +113,6 @@ public class TransferService {
                         log.info("payment successfully initiated with response {}, {}", initiationResponse.getId(),
                                 initiationResponse.getState());
 
-                        walletService.debitWallet(wallet.getCircleWalletId(), amounts);
-
                         transaction.setProviderTransactionId(initiationResponse.getId());
                         transactionRepository.save(transaction);
                         reservation.setProviderTransactionId(initiationResponse.getId());
@@ -123,7 +121,10 @@ public class TransferService {
                     })
 
                     .onErrorResume(error -> {
-                        TransferInitiationFailedEvent event = new TransferInitiationFailedEvent(userId, request, reservation.getId(), wallet.getCircleWalletId(), transaction.getId());
+                        TransferInitiationFailedEvent event = new TransferInitiationFailedEvent(userId,
+                                request, reservation.getId(), wallet.getCircleWalletId(), transaction.getId());
+
+                        outboundRetryService.createPaymentRetryRecord(event.getUserId());
                         transferInitiationFailedPublisher.publishTransferInitiationFailedEvent(event);
                         return Mono.error(error);
                     }).subscribe();

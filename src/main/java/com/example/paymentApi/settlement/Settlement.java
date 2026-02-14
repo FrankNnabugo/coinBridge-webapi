@@ -30,8 +30,7 @@ public class Settlement {
                                       String providerTransactionId,
                                       String referenceId,
                                       String sourceAddress,
-                                      Wallet destinationWallet,
-                                      BigDecimal balanceAfter){
+                                      Wallet destinationWallet){
 
         TransactionRequest transactionRequest = new TransactionRequest();
         transactionRequest.setUser(destinationWallet.getUser());
@@ -46,7 +45,6 @@ public class Settlement {
         transactionRequest.setDirection(TransactionDirection.CREDIT);
         transactionRequest.setSourceCurrency(CurrencyType.USDC);
         transactionRequest.setDestinationCurrency(CurrencyType.USDC);
-        transactionRequest.setBalanceAfter(balanceAfter);
 
         transactionService.createTransactionRecord(transactionRequest);
 
@@ -60,18 +58,14 @@ public class Settlement {
                                       String destinationAddress,
                                       String providerTransactionId,
                                       TransactionType transactionType,
-                                      Wallet destinationWallet,
-                                      BigDecimal sourceBalanceAfter,
-                                      BigDecimal destinationBalanceAfter){
+                                      Wallet destinationWallet){
 
         Transactions transaction = transactionRepository.findByProviderTransactionId(providerTransactionId);
         Reservation reservation = reservationRepository.findByProviderTransactionId(providerTransactionId);
 
-
         //source side and outgoing
         transaction.setReferenceId(referenceId);
         transaction.setStatus(TransactionStatus.SUCCESS);
-        transaction.setBalanceAfter(sourceBalanceAfter);
         transactionRepository.save(transaction);
 
         reservation.setStatus(ReservationStatus.RELEASED);
@@ -92,7 +86,6 @@ public class Settlement {
         transactionRequest.setDirection(TransactionDirection.CREDIT);
         transactionRequest.setSourceCurrency(CurrencyType.USDC);
         transactionRequest.setDestinationCurrency(CurrencyType.USDC);
-        transactionRequest.setBalanceAfter(destinationBalanceAfter);
         transactionService.createTransactionRecord(transactionRequest);
 
 
@@ -101,11 +94,10 @@ public class Settlement {
 
     public void settleInternalInboundFailure(String providerTransactionId,
                                              String referenceId,
-                                             Wallet wallet,
+                                             Wallet sourceWallet,
                                              BigDecimal amounts,
                                              String sourceAddress,
-                                             String destinationAddress,
-                                             BigDecimal balanceAfter){
+                                             String destinationAddress){
 
         Reservation reservation = reservationRepository.findByProviderTransactionId(providerTransactionId);
         Transactions transaction = transactionRepository.findByProviderTransactionId(providerTransactionId);
@@ -116,12 +108,11 @@ public class Settlement {
 
         transaction.setStatus(TransactionStatus.FAILED);
         transaction.setReferenceId(referenceId);
-        transaction.setBalanceAfter(balanceAfter);
         transactionRepository.save(transaction);
 
         TransactionRequest transactionRequest = new TransactionRequest();
-        transactionRequest.setWallet(wallet);
-        transactionRequest.setUser(wallet.getUser());
+        transactionRequest.setWallet(sourceWallet);
+        transactionRequest.setUser(sourceWallet.getUser());
         transactionRequest.setType(TransactionType.REVERSAL);
         transactionRequest.setStatus(TransactionStatus.SUCCESS);
         transactionRequest.setProviderTransactionId(providerTransactionId);
@@ -138,15 +129,13 @@ public class Settlement {
     }
 
     public void settleOutboundTransaction(String providerTransactionId,
-                                          String referenceId,
-                                          BigDecimal balanceAfter){
+                                          String referenceId){
 
         Transactions transaction = transactionRepository.findByProviderTransactionId(providerTransactionId);
         Reservation reservation = reservationRepository.findByProviderTransactionId(providerTransactionId);
 
         transaction.setReferenceId(referenceId);
         transaction.setStatus(TransactionStatus.SUCCESS);
-        transaction.setBalanceAfter(balanceAfter);
         transactionRepository.save(transaction);
 
         reservation.setStatus(ReservationStatus.RELEASED);
@@ -160,9 +149,7 @@ public class Settlement {
                                                  Wallet wallet,
                                                  BigDecimal amounts,
                                                  String sourceAddress,
-                                                 String destinationAddress,
-                                                 BigDecimal initialBalanceAfter,
-                                                 BigDecimal reversalBalanceAfter){
+                                                 String destinationAddress){
 
         Reservation reservation = reservationRepository.findByProviderTransactionId(providerTransactionId);
         Transactions transaction = transactionRepository.findByProviderTransactionId(providerTransactionId);
@@ -173,7 +160,6 @@ public class Settlement {
 
         transaction.setStatus(TransactionStatus.FAILED);
         transaction.setReferenceId(referenceId);
-        transaction.setBalanceAfter(initialBalanceAfter);
         transactionRepository.save(transaction);
 
 
@@ -190,7 +176,6 @@ public class Settlement {
         transactionRequest.setDirection(TransactionDirection.CREDIT);
         transactionRequest.setSourceCurrency(CurrencyType.USDC);
         transactionRequest.setDestinationCurrency(CurrencyType.USDC);
-        transactionRequest.setBalanceAfter(reversalBalanceAfter);
         transactionService.createTransactionRecord(transactionRequest);
 
     }
